@@ -68,7 +68,7 @@ function New-Manifest {
 
     $manifest = @(
         [ordered]@{
-            id = "7f4c92b7-bec2-4a9f-95c6-ff3f17bcd58a"
+            id = "7bb5959b-5a11-45da-b9db-52eed4456090"
             name = "SleepGuard"
             description = "Pauses or stops Jellyfin playback after configurable sleep-friendly thresholds."
             overview = "Sleep-friendly playback limits for Jellyfin."

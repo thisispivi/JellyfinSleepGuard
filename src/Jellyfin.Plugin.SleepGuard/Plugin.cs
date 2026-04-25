@@ -11,7 +11,7 @@ namespace Jellyfin.Plugin.SleepGuard;
 /// </summary>
 public sealed class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
 {
-    public static readonly Guid PluginId = Guid.Parse("7f4c92b7-bec2-4a9f-95c6-ff3f17bcd58a");
+    public static readonly Guid PluginId = Guid.Parse("7bb5959b-5a11-45da-b9db-52eed4456090");
 
     public Plugin(IApplicationPaths applicationPaths, IXmlSerializer xmlSerializer)
         : base(applicationPaths, xmlSerializer)
