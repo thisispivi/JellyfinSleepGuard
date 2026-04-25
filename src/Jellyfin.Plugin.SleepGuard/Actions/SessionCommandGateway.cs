@@ -13,11 +13,11 @@ public sealed class SessionCommandGateway : ISessionCommandGateway
         _sessionManager = sessionManager;
     }
 
-    public Task SendPromptAsync(string sessionId, string message, TimeSpan timeout, CancellationToken cancellationToken)
+    public Task SendPromptAsync(string sessionId, string header, string message, TimeSpan timeout, CancellationToken cancellationToken)
     {
         var command = new MessageCommand
         {
-            Header = "SleepGuard",
+            Header = header,
             Text = message,
             TimeoutMs = (long)timeout.TotalMilliseconds
         };

@@ -21,6 +21,19 @@ public sealed class RulesTests
     }
 
     [Fact]
+    public void ContinuousTimeRuleUsesSecondsOverrideForTesting()
+    {
+        var now = DateTimeOffset.UtcNow;
+        var tracker = Tracker(BaseItemKind.Episode, now);
+        tracker.ApplyProgress(Event(BaseItemKind.Episode, positionTicks: TimeSpan.FromSeconds(15).Ticks), PlaybackTransition.Tick, now.AddSeconds(15));
+        var rule = new ContinuousTimeRule();
+
+        var result = rule.Evaluate(tracker, new PluginConfiguration { MaxContinuousMinutes = 120, MaxContinuousSeconds = 10 }, now.AddSeconds(15));
+
+        Assert.Equal(SleepRuleOutcome.Fired, result.Outcome);
+    }
+
+    [Fact]
     public void ContinuousTimeRuleHonorsMovieOptOut()
     {
         var now = DateTimeOffset.UtcNow;

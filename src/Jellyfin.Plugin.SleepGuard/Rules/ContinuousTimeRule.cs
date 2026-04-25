@@ -10,14 +10,27 @@ public sealed class ContinuousTimeRule : ISleepRule
 
     public SleepRuleResult Evaluate(PlaybackTracker tracker, PluginConfiguration configuration, DateTimeOffset nowUtc)
     {
-        if (configuration.MaxContinuousMinutes <= 0 || !IsIncluded(tracker.ItemKind, configuration))
+        var threshold = GetThreshold(configuration);
+        if (threshold <= TimeSpan.Zero || !IsIncluded(tracker.ItemKind, configuration))
         {
             return SleepRuleResult.None(Name);
         }
 
-        return tracker.ContinuousElapsed >= TimeSpan.FromMinutes(configuration.MaxContinuousMinutes)
+        return tracker.ContinuousElapsed >= threshold
             ? SleepRuleResult.Fired(Name)
             : SleepRuleResult.None(Name);
+    }
+
+    private static TimeSpan GetThreshold(PluginConfiguration configuration)
+    {
+        if (configuration.MaxContinuousSeconds > 0)
+        {
+            return TimeSpan.FromSeconds(configuration.MaxContinuousSeconds);
+        }
+
+        return configuration.MaxContinuousMinutes > 0
+            ? TimeSpan.FromMinutes(configuration.MaxContinuousMinutes)
+            : TimeSpan.Zero;
     }
 
     private static bool IsIncluded(BaseItemKind kind, PluginConfiguration configuration)

@@ -16,8 +16,9 @@ public sealed class PromptAction : ISleepAction
     {
         return _gateway.SendPromptAsync(
             tracker.SessionId,
+            string.IsNullOrWhiteSpace(configuration.PromptHeader) ? "SleepGuard" : configuration.PromptHeader,
             string.IsNullOrWhiteSpace(configuration.PromptMessage) ? "Are you still watching?" : configuration.PromptMessage,
-            TimeSpan.FromSeconds(Math.Max(1, configuration.PromptGraceSeconds)),
+            TimeSpan.FromSeconds(Math.Max(1, configuration.PromptTimeoutSeconds)),
             cancellationToken);
     }
 }

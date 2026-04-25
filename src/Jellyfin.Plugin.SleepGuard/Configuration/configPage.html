@@ -32,6 +32,12 @@
           </div>
 
           <div class="inputContainer">
+            <label class="inputLabel inputLabelUnfocused" for="MaxContinuousSeconds">Max continuous seconds</label>
+            <input is="emby-input" type="number" min="0" id="MaxContinuousSeconds">
+            <div class="fieldDescription">Testing override. Set to 0 to use minutes.</div>
+          </div>
+
+          <div class="inputContainer">
             <label class="inputLabel inputLabelUnfocused" for="MaxAutoplayEpisodes">Max autoplay episodes</label>
             <input is="emby-input" type="number" min="0" id="MaxAutoplayEpisodes">
             <div class="fieldDescription">Set to 0 to disable the autoplay episode rule.</div>
@@ -88,14 +94,52 @@
           </label>
 
           <div class="inputContainer">
+            <label class="inputLabel inputLabelUnfocused" for="PromptHeader">Prompt header</label>
+            <input is="emby-input" type="text" id="PromptHeader">
+          </div>
+
+          <div class="inputContainer">
             <label class="inputLabel inputLabelUnfocused" for="PromptMessage">Prompt message</label>
             <input is="emby-input" type="text" id="PromptMessage">
           </div>
 
           <div class="inputContainer">
+            <label class="inputLabel inputLabelUnfocused" for="PromptTimeoutSeconds">Prompt timeout seconds</label>
+            <input is="emby-input" type="number" min="1" id="PromptTimeoutSeconds">
+            <div class="fieldDescription">How long clients should keep the toast visible.</div>
+          </div>
+
+          <div class="inputContainer">
             <label class="inputLabel inputLabelUnfocused" for="PromptGraceSeconds">Prompt grace seconds</label>
             <input is="emby-input" type="number" min="0" id="PromptGraceSeconds">
+            <div class="fieldDescription">How long to wait after the prompt before sending pause or stop.</div>
           </div>
+
+          <label class="checkboxContainer">
+            <input is="emby-checkbox" type="checkbox" id="DryRun">
+            <span>Dry run</span>
+          </label>
+
+          <div class="inputContainer">
+            <label class="inputLabel inputLabelUnfocused" for="ActionRepeatCount">Action repeat count</label>
+            <input is="emby-input" type="number" min="1" max="5" id="ActionRepeatCount">
+            <div class="fieldDescription">Send pause or stop multiple times for clients that miss the first command.</div>
+          </div>
+
+          <div class="inputContainer">
+            <label class="inputLabel inputLabelUnfocused" for="ActionRepeatIntervalSeconds">Action repeat interval seconds</label>
+            <input is="emby-input" type="number" min="0" max="30" id="ActionRepeatIntervalSeconds">
+          </div>
+
+          <label class="checkboxContainer">
+            <input is="emby-checkbox" type="checkbox" id="LogProgressEvents">
+            <span>Log playback progress</span>
+          </label>
+
+          <label class="checkboxContainer">
+            <input is="emby-checkbox" type="checkbox" id="LogRuleChecks">
+            <span>Log rule checks</span>
+          </label>
 
           <button is="emby-button" type="submit" class="raised button-submit block">
             <span>Save</span>
@@ -153,6 +197,7 @@
           page.querySelector("#SleepGuardEnabled").checked = config.Enabled;
           page.querySelector("#SleepGuardAction").value = config.Action || "Pause";
           page.querySelector("#MaxContinuousMinutes").value = config.MaxContinuousMinutes || 0;
+          page.querySelector("#MaxContinuousSeconds").value = config.MaxContinuousSeconds || 0;
           page.querySelector("#MaxAutoplayEpisodes").value = config.MaxAutoplayEpisodes || 0;
           page.querySelector("#OnlyWithinTimeWindow").checked = config.OnlyWithinTimeWindow;
           page.querySelector("#TimeWindowStart").value = toTimeInput(config.TimeWindowStart);
@@ -163,8 +208,15 @@
           page.querySelector("#UserMode").value = config.UserMode || "AllUsers";
           page.querySelector("#UserIds").value = (config.UserIds || []).join(", ");
           page.querySelector("#SendPrompt").checked = config.SendPrompt;
+          page.querySelector("#PromptHeader").value = config.PromptHeader || "SleepGuard";
           page.querySelector("#PromptMessage").value = config.PromptMessage || "Are you still watching?";
+          page.querySelector("#PromptTimeoutSeconds").value = config.PromptTimeoutSeconds || 8;
           page.querySelector("#PromptGraceSeconds").value = config.PromptGraceSeconds || 0;
+          page.querySelector("#DryRun").checked = config.DryRun;
+          page.querySelector("#ActionRepeatCount").value = config.ActionRepeatCount || 1;
+          page.querySelector("#ActionRepeatIntervalSeconds").value = config.ActionRepeatIntervalSeconds || 2;
+          page.querySelector("#LogProgressEvents").checked = config.LogProgressEvents;
+          page.querySelector("#LogRuleChecks").checked = config.LogRuleChecks;
         };
 
         page.addEventListener("pageshow", () => {
@@ -186,6 +238,7 @@
             config.Enabled = page.querySelector("#SleepGuardEnabled").checked;
             config.Action = page.querySelector("#SleepGuardAction").value;
             config.MaxContinuousMinutes = Number(page.querySelector("#MaxContinuousMinutes").value);
+            config.MaxContinuousSeconds = Number(page.querySelector("#MaxContinuousSeconds").value);
             config.MaxAutoplayEpisodes = Number(page.querySelector("#MaxAutoplayEpisodes").value);
             config.OnlyWithinTimeWindow = page.querySelector("#OnlyWithinTimeWindow").checked;
             config.TimeWindowStart = toTimeSpan(page.querySelector("#TimeWindowStart").value);
@@ -196,8 +249,15 @@
             config.UserMode = page.querySelector("#UserMode").value;
             config.UserIds = page.querySelector("#UserIds").value.split(",").map(x => x.trim()).filter(Boolean);
             config.SendPrompt = page.querySelector("#SendPrompt").checked;
+            config.PromptHeader = page.querySelector("#PromptHeader").value;
             config.PromptMessage = page.querySelector("#PromptMessage").value;
+            config.PromptTimeoutSeconds = Number(page.querySelector("#PromptTimeoutSeconds").value);
             config.PromptGraceSeconds = Number(page.querySelector("#PromptGraceSeconds").value);
+            config.DryRun = page.querySelector("#DryRun").checked;
+            config.ActionRepeatCount = Number(page.querySelector("#ActionRepeatCount").value);
+            config.ActionRepeatIntervalSeconds = Number(page.querySelector("#ActionRepeatIntervalSeconds").value);
+            config.LogProgressEvents = page.querySelector("#LogProgressEvents").checked;
+            config.LogRuleChecks = page.querySelector("#LogRuleChecks").checked;
             ApiClient.updatePluginConfiguration(activePluginId, config).then(() => {
               Dashboard.processPluginConfigurationUpdateResult();
             });
