@@ -109,16 +109,32 @@
         const page = document.querySelector("#SleepGuardConfigPage");
         const form = page.querySelector("#SleepGuardConfigForm");
 
-        const toTimeInput = value => {
+        const toTimeParts = value => {
           if (!value) {
-            return "00:00";
+            return ["00", "00", "00"];
           }
 
-          const parts = value.split(":");
-          return `${parts[0].padStart(2, "0")}:${parts[1].padStart(2, "0")}`;
+          const match = String(value).match(/^(?:(\d+)\.)?(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
+          if (!match) {
+            return ["00", "00", "00"];
+          }
+
+          return [
+            match[2].padStart(2, "0"),
+            match[3].padStart(2, "0"),
+            (match[4] || "00").padStart(2, "0")
+          ];
         };
 
-        const toTimeSpan = value => `${value}:00`;
+        const toTimeInput = value => {
+          const parts = toTimeParts(value);
+          return `${parts[0]}:${parts[1]}`;
+        };
+
+        const toTimeSpan = value => {
+          const parts = toTimeParts(value);
+          return `${parts[0]}:${parts[1]}:${parts[2]}`;
+        };
 
         page.addEventListener("pageshow", () => {
           Dashboard.showLoadingMsg();
