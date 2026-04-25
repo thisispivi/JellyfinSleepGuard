@@ -3,13 +3,13 @@ param(
     [string]$Version = "0.1.0.0",
 
     [Parameter(Mandatory = $false)]
-    [string]$TargetAbi = "10.10.0.0",
+    [string]$TargetAbi = "10.11.0.0",
 
     [Parameter(Mandatory = $false)]
     [string]$Configuration = "Release",
 
     [Parameter(Mandatory = $false)]
-    [string]$TestArch = "x86",
+    [string]$TestArch = "x64",
 
     [Parameter(Mandatory = $false)]
     [switch]$SkipTests,
@@ -53,6 +53,13 @@ function Set-BuildYamlVersion {
     Set-Content $Path $content -Encoding utf8
 }
 
+function Invoke-DotNet {
+    & dotnet @args
+    if ($LASTEXITCODE -ne 0) {
+        throw "Command failed with exit code $LASTEXITCODE`: dotnet $($args -join ' ')"
+    }
+}
+
 function New-Manifest {
     param(
         [string]$Path,
@@ -68,7 +75,7 @@ function New-Manifest {
 
     $manifest = @(
         [ordered]@{
-            id = "7bb5959b-5a11-45da-b9db-52eed4456090"
+            guid = "7bb5959b-5a11-45da-b9db-52eed4456090"
             name = "SleepGuard"
             description = "Pauses or stops Jellyfin playback after configurable sleep-friendly thresholds."
             overview = "Sleep-friendly playback limits for Jellyfin."
@@ -161,11 +168,11 @@ Push-Location $repoRoot
 try {
     Set-BuildYamlVersion -Path $buildYamlPath -VersionValue $Version
 
-    dotnet restore $solutionPath
-    dotnet build $solutionPath -c $Configuration --no-restore
+    Invoke-DotNet restore $solutionPath
+    Invoke-DotNet build $solutionPath -c $Configuration --no-restore /p:Version=$Version /p:AssemblyVersion=$Version /p:FileVersion=$Version
 
     if (-not $SkipTests) {
-        dotnet test $solutionPath -c $Configuration --arch $TestArch
+        Invoke-DotNet test $solutionPath -c $Configuration --arch $TestArch /p:Version=$Version /p:AssemblyVersion=$Version /p:FileVersion=$Version
     }
 
     if (Test-Path $publishDir) {
@@ -179,7 +186,7 @@ try {
     New-Item -ItemType Directory -Force $publishDir | Out-Null
     New-Item -ItemType Directory -Force $releaseDir | Out-Null
 
-    dotnet publish $projectPath -c $Configuration -o $publishDir
+    Invoke-DotNet publish $projectPath -c $Configuration -o $publishDir /p:Version=$Version /p:AssemblyVersion=$Version /p:FileVersion=$Version
 
     $zipItems = @(
         Join-Path $publishDir "Jellyfin.Plugin.SleepGuard.dll"

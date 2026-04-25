@@ -1,14 +1,20 @@
-﻿name: SleepGuard
+name: SleepGuard
 guid: 7bb5959b-5a11-45da-b9db-52eed4456090
-version: 0.1.0.4
-targetAbi: 10.10.0.0
-framework: net8.0
+version: 0.1.0.5
+targetAbi: 10.11.0.0
+framework: net9.0
 overview: Pauses or stops Jellyfin playback after sleep-friendly thresholds.
 description: Server-side Jellyfin plugin for continuous playback limits, autoplay episode limits, and time-window based sleep protection.
 category: General
 owner: thisispivi
 artifacts:
   - Jellyfin.Plugin.SleepGuard.dll
+
+
+
+
+
+
 
 
 
