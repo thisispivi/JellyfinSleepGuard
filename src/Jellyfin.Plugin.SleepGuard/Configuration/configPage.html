@@ -2,15 +2,36 @@
 <html>
 <head>
   <title>SleepGuard</title>
+  <style>
+    .sleepGuardHeader {
+      align-items: center;
+      gap: 1em;
+      margin-bottom: 1.5em;
+    }
+
+    .sleepGuardLogo {
+      width: 6.5em;
+      max-width: 28vw;
+      height: auto;
+      flex: 0 0 auto;
+    }
+
+    .sleepGuardTitle {
+      margin: 0;
+    }
+  </style>
 </head>
 <body>
   <div id="SleepGuardConfigPage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-input,emby-button,emby-checkbox,emby-select">
     <div data-role="content">
       <div class="content-primary">
         <form id="SleepGuardConfigForm">
-          <div class="sectionTitleContainer flex align-items-center">
-            <h2 class="sectionTitle">SleepGuard</h2>
+          <div class="sectionTitleContainer flex sleepGuardHeader">
+            <img class="sleepGuardLogo" src="configurationpage?name=sleepguardlogo.png" alt="SleepGuard logo">
+            <h2 class="sectionTitle sleepGuardTitle">SleepGuard</h2>
           </div>
+
+          <h3 class="checkboxListLabel">Playback protection</h3>
 
           <label class="checkboxContainer">
             <input is="emby-checkbox" type="checkbox" id="SleepGuardEnabled">
@@ -32,16 +53,12 @@
           </div>
 
           <div class="inputContainer">
-            <label class="inputLabel inputLabelUnfocused" for="MaxContinuousSeconds">Max continuous seconds</label>
-            <input is="emby-input" type="number" min="0" id="MaxContinuousSeconds">
-            <div class="fieldDescription">Testing override. Set to 0 to use minutes.</div>
-          </div>
-
-          <div class="inputContainer">
             <label class="inputLabel inputLabelUnfocused" for="MaxAutoplayEpisodes">Max autoplay episodes</label>
             <input is="emby-input" type="number" min="0" id="MaxAutoplayEpisodes">
             <div class="fieldDescription">Set to 0 to disable the autoplay episode rule.</div>
           </div>
+
+          <h3 class="checkboxListLabel">Active window</h3>
 
           <label class="checkboxContainer">
             <input is="emby-checkbox" type="checkbox" id="OnlyWithinTimeWindow">
@@ -58,6 +75,8 @@
             <input is="emby-input" type="time" id="TimeWindowEnd">
           </div>
 
+          <h3 class="checkboxListLabel">Media types</h3>
+
           <label class="checkboxContainer">
             <input is="emby-checkbox" type="checkbox" id="IncludeMovies">
             <span>Include movies</span>
@@ -73,6 +92,8 @@
             <span>Include Live TV</span>
           </label>
 
+          <h3 class="checkboxListLabel">Users</h3>
+
           <div class="selectContainer">
             <label class="selectLabel" for="UserMode">User scope</label>
             <select is="emby-select" id="UserMode" class="emby-select-withcolor">
@@ -87,6 +108,8 @@
             <input is="emby-input" type="text" id="UserIds">
             <div class="fieldDescription">Comma-separated Jellyfin user IDs for whitelist or blacklist mode.</div>
           </div>
+
+          <h3 class="checkboxListLabel">Prompt and action</h3>
 
           <label class="checkboxContainer">
             <input is="emby-checkbox" type="checkbox" id="SendPrompt">
@@ -113,6 +136,14 @@
             <label class="inputLabel inputLabelUnfocused" for="PromptGraceSeconds">Prompt grace seconds</label>
             <input is="emby-input" type="number" min="0" id="PromptGraceSeconds">
             <div class="fieldDescription">How long to wait after the prompt before sending pause or stop.</div>
+          </div>
+
+          <h3 class="checkboxListLabel">Testing and diagnostics</h3>
+
+          <div class="inputContainer">
+            <label class="inputLabel inputLabelUnfocused" for="MaxContinuousSeconds">Max continuous seconds</label>
+            <input is="emby-input" type="number" min="0" id="MaxContinuousSeconds">
+            <div class="fieldDescription">Testing override. Set to 0 to use minutes.</div>
           </div>
 
           <label class="checkboxContainer">

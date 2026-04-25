@@ -1,54 +1,63 @@
 (() => {
-  const settings = {
-    promptText: "Are you still watching?",
-    headerText: "SleepGuard",
-    pauseWhenShown: true,
-    continueButtonText: "Continue watching",
-    dismissButtonText: "Stay paused"
-  };
+    const settings = {
+        promptText: "Are you still watching?",
+        headerText: "SleepGuard",
+        pauseWhenShown: true,
+        continueButtonText: "Continue watching",
+        dismissButtonText: "Stay paused",
+    };
 
-  const overlayId = "sleepguard-fullscreen-overlay";
+    const overlayId = "sleepguard-fullscreen-overlay";
 
-  const findVideo = () => document.querySelector("video");
+    const findVideo = () => document.querySelector("video");
 
-  const pausePlayback = () => {
-    const video = findVideo();
-    if (video && !video.paused) {
-      video.pause();
-    }
-  };
+    const isPlaybackPage = () => {
+        const video = findVideo();
+        return Boolean(video && video.readyState > 0 && !video.ended);
+    };
 
-  const resumePlayback = () => {
-    const video = findVideo();
-    if (video) {
-      video.play().catch(() => {});
-      return;
-    }
+    const pausePlayback = () => {
+        const video = findVideo();
+        if (video && !video.paused) {
+            video.pause();
+        }
+    };
 
-    const playButton = document.querySelector(
-      "button[title='Play'],button[aria-label='Play'],button[is='paper-icon-button-light'][title='Play']"
-    );
-    if (playButton) {
-      playButton.click();
-    }
-  };
+    const resumePlayback = () => {
+        const video = findVideo();
+        if (video) {
+            video.play().catch(() => {});
+            return;
+        }
 
-  const removeOverlay = () => {
-    document.getElementById(overlayId)?.remove();
-  };
+        const playButton = document.querySelector(
+            "button[title='Play'],button[aria-label='Play'],button[is='paper-icon-button-light'][title='Play']",
+        );
+        if (playButton) {
+            playButton.click();
+        }
+    };
 
-  const showOverlay = () => {
-    if (document.getElementById(overlayId)) {
-      return;
-    }
+    const removeOverlay = () => {
+        document.getElementById(overlayId)?.remove();
+    };
 
-    if (settings.pauseWhenShown) {
-      pausePlayback();
-    }
+    const showOverlay = () => {
+        if (document.getElementById(overlayId)) {
+            return;
+        }
 
-    const overlay = document.createElement("div");
-    overlay.id = overlayId;
-    overlay.innerHTML = `
+        if (!isPlaybackPage()) {
+            return;
+        }
+
+        if (settings.pauseWhenShown) {
+            pausePlayback();
+        }
+
+        const overlay = document.createElement("div");
+        overlay.id = overlayId;
+        overlay.innerHTML = `
       <div class="sleepguard-panel">
         <div class="sleepguard-title">${settings.headerText}</div>
         <div class="sleepguard-message">${settings.promptText}</div>
@@ -59,8 +68,8 @@
       </div>
     `;
 
-    const style = document.createElement("style");
-    style.textContent = `
+        const style = document.createElement("style");
+        style.textContent = `
       #${overlayId} {
         position: fixed;
         inset: 0;
@@ -118,39 +127,47 @@
       }
     `;
 
-    overlay.appendChild(style);
-    overlay.querySelector(".sleepguard-continue").addEventListener("click", () => {
-      removeOverlay();
-      resumePlayback();
-    });
-    overlay.querySelector(".sleepguard-dismiss").addEventListener("click", removeOverlay);
-    document.body.appendChild(overlay);
-  };
+        overlay.appendChild(style);
+        overlay
+            .querySelector(".sleepguard-continue")
+            .addEventListener("click", () => {
+                removeOverlay();
+                resumePlayback();
+            });
+        overlay
+            .querySelector(".sleepguard-dismiss")
+            .addEventListener("click", removeOverlay);
+        document.body.appendChild(overlay);
+    };
 
-  const containsPrompt = node => {
-    const text = node?.textContent || "";
-    return text.includes(settings.promptText) || text.includes(settings.headerText);
-  };
+    const containsPrompt = (node) => {
+        const text = node?.textContent || "";
+        return (
+            text.includes(settings.promptText) ||
+            text.includes(settings.headerText)
+        );
+    };
 
-  const observer = new MutationObserver(mutations => {
-    for (const mutation of mutations) {
-      for (const node of mutation.addedNodes) {
-        if (containsPrompt(node)) {
-          showOverlay();
-          return;
+    const observer = new MutationObserver((mutations) => {
+        for (const mutation of mutations) {
+            for (const node of mutation.addedNodes) {
+                if (containsPrompt(node) && isPlaybackPage()) {
+                    showOverlay();
+                    return;
+                }
+            }
         }
-      }
-    }
-  });
+    });
 
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true
-  });
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+    });
 
-  window.SleepGuardOverlay = {
-    show: showOverlay,
-    hide: removeOverlay,
-    settings
-  };
+    window.SleepGuardOverlay = {
+        show: showOverlay,
+        hide: removeOverlay,
+        settings,
+    };
 })();
+

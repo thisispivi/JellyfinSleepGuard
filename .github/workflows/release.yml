@@ -26,6 +26,7 @@ jobs:
             "guid": "7f4c92b7-bec2-4a9f-95c6-ff3f17bcd58a",
             "name": "SleepGuard",
             "overview": "Pauses or stops Jellyfin playback after sleep-friendly thresholds.",
+            "imageUrl": "https://raw.githubusercontent.com/thisispivi/JellyfinSleepGuard/main/images/logo.png",
             "versions": []
           }
           JSON

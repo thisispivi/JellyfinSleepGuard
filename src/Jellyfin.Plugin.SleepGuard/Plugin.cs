@@ -38,5 +38,12 @@ public sealed class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
             MenuSection = "server",
             MenuIcon = "timer"
         };
+
+        yield return new PluginPageInfo
+        {
+            Name = "sleepguardlogo.png",
+            EmbeddedResourcePath = GetType().Namespace + ".Configuration.logo.png",
+            EnableInMainMenu = false
+        };
     }
 }

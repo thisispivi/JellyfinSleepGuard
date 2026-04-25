@@ -15,6 +15,9 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Configuration\configPage.html" />
+    <EmbeddedResource Include="..\..\images\logo.png">
+      <LogicalName>Jellyfin.Plugin.SleepGuard.Configuration.logo.png</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>

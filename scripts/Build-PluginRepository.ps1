@@ -71,6 +71,7 @@ function New-Manifest {
     )
 
     $sourceUrl = "https://github.com/$Owner/$Repo/releases/download/v$VersionValue/Jellyfin.Plugin.SleepGuard_$VersionValue.zip"
+    $imageUrl = "https://raw.githubusercontent.com/$Owner/$Repo/main/images/logo.png"
     $timestamp = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
 
     $manifest = @(
@@ -79,6 +80,7 @@ function New-Manifest {
             name = "SleepGuard"
             description = "Pauses or stops Jellyfin playback after configurable sleep-friendly thresholds."
             overview = "Sleep-friendly playback limits for Jellyfin."
+            imageUrl = $imageUrl
             owner = $Owner
             category = "General"
             versions = @(
