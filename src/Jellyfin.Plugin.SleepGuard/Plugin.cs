@@ -31,7 +31,7 @@ public sealed class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
     {
         yield return new PluginPageInfo
         {
-            Name = "sleepguard",
+            Name = "sleepguardconfiguration",
             DisplayName = "SleepGuard",
             EmbeddedResourcePath = GetType().Namespace + ".Configuration.configPage.html",
             EnableInMainMenu = false,
