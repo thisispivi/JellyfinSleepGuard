@@ -68,7 +68,7 @@ function New-Manifest {
 
     $manifest = @(
         [ordered]@{
-            guid = "7f4c92b7-bec2-4a9f-95c6-ff3f17bcd58a"
+            id = "7f4c92b7-bec2-4a9f-95c6-ff3f17bcd58a"
             name = "SleepGuard"
             description = "Pauses or stops Jellyfin playback after configurable sleep-friendly thresholds."
             overview = "Sleep-friendly playback limits for Jellyfin."
@@ -87,7 +87,7 @@ function New-Manifest {
         }
     )
 
-    $manifest | ConvertTo-Json -Depth 8 | Set-Content $Path -Encoding utf8
+    ConvertTo-Json -InputObject $manifest -Depth 8 | Set-Content $Path -Encoding utf8
 }
 
 function Invoke-GitCommitAndPush {
