@@ -1,4 +1,4 @@
-name: SleepGuard
+﻿name: SleepGuard
 guid: 7bb5959b-5a11-45da-b9db-52eed4456090
 version: 0.1.0.10
 targetAbi: 10.11.0.0
@@ -10,6 +10,7 @@ category: General
 owner: thisispivi
 artifacts:
   - Jellyfin.Plugin.SleepGuard.dll
+
 
 
 
