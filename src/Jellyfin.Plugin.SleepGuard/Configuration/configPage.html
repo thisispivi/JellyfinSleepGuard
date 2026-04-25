@@ -28,152 +28,160 @@
         <form id="SleepGuardConfigForm">
           <div class="sectionTitleContainer flex sleepGuardHeader">
             <img class="sleepGuardLogo" src="configurationpage?name=sleepguardlogo.png" alt="SleepGuard logo">
-            <h2 class="sectionTitle sleepGuardTitle">SleepGuard</h2>
+            <h2 class="sectionTitle sleepGuardTitle" data-i18n="title">SleepGuard</h2>
           </div>
 
-          <h3 class="checkboxListLabel">Playback protection</h3>
+          <div class="selectContainer">
+            <label class="selectLabel" for="SleepGuardLanguage" data-i18n="languageLabel">Language</label>
+            <select is="emby-select" id="SleepGuardLanguage" class="emby-select-withcolor">
+              <option value="en" data-i18n="languageEnglish">English</option>
+              <option value="it" data-i18n="languageItalian">Italiano</option>
+            </select>
+          </div>
+
+          <h3 class="checkboxListLabel" data-i18n="sectionPlayback">Playback protection</h3>
 
           <label class="checkboxContainer">
             <input is="emby-checkbox" type="checkbox" id="SleepGuardEnabled">
-            <span>Enabled</span>
+            <span data-i18n="enabled">Enabled</span>
           </label>
 
           <div class="selectContainer">
-            <label class="selectLabel" for="SleepGuardAction">Action</label>
+            <label class="selectLabel" for="SleepGuardAction" data-i18n="action">Action</label>
             <select is="emby-select" id="SleepGuardAction" class="emby-select-withcolor">
-              <option value="Pause">Pause</option>
-              <option value="Stop">Stop</option>
+              <option value="Pause" data-i18n="actionPause">Pause</option>
+              <option value="Stop" data-i18n="actionStop">Stop</option>
             </select>
           </div>
 
           <div class="inputContainer">
-            <label class="inputLabel inputLabelUnfocused" for="MaxContinuousMinutes">Max continuous minutes</label>
+            <label class="inputLabel inputLabelUnfocused" for="MaxContinuousMinutes" data-i18n="maxContinuousMinutes">Max continuous minutes</label>
             <input is="emby-input" type="number" min="0" id="MaxContinuousMinutes">
-            <div class="fieldDescription">Set to 0 to disable the continuous-time rule.</div>
+            <div class="fieldDescription" data-i18n="disableContinuousRule">Set to 0 to disable the continuous-time rule.</div>
           </div>
 
           <div class="inputContainer">
-            <label class="inputLabel inputLabelUnfocused" for="MaxAutoplayEpisodes">Max autoplay episodes</label>
+            <label class="inputLabel inputLabelUnfocused" for="MaxAutoplayEpisodes" data-i18n="maxAutoplayEpisodes">Max autoplay episodes</label>
             <input is="emby-input" type="number" min="0" id="MaxAutoplayEpisodes">
-            <div class="fieldDescription">Set to 0 to disable the autoplay episode rule.</div>
+            <div class="fieldDescription" data-i18n="disableAutoplayRule">Set to 0 to disable the autoplay episode rule.</div>
           </div>
 
-          <h3 class="checkboxListLabel">Active window</h3>
+          <h3 class="checkboxListLabel" data-i18n="sectionWindow">Active window</h3>
 
           <label class="checkboxContainer">
             <input is="emby-checkbox" type="checkbox" id="OnlyWithinTimeWindow">
-            <span>Only within time window</span>
+            <span data-i18n="onlyWithinTimeWindow">Only within time window</span>
           </label>
 
           <div class="inputContainer">
-            <label class="inputLabel inputLabelUnfocused" for="TimeWindowStart">Time window start</label>
+            <label class="inputLabel inputLabelUnfocused" for="TimeWindowStart" data-i18n="timeWindowStart">Time window start</label>
             <input is="emby-input" type="time" id="TimeWindowStart">
           </div>
 
           <div class="inputContainer">
-            <label class="inputLabel inputLabelUnfocused" for="TimeWindowEnd">Time window end</label>
+            <label class="inputLabel inputLabelUnfocused" for="TimeWindowEnd" data-i18n="timeWindowEnd">Time window end</label>
             <input is="emby-input" type="time" id="TimeWindowEnd">
           </div>
 
-          <h3 class="checkboxListLabel">Media types</h3>
+          <h3 class="checkboxListLabel" data-i18n="sectionMedia">Media types</h3>
 
           <label class="checkboxContainer">
             <input is="emby-checkbox" type="checkbox" id="IncludeMovies">
-            <span>Include movies</span>
+            <span data-i18n="includeMovies">Include movies</span>
           </label>
 
           <label class="checkboxContainer">
             <input is="emby-checkbox" type="checkbox" id="IncludeMusic">
-            <span>Include music</span>
+            <span data-i18n="includeMusic">Include music</span>
           </label>
 
           <label class="checkboxContainer">
             <input is="emby-checkbox" type="checkbox" id="IncludeLiveTv">
-            <span>Include Live TV</span>
+            <span data-i18n="includeLiveTv">Include Live TV</span>
           </label>
 
-          <h3 class="checkboxListLabel">Users</h3>
+          <h3 class="checkboxListLabel" data-i18n="sectionUsers">Users</h3>
 
           <div class="selectContainer">
-            <label class="selectLabel" for="UserMode">User scope</label>
+            <label class="selectLabel" for="UserMode" data-i18n="userScope">User scope</label>
             <select is="emby-select" id="UserMode" class="emby-select-withcolor">
-              <option value="AllUsers">All users</option>
-              <option value="Whitelist">Only listed users</option>
-              <option value="Blacklist">All except listed users</option>
+              <option value="AllUsers" data-i18n="userAll">All users</option>
+              <option value="Whitelist" data-i18n="userWhitelist">Only listed users</option>
+              <option value="Blacklist" data-i18n="userBlacklist">All except listed users</option>
             </select>
           </div>
 
           <div class="inputContainer">
-            <label class="inputLabel inputLabelUnfocused" for="UserIds">User IDs</label>
+            <label class="inputLabel inputLabelUnfocused" for="UserIds" data-i18n="userIds">User IDs</label>
             <input is="emby-input" type="text" id="UserIds">
-            <div class="fieldDescription">Comma-separated Jellyfin user IDs for whitelist or blacklist mode.</div>
+            <div class="fieldDescription" data-i18n="userIdsDescription">Comma-separated Jellyfin user IDs for whitelist or blacklist mode.</div>
           </div>
 
-          <h3 class="checkboxListLabel">Prompt and action</h3>
+          <h3 class="checkboxListLabel" data-i18n="sectionPrompt">Prompt and action</h3>
 
           <label class="checkboxContainer">
             <input is="emby-checkbox" type="checkbox" id="SendPrompt">
-            <span>Send prompt message</span>
+            <span data-i18n="sendPrompt">Send prompt message</span>
           </label>
 
           <div class="inputContainer">
-            <label class="inputLabel inputLabelUnfocused" for="PromptHeader">Prompt header</label>
+            <label class="inputLabel inputLabelUnfocused" for="PromptHeader" data-i18n="promptHeader">Prompt header</label>
             <input is="emby-input" type="text" id="PromptHeader">
           </div>
 
           <div class="inputContainer">
-            <label class="inputLabel inputLabelUnfocused" for="PromptMessage">Prompt message</label>
+            <label class="inputLabel inputLabelUnfocused" for="PromptMessage" data-i18n="promptMessage">Prompt message</label>
             <input is="emby-input" type="text" id="PromptMessage">
           </div>
 
           <div class="inputContainer">
-            <label class="inputLabel inputLabelUnfocused" for="PromptTimeoutSeconds">Prompt timeout seconds</label>
+            <label class="inputLabel inputLabelUnfocused" for="PromptTimeoutSeconds" data-i18n="promptTimeoutSeconds">Prompt timeout seconds</label>
             <input is="emby-input" type="number" min="1" id="PromptTimeoutSeconds">
-            <div class="fieldDescription">How long clients should keep the toast visible.</div>
+            <div class="fieldDescription" data-i18n="promptTimeoutDescription">How long clients should keep the toast visible.</div>
           </div>
 
           <div class="inputContainer">
-            <label class="inputLabel inputLabelUnfocused" for="PromptGraceSeconds">Prompt grace seconds</label>
+            <label class="inputLabel inputLabelUnfocused" for="PromptGraceSeconds" data-i18n="promptGraceSeconds">Prompt grace seconds</label>
             <input is="emby-input" type="number" min="0" id="PromptGraceSeconds">
-            <div class="fieldDescription">How long to wait after the prompt before sending pause or stop.</div>
+            <div class="fieldDescription" data-i18n="promptGraceDescription">How long to wait after the prompt before sending pause or stop.</div>
           </div>
 
-          <h3 class="checkboxListLabel">Testing and diagnostics</h3>
+          <h3 class="checkboxListLabel" data-i18n="sectionDiagnostics">Testing and diagnostics</h3>
 
           <div class="inputContainer">
-            <label class="inputLabel inputLabelUnfocused" for="MaxContinuousSeconds">Max continuous seconds</label>
+            <label class="inputLabel inputLabelUnfocused" for="MaxContinuousSeconds" data-i18n="maxContinuousSeconds">Max continuous seconds</label>
             <input is="emby-input" type="number" min="0" id="MaxContinuousSeconds">
-            <div class="fieldDescription">Testing override. Set to 0 to use minutes.</div>
+            <div class="fieldDescription" data-i18n="maxContinuousSecondsDescription">Testing override. Set to 0 to use minutes.</div>
           </div>
 
           <label class="checkboxContainer">
             <input is="emby-checkbox" type="checkbox" id="DryRun">
-            <span>Dry run</span>
+            <span data-i18n="dryRun">Dry run</span>
           </label>
 
           <div class="inputContainer">
-            <label class="inputLabel inputLabelUnfocused" for="ActionRepeatCount">Action repeat count</label>
+            <label class="inputLabel inputLabelUnfocused" for="ActionRepeatCount" data-i18n="actionRepeatCount">Action repeat count</label>
             <input is="emby-input" type="number" min="1" max="5" id="ActionRepeatCount">
-            <div class="fieldDescription">Send pause or stop multiple times for clients that miss the first command.</div>
+            <div class="fieldDescription" data-i18n="actionRepeatDescription">Send pause or stop multiple times for clients that miss the first command.</div>
           </div>
 
           <div class="inputContainer">
-            <label class="inputLabel inputLabelUnfocused" for="ActionRepeatIntervalSeconds">Action repeat interval seconds</label>
+            <label class="inputLabel inputLabelUnfocused" for="ActionRepeatIntervalSeconds" data-i18n="actionRepeatIntervalSeconds">Action repeat interval seconds</label>
             <input is="emby-input" type="number" min="0" max="30" id="ActionRepeatIntervalSeconds">
           </div>
 
           <label class="checkboxContainer">
             <input is="emby-checkbox" type="checkbox" id="LogProgressEvents">
-            <span>Log playback progress</span>
+            <span data-i18n="logProgressEvents">Log playback progress</span>
           </label>
 
           <label class="checkboxContainer">
             <input is="emby-checkbox" type="checkbox" id="LogRuleChecks">
-            <span>Log rule checks</span>
+            <span data-i18n="logRuleChecks">Log rule checks</span>
           </label>
 
           <button is="emby-button" type="submit" class="raised button-submit block">
-            <span>Save</span>
+            <span data-i18n="save">Save</span>
           </button>
         </form>
       </div>
@@ -187,6 +195,145 @@
         let activePluginId = pluginIds[0];
         const page = document.querySelector("#SleepGuardConfigPage");
         const form = page.querySelector("#SleepGuardConfigForm");
+        const promptDefaults = {
+          en: {
+            header: "SleepGuard",
+            message: "Are you still watching?"
+          },
+          it: {
+            header: "SleepGuard",
+            message: "Stai ancora guardando?"
+          }
+        };
+        const translations = {
+          en: {
+            title: "SleepGuard",
+            languageLabel: "Language",
+            languageEnglish: "English",
+            languageItalian: "Italiano",
+            sectionPlayback: "Playback protection",
+            enabled: "Enabled",
+            action: "Action",
+            actionPause: "Pause",
+            actionStop: "Stop",
+            maxContinuousMinutes: "Max continuous minutes",
+            disableContinuousRule: "Set to 0 to disable the continuous-time rule.",
+            maxAutoplayEpisodes: "Max autoplay episodes",
+            disableAutoplayRule: "Set to 0 to disable the autoplay episode rule.",
+            sectionWindow: "Active window",
+            onlyWithinTimeWindow: "Only within time window",
+            timeWindowStart: "Time window start",
+            timeWindowEnd: "Time window end",
+            sectionMedia: "Media types",
+            includeMovies: "Include movies",
+            includeMusic: "Include music",
+            includeLiveTv: "Include Live TV",
+            sectionUsers: "Users",
+            userScope: "User scope",
+            userAll: "All users",
+            userWhitelist: "Only listed users",
+            userBlacklist: "All except listed users",
+            userIds: "User IDs",
+            userIdsDescription: "Comma-separated Jellyfin user IDs for whitelist or blacklist mode.",
+            sectionPrompt: "Prompt and action",
+            sendPrompt: "Send prompt message",
+            promptHeader: "Prompt header",
+            promptMessage: "Prompt message",
+            promptTimeoutSeconds: "Prompt timeout seconds",
+            promptTimeoutDescription: "How long clients should keep the toast visible.",
+            promptGraceSeconds: "Prompt grace seconds",
+            promptGraceDescription: "How long to wait after the prompt before sending pause or stop.",
+            sectionDiagnostics: "Testing and diagnostics",
+            maxContinuousSeconds: "Max continuous seconds",
+            maxContinuousSecondsDescription: "Testing override. Set to 0 to use minutes.",
+            dryRun: "Dry run",
+            actionRepeatCount: "Action repeat count",
+            actionRepeatDescription: "Send pause or stop multiple times for clients that miss the first command.",
+            actionRepeatIntervalSeconds: "Action repeat interval seconds",
+            logProgressEvents: "Log playback progress",
+            logRuleChecks: "Log rule checks",
+            save: "Save",
+            loadError: "SleepGuard could not load its configuration. Restart Jellyfin and refresh the browser cache.",
+            saveError: "SleepGuard could not save its configuration. Check the Jellyfin log for details."
+          },
+          it: {
+            title: "SleepGuard",
+            languageLabel: "Lingua",
+            languageEnglish: "English",
+            languageItalian: "Italiano",
+            sectionPlayback: "Protezione riproduzione",
+            enabled: "Abilitato",
+            action: "Azione",
+            actionPause: "Pausa",
+            actionStop: "Ferma",
+            maxContinuousMinutes: "Minuti continui massimi",
+            disableContinuousRule: "Imposta 0 per disattivare la regola del tempo continuo.",
+            maxAutoplayEpisodes: "Episodi autoplay massimi",
+            disableAutoplayRule: "Imposta 0 per disattivare la regola degli episodi in autoplay.",
+            sectionWindow: "Finestra attiva",
+            onlyWithinTimeWindow: "Solo nella finestra oraria",
+            timeWindowStart: "Inizio finestra oraria",
+            timeWindowEnd: "Fine finestra oraria",
+            sectionMedia: "Tipi di media",
+            includeMovies: "Includi film",
+            includeMusic: "Includi musica",
+            includeLiveTv: "Includi TV in diretta",
+            sectionUsers: "Utenti",
+            userScope: "Ambito utenti",
+            userAll: "Tutti gli utenti",
+            userWhitelist: "Solo utenti elencati",
+            userBlacklist: "Tutti tranne gli utenti elencati",
+            userIds: "ID utenti",
+            userIdsDescription: "ID utente Jellyfin separati da virgola per whitelist o blacklist.",
+            sectionPrompt: "Messaggio e azione",
+            sendPrompt: "Invia messaggio di conferma",
+            promptHeader: "Titolo messaggio",
+            promptMessage: "Testo messaggio",
+            promptTimeoutSeconds: "Secondi visibilita messaggio",
+            promptTimeoutDescription: "Per quanto tempo i client devono mantenere visibile il messaggio.",
+            promptGraceSeconds: "Secondi di attesa",
+            promptGraceDescription: "Quanto aspettare dopo il messaggio prima di inviare pausa o stop.",
+            sectionDiagnostics: "Test e diagnostica",
+            maxContinuousSeconds: "Secondi continui massimi",
+            maxContinuousSecondsDescription: "Override di test. Imposta 0 per usare i minuti.",
+            dryRun: "Solo simulazione",
+            actionRepeatCount: "Numero ripetizioni azione",
+            actionRepeatDescription: "Invia pausa o stop piu volte per i client che ignorano il primo comando.",
+            actionRepeatIntervalSeconds: "Secondi tra ripetizioni azione",
+            logProgressEvents: "Registra avanzamento riproduzione",
+            logRuleChecks: "Registra controlli regole",
+            save: "Salva",
+            loadError: "SleepGuard non ha potuto caricare la configurazione. Riavvia Jellyfin e aggiorna la cache del browser.",
+            saveError: "SleepGuard non ha potuto salvare la configurazione. Controlla il log di Jellyfin."
+          }
+        };
+
+        const normalizeLanguage = value => {
+          const language = String(value || "").toLowerCase().split("-")[0];
+          return Object.prototype.hasOwnProperty.call(translations, language) ? language : "en";
+        };
+
+        const getBrowserLanguage = () => {
+          const languages = navigator.languages || [navigator.language];
+          return normalizeLanguage(languages[0]);
+        };
+
+        const getText = (language, key) => {
+          return (translations[language] && translations[language][key]) || translations.en[key] || key;
+        };
+
+        const applyLanguage = language => {
+          const normalizedLanguage = normalizeLanguage(language);
+          page.querySelectorAll("[data-i18n]").forEach(element => {
+            element.textContent = getText(normalizedLanguage, element.dataset.i18n);
+          });
+          document.title = getText(normalizedLanguage, "title");
+        };
+
+        const isDefaultPromptValue = (value, key) => {
+          const normalizedValue = String(value || "").trim();
+          return !normalizedValue || Object.values(promptDefaults).some(defaults => defaults[key] === normalizedValue);
+        };
 
         const toTimeParts = value => {
           if (!value) {
@@ -225,6 +372,10 @@
         };
 
         const populateForm = config => {
+          const language = normalizeLanguage(config.Language || getBrowserLanguage());
+          const defaults = promptDefaults[language];
+          page.querySelector("#SleepGuardLanguage").value = language;
+          applyLanguage(language);
           page.querySelector("#SleepGuardEnabled").checked = config.Enabled;
           page.querySelector("#SleepGuardAction").value = config.Action || "Pause";
           page.querySelector("#MaxContinuousMinutes").value = config.MaxContinuousMinutes || 0;
@@ -239,16 +390,30 @@
           page.querySelector("#UserMode").value = config.UserMode || "AllUsers";
           page.querySelector("#UserIds").value = (config.UserIds || []).join(", ");
           page.querySelector("#SendPrompt").checked = config.SendPrompt;
-          page.querySelector("#PromptHeader").value = config.PromptHeader || "SleepGuard";
-          page.querySelector("#PromptMessage").value = config.PromptMessage || "Are you still watching?";
+          page.querySelector("#PromptHeader").value = config.PromptHeader || defaults.header;
+          page.querySelector("#PromptMessage").value = config.PromptMessage || defaults.message;
           page.querySelector("#PromptTimeoutSeconds").value = config.PromptTimeoutSeconds || 8;
-          page.querySelector("#PromptGraceSeconds").value = config.PromptGraceSeconds || 0;
+          page.querySelector("#PromptGraceSeconds").value = config.PromptGraceSeconds ?? 30;
           page.querySelector("#DryRun").checked = config.DryRun;
           page.querySelector("#ActionRepeatCount").value = config.ActionRepeatCount || 1;
           page.querySelector("#ActionRepeatIntervalSeconds").value = config.ActionRepeatIntervalSeconds || 2;
           page.querySelector("#LogProgressEvents").checked = config.LogProgressEvents;
           page.querySelector("#LogRuleChecks").checked = config.LogRuleChecks;
         };
+
+        page.querySelector("#SleepGuardLanguage").addEventListener("change", event => {
+          const language = normalizeLanguage(event.target.value);
+          const defaults = promptDefaults[language];
+          const promptHeader = page.querySelector("#PromptHeader");
+          const promptMessage = page.querySelector("#PromptMessage");
+          if (isDefaultPromptValue(promptHeader.value, "header")) {
+            promptHeader.value = defaults.header;
+          }
+          if (isDefaultPromptValue(promptMessage.value, "message")) {
+            promptMessage.value = defaults.message;
+          }
+          applyLanguage(language);
+        });
 
         page.addEventListener("pageshow", () => {
           Dashboard.showLoadingMsg();
@@ -258,7 +423,7 @@
           }).catch(error => {
             console.error("SleepGuard failed to load configuration", error);
             Dashboard.hideLoadingMsg();
-            Dashboard.alert("SleepGuard could not load its configuration. Restart Jellyfin and refresh the browser cache.");
+            Dashboard.alert(getText(page.querySelector("#SleepGuardLanguage").value, "loadError"));
           });
         });
 
@@ -266,6 +431,7 @@
           event.preventDefault();
           Dashboard.showLoadingMsg();
           getConfiguration().then(config => {
+            config.Language = normalizeLanguage(page.querySelector("#SleepGuardLanguage").value);
             config.Enabled = page.querySelector("#SleepGuardEnabled").checked;
             config.Action = page.querySelector("#SleepGuardAction").value;
             config.MaxContinuousMinutes = Number(page.querySelector("#MaxContinuousMinutes").value);
@@ -295,7 +461,7 @@
           }).catch(error => {
             console.error("SleepGuard failed to save configuration", error);
             Dashboard.hideLoadingMsg();
-            Dashboard.alert("SleepGuard could not save its configuration. Check the Jellyfin log for details.");
+            Dashboard.alert(getText(page.querySelector("#SleepGuardLanguage").value, "saveError"));
           });
         });
       })();

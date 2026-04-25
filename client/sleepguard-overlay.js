@@ -1,13 +1,47 @@
 (() => {
     const settings = {
-        promptText: "Are you still watching?",
-        headerText: "SleepGuard",
+        language: "auto",
+        promptText: null,
+        headerText: null,
         pauseWhenShown: true,
-        continueButtonText: "Continue watching",
-        dismissButtonText: "Stay paused",
+        continueButtonText: null,
+        dismissButtonText: null,
+    };
+
+    const translations = {
+        en: {
+            promptText: "Are you still watching?",
+            headerText: "SleepGuard",
+            continueButtonText: "Continue watching",
+            dismissButtonText: "Stay paused",
+        },
+        it: {
+            promptText: "Stai ancora guardando?",
+            headerText: "SleepGuard",
+            continueButtonText: "Continua la riproduzione",
+            dismissButtonText: "Resta in pausa",
+        },
     };
 
     const overlayId = "sleepguard-fullscreen-overlay";
+
+    const normalizeLanguage = (value) => {
+        const language = String(value || "").toLowerCase().split("-")[0];
+        return Object.prototype.hasOwnProperty.call(translations, language)
+            ? language
+            : "en";
+    };
+
+    const getLanguage = () => {
+        if (settings.language && settings.language !== "auto") {
+            return normalizeLanguage(settings.language);
+        }
+
+        const languages = navigator.languages || [navigator.language];
+        return normalizeLanguage(languages[0]);
+    };
+
+    const getText = (key) => settings[key] || translations[getLanguage()][key];
 
     const findVideo = () => document.querySelector("video");
 
@@ -59,11 +93,11 @@
         overlay.id = overlayId;
         overlay.innerHTML = `
       <div class="sleepguard-panel">
-        <div class="sleepguard-title">${settings.headerText}</div>
-        <div class="sleepguard-message">${settings.promptText}</div>
+        <div class="sleepguard-title">${getText("headerText")}</div>
+        <div class="sleepguard-message">${getText("promptText")}</div>
         <div class="sleepguard-actions">
-          <button type="button" class="sleepguard-continue">${settings.continueButtonText}</button>
-          <button type="button" class="sleepguard-dismiss">${settings.dismissButtonText}</button>
+          <button type="button" class="sleepguard-continue">${getText("continueButtonText")}</button>
+          <button type="button" class="sleepguard-dismiss">${getText("dismissButtonText")}</button>
         </div>
       </div>
     `;
@@ -142,9 +176,19 @@
 
     const containsPrompt = (node) => {
         const text = node?.textContent || "";
+        const knownPrompts = Object.values(translations).flatMap((translation) => [
+            translation.promptText,
+            translation.headerText,
+        ]);
+        if (settings.promptText) {
+            knownPrompts.push(settings.promptText);
+        }
+        if (settings.headerText) {
+            knownPrompts.push(settings.headerText);
+        }
+
         return (
-            text.includes(settings.promptText) ||
-            text.includes(settings.headerText)
+            knownPrompts.some((prompt) => text.includes(prompt))
         );
     };
 
@@ -170,4 +214,3 @@
         settings,
     };
 })();
-

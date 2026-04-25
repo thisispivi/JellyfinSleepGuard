@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 9.0.x
       - name: Publish
         run: dotnet publish src/Jellyfin.Plugin.SleepGuard/Jellyfin.Plugin.SleepGuard.csproj -c Release -o artifacts/SleepGuard
       - name: Package
@@ -23,7 +23,7 @@ jobs:
         run: |
           cat <<'JSON'
           {
-            "guid": "7f4c92b7-bec2-4a9f-95c6-ff3f17bcd58a",
+            "guid": "7bb5959b-5a11-45da-b9db-52eed4456090",
             "name": "SleepGuard",
             "overview": "Pauses or stops Jellyfin playback after sleep-friendly thresholds.",
             "imageUrl": "https://raw.githubusercontent.com/thisispivi/JellyfinSleepGuard/main/images/logo.png",

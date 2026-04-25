@@ -1,15 +1,21 @@
-<p align="center">
-  <img src="images/logo.png" alt="SleepGuard logo" width="420">
-</p>
+<div align="center">
+  <picture>
+    <img alt="SleepGuard logo" src="./images/logo.png" height="160">
+  </picture>
+  <br>
+  <br>
+  <img alt="Jellyfin" src="https://img.shields.io/badge/Jellyfin-10.11%2B-00A4DC?style=for-the-badge&logo=jellyfin&logoColor=white">
+  <img alt=".NET" src="https://img.shields.io/badge/.NET-9.0-512BD4?style=for-the-badge&logo=dotnet&logoColor=white">
+  <img alt="C#" src="https://img.shields.io/badge/C%23-239120?style=for-the-badge&logo=csharp&logoColor=white">
+  <img alt="Build" src="https://img.shields.io/github/actions/workflow/status/thisispivi/JellyfinSleepGuard/build.yml?style=for-the-badge&logo=githubactions&logoColor=white&label=build">
+  <img alt="Latest release" src="https://img.shields.io/github/v/release/thisispivi/JellyfinSleepGuard?style=for-the-badge&logo=github&logoColor=white">
+  <img alt="PowerShell" src="https://img.shields.io/badge/PowerShell-5391FE?style=for-the-badge&logo=powershell&logoColor=white">
+  <img alt="License" src="https://img.shields.io/badge/license-GPL--2.0--only-blue?style=for-the-badge">
+</div>
 
 # SleepGuard for Jellyfin
 
-[![Build](https://github.com/thisispivi/JellyfinSleepGuard/actions/workflows/build.yml/badge.svg)](https://github.com/thisispivi/JellyfinSleepGuard/actions/workflows/build.yml)
-[![Latest release](https://img.shields.io/github/v/release/thisispivi/JellyfinSleepGuard)](https://github.com/thisispivi/JellyfinSleepGuard/releases)
-![Jellyfin](https://img.shields.io/badge/Jellyfin-10.11%2B-blue)
-![License](https://img.shields.io/badge/license-GPL--2.0--only-blue)
-
-SleepGuard is a server-side Jellyfin plugin that pauses or stops playback when a session looks like it has turned into an overnight autoplay run.
+SleepGuard is a server-side Jellyfin plugin that pauses or stops playback when a session looks like it has turned into an overnight autoplay run. The plugin ships with a Jellyfin-themed admin page, English and Italian settings text, localized prompt defaults, and an optional full-screen Jellyfin Web overlay.
 
 ## Why
 
@@ -27,9 +33,11 @@ Admin configuration and triggered-pause screenshots will be added before the fir
 - Pause or stop action when a rule fires.
 - Best-effort Jellyfin client toast using `SendMessageCommand`.
 - Optional Jellyfin Web companion overlay with a full-screen continue button.
+- English and Italian settings page text, prompt defaults, and overlay labels.
 - Per-user scope with all-users, whitelist, and blacklist modes.
 - Configurable opt-outs for movies, music, and Live TV.
 - Testing and diagnostics controls separated from normal playback settings.
+- Embedded SleepGuard logo for the plugin settings page and repository metadata.
 
 ## Compatibility
 
@@ -37,6 +45,7 @@ Admin configuration and triggered-pause screenshots will be added before the fir
 | ----------------------- | ----------------------------------------------------------------------- |
 | Jellyfin Server         | 10.11.x                                                                 |
 | Target framework        | .NET 9.0                                                                |
+| Settings languages      | English, Italian                                                        |
 | Web client prompt       | Supported                                                               |
 | Web full-screen overlay | Supported with optional `client/sleepguard-overlay.js` companion script |
 | iOS prompt              | Expected to work where message commands are honored                     |
@@ -45,7 +54,7 @@ Admin configuration and triggered-pause screenshots will be added before the fir
 
 ## Installation
 
-Plugin repository installation will be available after the first release. Add the repository URL in Dashboard -> Plugins -> Repositories, then install SleepGuard from the catalog.
+Add the repository URL in Dashboard -> Plugins -> Repositories, then install SleepGuard from the catalog.
 
 Manual installation:
 
@@ -73,8 +82,9 @@ Normal usage settings:
 | `UserMode`             |                `AllUsers` | All users, whitelist, or blacklist.                            |
 | `UserIds`              |                     empty | User IDs used by whitelist or blacklist mode.                  |
 | `SendPrompt`           |                    `true` | Send a best-effort client message before action.               |
+| `Language`             |                      `en` | `en` or `it`; controls settings text and default prompt text.  |
 | `PromptHeader`         |              `SleepGuard` | Header text for clients that show message headers.             |
-| `PromptMessage`        | `Are you still watching?` | Text sent to clients that support messages.                    |
+| `PromptMessage`        | `Are you still watching?` | Text sent to clients that support messages; Italian default is `Stai ancora guardando?`. |
 | `PromptTimeoutSeconds` |                       `8` | Suggested client toast display duration.                       |
 | `PromptGraceSeconds`   |                      `30` | Delay after prompt before pause or stop; `0` acts immediately. |
 
@@ -110,19 +120,19 @@ The plugin subscribes to playback events in a hosted service, keeps one in-memor
 One-command repository build:
 
 ```powershell
-.\scripts\Build-PluginRepository.ps1 -Version 0.1.0.0
+.\scripts\Build-PluginRepository.ps1 -Version 0.1.0.10
 ```
 
 Build, test, generate `manifest.json`, commit/push it, and create the GitHub release with the plugin zip:
 
 ```powershell
-.\scripts\Build-PluginRepository.ps1 -Version 0.1.0.0 -CommitAndPush -CreateRelease
+.\scripts\Build-PluginRepository.ps1 -Version 0.1.0.10 -CommitAndPush -CreateRelease
 ```
 
 For the first release from a fresh repo, include all project files in the commit:
 
 ```powershell
-.\scripts\Build-PluginRepository.ps1 -Version 0.1.0.0 -CommitAndPush -StageAll -CreateRelease
+.\scripts\Build-PluginRepository.ps1 -Version 0.1.0.10 -CommitAndPush -StageAll -CreateRelease
 ```
 
 The Jellyfin repository URL is:
@@ -139,6 +149,8 @@ client/sleepguard-overlay.js
 
 Paste that script into a Jellyfin JavaScript injection plugin if you want the web client to pause immediately and show a full-page "Are you still watching?" overlay with a continue button when SleepGuard sends its prompt. The overlay only appears when Jellyfin Web has an active video element, so it will not cover the dashboard, settings, or library pages.
 
+The overlay defaults to the browser language for English or Italian labels. You can override `window.SleepGuardOverlay.settings` after loading the script if you want custom text.
+
 Build:
 
 ```powershell
@@ -149,6 +161,14 @@ Run tests:
 
 ```powershell
 dotnet test Jellyfin.Plugin.SleepGuard.sln
+```
+
+Check package health before publishing:
+
+```powershell
+dotnet list Jellyfin.Plugin.SleepGuard.sln package --vulnerable --include-transitive
+dotnet list Jellyfin.Plugin.SleepGuard.sln package --deprecated
+git diff --check
 ```
 
 Publish for a local Jellyfin server:
@@ -182,9 +202,8 @@ Issues and pull requests are welcome. Please keep changes focused, run `dotnet t
 
 - Persist trackers across server restarts.
 - Per-user thresholds.
-- Optional companion web UI for a real "Yes, I am here" button.
+- More built-in translations.
 
 ## License
 
 GPL-2.0-only. See [LICENSE](LICENSE).
-

@@ -78,6 +78,11 @@ public sealed class PluginConfiguration : BasePluginConfiguration
     public bool SendPrompt { get; set; } = true;
 
     /// <summary>
+    /// Gets or sets the language used for the configuration page and default prompt text.
+    /// </summary>
+    public string Language { get; set; } = "en";
+
+    /// <summary>
     /// Gets or sets the prompt toast header.
     /// </summary>
     public string PromptHeader { get; set; } = "SleepGuard";
