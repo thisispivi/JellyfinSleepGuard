@@ -1,0 +1,35 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Publish
+        run: dotnet publish src/Jellyfin.Plugin.SleepGuard/Jellyfin.Plugin.SleepGuard.csproj -c Release -o artifacts/SleepGuard
+      - name: Package
+        run: |
+          cd artifacts/SleepGuard
+          zip -r ../Jellyfin.Plugin.SleepGuard.zip Jellyfin.Plugin.SleepGuard.dll
+      - name: Manifest snippet
+        run: |
+          cat <<'JSON'
+          {
+            "guid": "7f4c92b7-bec2-4a9f-95c6-ff3f17bcd58a",
+            "name": "SleepGuard",
+            "overview": "Pauses or stops Jellyfin playback after sleep-friendly thresholds.",
+            "versions": []
+          }
+          JSON
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Jellyfin.Plugin.SleepGuard
+          path: artifacts/Jellyfin.Plugin.SleepGuard.zip

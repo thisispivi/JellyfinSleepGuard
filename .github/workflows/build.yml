@@ -1,0 +1,22 @@
+name: Build
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Restore
+        run: dotnet restore Jellyfin.Plugin.SleepGuard.sln
+      - name: Build
+        run: dotnet build Jellyfin.Plugin.SleepGuard.sln -c Release --no-restore
+      - name: Test
+        run: dotnet test Jellyfin.Plugin.SleepGuard.sln -c Release --no-build --collect:"XPlat Code Coverage"

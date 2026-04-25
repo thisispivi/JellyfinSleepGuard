@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>SleepGuard</title>
+</head>
+<body>
+  <div id="SleepGuardConfigPage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-input,emby-button,emby-checkbox,emby-select">
+    <div data-role="content">
+      <div class="content-primary">
+        <form id="SleepGuardConfigForm">
+          <div class="sectionTitleContainer flex align-items-center">
+            <h2 class="sectionTitle">SleepGuard</h2>
+          </div>
+
+          <label class="checkboxContainer">
+            <input is="emby-checkbox" type="checkbox" id="SleepGuardEnabled">
+            <span>Enabled</span>
+          </label>
+
+          <div class="selectContainer">
+            <label class="selectLabel" for="SleepGuardAction">Action</label>
+            <select is="emby-select" id="SleepGuardAction" class="emby-select-withcolor">
+              <option value="Pause">Pause</option>
+              <option value="Stop">Stop</option>
+            </select>
+          </div>
+
+          <div class="inputContainer">
+            <label class="inputLabel inputLabelUnfocused" for="MaxContinuousMinutes">Max continuous minutes</label>
+            <input is="emby-input" type="number" min="0" id="MaxContinuousMinutes">
+            <div class="fieldDescription">Set to 0 to disable the continuous-time rule.</div>
+          </div>
+
+          <div class="inputContainer">
+            <label class="inputLabel inputLabelUnfocused" for="MaxAutoplayEpisodes">Max autoplay episodes</label>
+            <input is="emby-input" type="number" min="0" id="MaxAutoplayEpisodes">
+            <div class="fieldDescription">Set to 0 to disable the autoplay episode rule.</div>
+          </div>
+
+          <label class="checkboxContainer">
+            <input is="emby-checkbox" type="checkbox" id="OnlyWithinTimeWindow">
+            <span>Only within time window</span>
+          </label>
+
+          <div class="inputContainer">
+            <label class="inputLabel inputLabelUnfocused" for="TimeWindowStart">Time window start</label>
+            <input is="emby-input" type="time" id="TimeWindowStart">
+          </div>
+
+          <div class="inputContainer">
+            <label class="inputLabel inputLabelUnfocused" for="TimeWindowEnd">Time window end</label>
+            <input is="emby-input" type="time" id="TimeWindowEnd">
+          </div>
+
+          <label class="checkboxContainer">
+            <input is="emby-checkbox" type="checkbox" id="IncludeMovies">
+            <span>Include movies</span>
+          </label>
+
+          <label class="checkboxContainer">
+            <input is="emby-checkbox" type="checkbox" id="IncludeMusic">
+            <span>Include music</span>
+          </label>
+
+          <label class="checkboxContainer">
+            <input is="emby-checkbox" type="checkbox" id="IncludeLiveTv">
+            <span>Include Live TV</span>
+          </label>
+
+          <div class="selectContainer">
+            <label class="selectLabel" for="UserMode">User scope</label>
+            <select is="emby-select" id="UserMode" class="emby-select-withcolor">
+              <option value="AllUsers">All users</option>
+              <option value="Whitelist">Only listed users</option>
+              <option value="Blacklist">All except listed users</option>
+            </select>
+          </div>
+
+          <div class="inputContainer">
+            <label class="inputLabel inputLabelUnfocused" for="UserIds">User IDs</label>
+            <input is="emby-input" type="text" id="UserIds">
+            <div class="fieldDescription">Comma-separated Jellyfin user IDs for whitelist or blacklist mode.</div>
+          </div>
+
+          <label class="checkboxContainer">
+            <input is="emby-checkbox" type="checkbox" id="SendPrompt">
+            <span>Send prompt message</span>
+          </label>
+
+          <div class="inputContainer">
+            <label class="inputLabel inputLabelUnfocused" for="PromptMessage">Prompt message</label>
+            <input is="emby-input" type="text" id="PromptMessage">
+          </div>
+
+          <div class="inputContainer">
+            <label class="inputLabel inputLabelUnfocused" for="PromptGraceSeconds">Prompt grace seconds</label>
+            <input is="emby-input" type="number" min="0" id="PromptGraceSeconds">
+          </div>
+
+          <button is="emby-button" type="submit" class="raised button-submit block">
+            <span>Save</span>
+          </button>
+        </form>
+      </div>
+    </div>
+    <script>
+      (() => {
+        const pluginId = "7f4c92b7-bec2-4a9f-95c6-ff3f17bcd58a";
+        const page = document.querySelector("#SleepGuardConfigPage");
+        const form = page.querySelector("#SleepGuardConfigForm");
+
+        const toTimeInput = value => {
+          if (!value) {
+            return "00:00";
+          }
+
+          const parts = value.split(":");
+          return `${parts[0].padStart(2, "0")}:${parts[1].padStart(2, "0")}`;
+        };
+
+        const toTimeSpan = value => `${value}:00`;
+
+        page.addEventListener("pageshow", () => {
+          Dashboard.showLoadingMsg();
+          ApiClient.getPluginConfiguration(pluginId).then(config => {
+            page.querySelector("#SleepGuardEnabled").checked = config.Enabled;
+            page.querySelector("#SleepGuardAction").value = config.Action || "Pause";
+            page.querySelector("#MaxContinuousMinutes").value = config.MaxContinuousMinutes || 0;
+            page.querySelector("#MaxAutoplayEpisodes").value = config.MaxAutoplayEpisodes || 0;
+            page.querySelector("#OnlyWithinTimeWindow").checked = config.OnlyWithinTimeWindow;
+            page.querySelector("#TimeWindowStart").value = toTimeInput(config.TimeWindowStart);
+            page.querySelector("#TimeWindowEnd").value = toTimeInput(config.TimeWindowEnd);
+            page.querySelector("#IncludeMovies").checked = config.IncludeMovies;
+            page.querySelector("#IncludeMusic").checked = config.IncludeMusic;
+            page.querySelector("#IncludeLiveTv").checked = config.IncludeLiveTv;
+            page.querySelector("#UserMode").value = config.UserMode || "AllUsers";
+            page.querySelector("#UserIds").value = (config.UserIds || []).join(", ");
+            page.querySelector("#SendPrompt").checked = config.SendPrompt;
+            page.querySelector("#PromptMessage").value = config.PromptMessage || "Are you still watching?";
+            page.querySelector("#PromptGraceSeconds").value = config.PromptGraceSeconds || 0;
+            Dashboard.hideLoadingMsg();
+          });
+        });
+
+        form.addEventListener("submit", event => {
+          event.preventDefault();
+          Dashboard.showLoadingMsg();
+          ApiClient.getPluginConfiguration(pluginId).then(config => {
+            config.Enabled = page.querySelector("#SleepGuardEnabled").checked;
+            config.Action = page.querySelector("#SleepGuardAction").value;
+            config.MaxContinuousMinutes = Number(page.querySelector("#MaxContinuousMinutes").value);
+            config.MaxAutoplayEpisodes = Number(page.querySelector("#MaxAutoplayEpisodes").value);
+            config.OnlyWithinTimeWindow = page.querySelector("#OnlyWithinTimeWindow").checked;
+            config.TimeWindowStart = toTimeSpan(page.querySelector("#TimeWindowStart").value);
+            config.TimeWindowEnd = toTimeSpan(page.querySelector("#TimeWindowEnd").value);
+            config.IncludeMovies = page.querySelector("#IncludeMovies").checked;
+            config.IncludeMusic = page.querySelector("#IncludeMusic").checked;
+            config.IncludeLiveTv = page.querySelector("#IncludeLiveTv").checked;
+            config.UserMode = page.querySelector("#UserMode").value;
+            config.UserIds = page.querySelector("#UserIds").value.split(",").map(x => x.trim()).filter(Boolean);
+            config.SendPrompt = page.querySelector("#SendPrompt").checked;
+            config.PromptMessage = page.querySelector("#PromptMessage").value;
+            config.PromptGraceSeconds = Number(page.querySelector("#PromptGraceSeconds").value);
+            ApiClient.updatePluginConfiguration(pluginId, config).then(() => {
+              Dashboard.processPluginConfigurationUpdateResult();
+            });
+          });
+        });
+      })();
+    </script>
+  </div>
+</body>
+</html>
