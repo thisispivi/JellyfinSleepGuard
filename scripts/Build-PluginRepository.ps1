@@ -101,7 +101,7 @@ function Invoke-GitCommitAndPush {
 
     $staged = git diff --cached --name-only
     if ($staged) {
-        git commit -m "Release SleepGuard $VersionValue"
+        git commit -m "chore: release SleepGuard $VersionValue"
         git push origin HEAD
     } else {
         Write-Host "No manifest or release-script changes to commit."
@@ -120,8 +120,17 @@ function Invoke-GitHubRelease {
     }
 
     $tag = "v$VersionValue"
-    $existing = gh release view $tag 2>$null
-    if ($LASTEXITCODE -eq 0) {
+    $oldErrorActionPreference = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try {
+        $null = & gh release view $tag 2>$null
+        $releaseExists = $LASTEXITCODE -eq 0
+    }
+    finally {
+        $ErrorActionPreference = $oldErrorActionPreference
+    }
+
+    if ($releaseExists) {
         if (-not $Force) {
             throw "Release $tag already exists. Re-run with -ForceRelease to replace the uploaded zip."
         }
