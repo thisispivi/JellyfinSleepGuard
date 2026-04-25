@@ -126,6 +126,11 @@ public sealed class SessionMonitorService : IHostedService, IDisposable
 
         var tracker = _store.GetOrAdd(playbackEvent, now);
         var transition = _classifier.ClassifyProgress(tracker, playbackEvent, now);
+        if (transition is PlaybackTransition.ManualPause or PlaybackTransition.ManualResume or PlaybackTransition.Seek or PlaybackTransition.ManualSwitch)
+        {
+            CancelTimer(playbackEvent.SessionId);
+        }
+
         tracker.ApplyProgress(playbackEvent, transition, now);
         var configuration = Plugin.Instance?.Configuration ?? new PluginConfiguration();
         if (configuration.LogProgressEvents)
@@ -199,9 +204,10 @@ public sealed class SessionMonitorService : IHostedService, IDisposable
 
     private async Task ExecuteActionsAsync(PlaybackTracker tracker, PluginConfiguration configuration, DateTimeOffset now, CancellationToken cancellationToken)
     {
-        if (configuration.SendPrompt && configuration.PromptGraceSeconds > 0)
+        if (configuration.SendPrompt)
         {
-            var grace = TimeSpan.FromSeconds(configuration.PromptGraceSeconds);
+            var graceSeconds = Math.Max(0, configuration.PromptGraceSeconds);
+            var grace = TimeSpan.FromSeconds(graceSeconds);
             try
             {
                 await _promptAction.ExecuteAsync(tracker, configuration, cancellationToken).ConfigureAwait(false);
@@ -209,11 +215,17 @@ public sealed class SessionMonitorService : IHostedService, IDisposable
                     "SleepGuard sent prompt to session {SessionId}; final {Action} scheduled in {GraceSeconds}s",
                     tracker.SessionId,
                     configuration.Action,
-                    configuration.PromptGraceSeconds);
+                    graceSeconds);
             }
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, "SleepGuard failed to send prompt to session {SessionId}", tracker.SessionId);
+            }
+
+            if (grace <= TimeSpan.Zero)
+            {
+                await ExecuteFinalActionAsync(tracker.SessionId, cancellationToken).ConfigureAwait(false);
+                return;
             }
 
             tracker.MarkPromptPending(now.Add(grace));

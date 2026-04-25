@@ -109,6 +109,14 @@ The Jellyfin repository URL is:
 https://raw.githubusercontent.com/thisispivi/JellyfinSleepGuard/main/manifest.json
 ```
 
+Optional full-screen web overlay:
+
+```text
+client/sleepguard-overlay.js
+```
+
+Paste that script into a Jellyfin JavaScript injection plugin if you want the web client to pause immediately and show a full-page "Are you still watching?" overlay with a continue button when SleepGuard sends its prompt.
+
 Build:
 
 ```powershell
