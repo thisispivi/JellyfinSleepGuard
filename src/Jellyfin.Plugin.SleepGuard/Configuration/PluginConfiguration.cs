@@ -17,9 +17,9 @@ public sealed class PluginConfiguration : BasePluginConfiguration
 
     public bool OnlyWithinTimeWindow { get; set; }
 
-    public TimeSpan TimeWindowStart { get; set; } = new(22, 0, 0);
+    public string TimeWindowStart { get; set; } = "22:00:00";
 
-    public TimeSpan TimeWindowEnd { get; set; } = new(7, 0, 0);
+    public string TimeWindowEnd { get; set; } = "07:00:00";
 
     public bool IncludeMovies { get; set; } = true;
 

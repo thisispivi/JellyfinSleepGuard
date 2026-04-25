@@ -67,8 +67,8 @@ public sealed class RulesTests
             new PluginConfiguration
             {
                 OnlyWithinTimeWindow = true,
-                TimeWindowStart = new TimeSpan(22, 0, 0),
-                TimeWindowEnd = new TimeSpan(7, 0, 0)
+                TimeWindowStart = "22:00:00",
+                TimeWindowEnd = "07:00:00"
             },
             new DateTimeOffset(localToday).ToUniversalTime());
 

@@ -15,13 +15,23 @@ public sealed class TimeWindowRule : ISleepRule
         }
 
         var localTime = nowUtc.ToLocalTime().TimeOfDay;
-        var start = configuration.TimeWindowStart;
-        var end = configuration.TimeWindowEnd;
+        var start = ParseTime(configuration.TimeWindowStart, new TimeSpan(22, 0, 0));
+        var end = ParseTime(configuration.TimeWindowEnd, new TimeSpan(7, 0, 0));
 
         var inside = start <= end
             ? localTime >= start && localTime <= end
             : localTime >= start || localTime <= end;
 
         return inside ? SleepRuleResult.None(Name) : SleepRuleResult.Blocked(Name);
+    }
+
+    private static TimeSpan ParseTime(string? value, TimeSpan fallback)
+    {
+        if (TimeSpan.TryParse(value, out var parsed))
+        {
+            return parsed;
+        }
+
+        return fallback;
     }
 }
