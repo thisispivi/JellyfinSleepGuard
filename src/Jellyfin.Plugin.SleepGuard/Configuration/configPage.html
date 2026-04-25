@@ -105,7 +105,11 @@
     </div>
     <script>
       (() => {
-        const pluginId = "7bb5959b-5a11-45da-b9db-52eed4456090";
+        const pluginIds = [
+          "7bb5959b-5a11-45da-b9db-52eed4456090",
+          "7f4c92b7-bec2-4a9f-95c6-ff3f17bcd58a"
+        ];
+        let activePluginId = pluginIds[0];
         const page = document.querySelector("#SleepGuardConfigPage");
         const form = page.querySelector("#SleepGuardConfigForm");
 
@@ -114,7 +118,7 @@
             return ["00", "00", "00"];
           }
 
-          const match = String(value).match(/^(?:(\d+)\.)?(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
+          const match = String(value).match(/^(?:(\d+)\.)?(\d{1,2}):(\d{2})(?::(\d{2})(?:\.\d+)?)?$/);
           if (!match) {
             return ["00", "00", "00"];
           }
@@ -136,32 +140,49 @@
           return `${parts[0]}:${parts[1]}:${parts[2]}`;
         };
 
+        const getConfiguration = () => {
+          return pluginIds.reduce((promise, id) => {
+            return promise.catch(() => {
+              activePluginId = id;
+              return ApiClient.getPluginConfiguration(id);
+            });
+          }, Promise.reject());
+        };
+
+        const populateForm = config => {
+          page.querySelector("#SleepGuardEnabled").checked = config.Enabled;
+          page.querySelector("#SleepGuardAction").value = config.Action || "Pause";
+          page.querySelector("#MaxContinuousMinutes").value = config.MaxContinuousMinutes || 0;
+          page.querySelector("#MaxAutoplayEpisodes").value = config.MaxAutoplayEpisodes || 0;
+          page.querySelector("#OnlyWithinTimeWindow").checked = config.OnlyWithinTimeWindow;
+          page.querySelector("#TimeWindowStart").value = toTimeInput(config.TimeWindowStart);
+          page.querySelector("#TimeWindowEnd").value = toTimeInput(config.TimeWindowEnd);
+          page.querySelector("#IncludeMovies").checked = config.IncludeMovies;
+          page.querySelector("#IncludeMusic").checked = config.IncludeMusic;
+          page.querySelector("#IncludeLiveTv").checked = config.IncludeLiveTv;
+          page.querySelector("#UserMode").value = config.UserMode || "AllUsers";
+          page.querySelector("#UserIds").value = (config.UserIds || []).join(", ");
+          page.querySelector("#SendPrompt").checked = config.SendPrompt;
+          page.querySelector("#PromptMessage").value = config.PromptMessage || "Are you still watching?";
+          page.querySelector("#PromptGraceSeconds").value = config.PromptGraceSeconds || 0;
+        };
+
         page.addEventListener("pageshow", () => {
           Dashboard.showLoadingMsg();
-          ApiClient.getPluginConfiguration(pluginId).then(config => {
-            page.querySelector("#SleepGuardEnabled").checked = config.Enabled;
-            page.querySelector("#SleepGuardAction").value = config.Action || "Pause";
-            page.querySelector("#MaxContinuousMinutes").value = config.MaxContinuousMinutes || 0;
-            page.querySelector("#MaxAutoplayEpisodes").value = config.MaxAutoplayEpisodes || 0;
-            page.querySelector("#OnlyWithinTimeWindow").checked = config.OnlyWithinTimeWindow;
-            page.querySelector("#TimeWindowStart").value = toTimeInput(config.TimeWindowStart);
-            page.querySelector("#TimeWindowEnd").value = toTimeInput(config.TimeWindowEnd);
-            page.querySelector("#IncludeMovies").checked = config.IncludeMovies;
-            page.querySelector("#IncludeMusic").checked = config.IncludeMusic;
-            page.querySelector("#IncludeLiveTv").checked = config.IncludeLiveTv;
-            page.querySelector("#UserMode").value = config.UserMode || "AllUsers";
-            page.querySelector("#UserIds").value = (config.UserIds || []).join(", ");
-            page.querySelector("#SendPrompt").checked = config.SendPrompt;
-            page.querySelector("#PromptMessage").value = config.PromptMessage || "Are you still watching?";
-            page.querySelector("#PromptGraceSeconds").value = config.PromptGraceSeconds || 0;
+          getConfiguration().then(config => {
+            populateForm(config);
             Dashboard.hideLoadingMsg();
+          }).catch(error => {
+            console.error("SleepGuard failed to load configuration", error);
+            Dashboard.hideLoadingMsg();
+            Dashboard.alert("SleepGuard could not load its configuration. Restart Jellyfin and refresh the browser cache.");
           });
         });
 
         form.addEventListener("submit", event => {
           event.preventDefault();
           Dashboard.showLoadingMsg();
-          ApiClient.getPluginConfiguration(pluginId).then(config => {
+          getConfiguration().then(config => {
             config.Enabled = page.querySelector("#SleepGuardEnabled").checked;
             config.Action = page.querySelector("#SleepGuardAction").value;
             config.MaxContinuousMinutes = Number(page.querySelector("#MaxContinuousMinutes").value);
@@ -177,9 +198,13 @@
             config.SendPrompt = page.querySelector("#SendPrompt").checked;
             config.PromptMessage = page.querySelector("#PromptMessage").value;
             config.PromptGraceSeconds = Number(page.querySelector("#PromptGraceSeconds").value);
-            ApiClient.updatePluginConfiguration(pluginId, config).then(() => {
+            ApiClient.updatePluginConfiguration(activePluginId, config).then(() => {
               Dashboard.processPluginConfigurationUpdateResult();
             });
+          }).catch(error => {
+            console.error("SleepGuard failed to save configuration", error);
+            Dashboard.hideLoadingMsg();
+            Dashboard.alert("SleepGuard could not save its configuration. Check the Jellyfin log for details.");
           });
         });
       })();
