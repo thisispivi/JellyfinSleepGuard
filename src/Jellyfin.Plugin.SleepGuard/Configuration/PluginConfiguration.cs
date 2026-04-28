@@ -126,6 +126,56 @@ public sealed class PluginConfiguration : BasePluginConfiguration
     /// Gets or sets a value indicating whether every rule evaluation is logged.
     /// </summary>
     public bool LogRuleChecks { get; set; }
+
+    /// <summary>
+    /// Gets or sets the overlay accent color as a CSS hex string.
+    /// </summary>
+    public string OverlayAccentColor { get; set; } = "#00a4dc";
+
+    /// <summary>
+    /// Gets or sets the overlay background opacity percentage (0–100).
+    /// </summary>
+    public int OverlayBackgroundOpacity { get; set; } = 92;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the overlay uses the current Jellyfin backdrop image.
+    /// </summary>
+    public bool OverlayUseBackdropImage { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the backdrop image is blurred when shown behind the overlay.
+    /// </summary>
+    public bool OverlayBlurBackdrop { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the continue-watching button is shown on the overlay.
+    /// </summary>
+    public bool OverlayShowContinueButton { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the dismiss (stay paused) button is shown on the overlay.
+    /// </summary>
+    public bool OverlayShowDismissButton { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets the English override text for the continue button, or null for the built-in default.
+    /// </summary>
+    public string? OverlayContinueButtonTextEn { get; set; }
+
+    /// <summary>
+    /// Gets or sets the Italian override text for the continue button, or null for the built-in default.
+    /// </summary>
+    public string? OverlayContinueButtonTextIt { get; set; }
+
+    /// <summary>
+    /// Gets or sets the English override text for the dismiss button, or null for the built-in default.
+    /// </summary>
+    public string? OverlayDismissButtonTextEn { get; set; }
+
+    /// <summary>
+    /// Gets or sets the Italian override text for the dismiss button, or null for the built-in default.
+    /// </summary>
+    public string? OverlayDismissButtonTextIt { get; set; }
 }
 
 /// <summary>

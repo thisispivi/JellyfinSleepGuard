@@ -5,32 +5,104 @@ on:
     tags:
       - "v*"
 
+permissions:
+  contents: write
+
 jobs:
   release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
+
+      - name: Restore
+        run: dotnet restore Jellyfin.Plugin.SleepGuard.sln
+
+      - name: Build
+        run: dotnet build Jellyfin.Plugin.SleepGuard.sln -c Release --no-restore
+
+      - name: Test
+        run: dotnet test Jellyfin.Plugin.SleepGuard.sln -c Release --no-build
+
+      - name: Parse version
+        id: version
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
       - name: Publish
-        run: dotnet publish src/Jellyfin.Plugin.SleepGuard/Jellyfin.Plugin.SleepGuard.csproj -c Release -o artifacts/SleepGuard
+        run: >
+          dotnet publish
+          src/Jellyfin.Plugin.SleepGuard/Jellyfin.Plugin.SleepGuard.csproj
+          -c Release
+          -o artifacts/SleepGuard
+          /p:Version=${{ steps.version.outputs.version }}
+
       - name: Package
         run: |
           cd artifacts/SleepGuard
-          zip -r ../Jellyfin.Plugin.SleepGuard.zip Jellyfin.Plugin.SleepGuard.dll
-      - name: Manifest snippet
+          zip -r ../Jellyfin.Plugin.SleepGuard_${{ steps.version.outputs.version }}.zip \
+            Jellyfin.Plugin.SleepGuard.dll \
+            Jellyfin.Plugin.SleepGuard.deps.json
+
+      - name: Compute checksum
+        id: checksum
         run: |
-          cat <<'JSON'
-          {
-            "guid": "7bb5959b-5a11-45da-b9db-52eed4456090",
-            "name": "SleepGuard",
-            "overview": "Pauses or stops Jellyfin playback after sleep-friendly thresholds.",
-            "imageUrl": "https://raw.githubusercontent.com/thisispivi/JellyfinSleepGuard/main/images/logo.png",
-            "versions": []
+          md5=$(md5sum artifacts/Jellyfin.Plugin.SleepGuard_${{ steps.version.outputs.version }}.zip | awk '{print $1}')
+          echo "md5=$md5" >> "$GITHUB_OUTPUT"
+
+      - name: Update manifest.json
+        # Single-quoted heredoc delimiter prevents Bash from expanding Python $variables
+        run: |
+          python3 - <<'PYEOF'
+          import json, datetime, os
+
+          version = os.environ["VERSION"]
+          checksum = os.environ["CHECKSUM"]
+          repo = os.environ["GITHUB_REPOSITORY"]
+
+          with open("manifest.json", "r") as f:
+              manifest = json.load(f)
+
+          new_version = {
+              "version": version,
+              "changelog": f"SleepGuard {version} release.",
+              "targetAbi": "10.11.0.0",
+              "sourceUrl": f"https://github.com/{repo}/releases/download/v{version}/Jellyfin.Plugin.SleepGuard_{version}.zip",
+              "checksum": checksum,
+              "timestamp": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
           }
-          JSON
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Jellyfin.Plugin.SleepGuard
-          path: artifacts/Jellyfin.Plugin.SleepGuard.zip
+
+          manifest[0]["versions"].insert(0, new_version)
+
+          with open("manifest.json", "w") as f:
+              json.dump(manifest, f, indent=4)
+              f.write("\n")
+          PYEOF
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          CHECKSUM: ${{ steps.checksum.outputs.md5 }}
+
+      - name: Update build.yaml version
+        run: sed -i "s/^version:.*/version: ${{ steps.version.outputs.version }}/" build.yaml
+
+      # Requires branch protection to allow github-actions[bot] to push directly to main.
+      - name: Commit manifest and build.yaml
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add manifest.json build.yaml
+          git commit -m "chore: update manifest and build.yaml to ${{ steps.version.outputs.version }} [skip ci]"
+          git push origin HEAD:main
+
+      - name: Create GitHub Release
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            "artifacts/Jellyfin.Plugin.SleepGuard_${{ steps.version.outputs.version }}.zip" \
+            --title "SleepGuard ${{ steps.version.outputs.version }}" \
+            --generate-notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

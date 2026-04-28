@@ -1,0 +1,19 @@
+version: 2
+updates:
+  - package-ecosystem: nuget
+    directory: "/"
+    schedule:
+      interval: weekly
+    groups:
+      jellyfin:
+        patterns:
+          - "Jellyfin.*"
+      test:
+        patterns:
+          - "xunit*"
+          - "coverlet*"
+          - "Microsoft.NET.Test.Sdk"
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly

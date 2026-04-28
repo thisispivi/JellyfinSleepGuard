@@ -19,6 +19,34 @@
     .sleepGuardTitle {
       margin: 0;
     }
+
+    .sleepGuardCodeBlock {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 6px;
+      padding: 10px 14px;
+      margin: 8px 0 12px;
+      font-family: monospace;
+      font-size: 13px;
+      word-break: break-all;
+    }
+
+    .sleepGuardCodeBlock code {
+      flex: 1;
+    }
+
+    .sleepGuardCopyBtn {
+      flex-shrink: 0;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.12);
+      border: 0;
+      border-radius: 4px;
+      color: inherit;
+      padding: 4px 10px;
+      font-size: 12px;
+    }
   </style>
 </head>
 <body>
@@ -146,6 +174,67 @@
             <div class="fieldDescription" data-i18n="promptGraceDescription">How long to wait after the prompt before sending pause or stop.</div>
           </div>
 
+          <h3 class="checkboxListLabel" data-i18n="sectionOverlaySetup">Overlay setup</h3>
+
+          <div class="fieldDescription" data-i18n="overlaySetupDescription">Add this one line to Dashboard → General → Branding → Custom JavaScript:</div>
+          <div class="sleepGuardCodeBlock">
+            <code id="OverlaySnippet">import('/SleepGuard/overlay.js').catch(()=>{});</code>
+            <button type="button" class="sleepGuardCopyBtn" id="CopyOverlaySnippet" data-i18n="copySnippet">Copy</button>
+          </div>
+
+          <h3 class="checkboxListLabel" data-i18n="sectionOverlayAppearance">Overlay appearance</h3>
+
+          <div class="inputContainer">
+            <label class="inputLabel inputLabelUnfocused" for="OverlayAccentColor" data-i18n="overlayAccentColor">Accent color</label>
+            <input type="color" id="OverlayAccentColor" style="height:38px;width:80px;padding:2px;border:0;cursor:pointer;">
+          </div>
+
+          <div class="inputContainer">
+            <label class="inputLabel inputLabelUnfocused" for="OverlayBackgroundOpacity" data-i18n="overlayBackgroundOpacity">Background opacity</label>
+            <input type="range" min="0" max="100" id="OverlayBackgroundOpacity" style="width:100%;max-width:320px;">
+            <span id="OverlayBackgroundOpacityValue">92</span>%
+          </div>
+
+          <label class="checkboxContainer">
+            <input is="emby-checkbox" type="checkbox" id="OverlayUseBackdropImage">
+            <span data-i18n="overlayUseBackdropImage">Use backdrop image</span>
+          </label>
+
+          <label class="checkboxContainer" id="OverlayBlurBackdropContainer">
+            <input is="emby-checkbox" type="checkbox" id="OverlayBlurBackdrop">
+            <span data-i18n="overlayBlurBackdrop">Blur backdrop</span>
+          </label>
+
+          <label class="checkboxContainer">
+            <input is="emby-checkbox" type="checkbox" id="OverlayShowContinueButton">
+            <span data-i18n="overlayShowContinueButton">Show continue button</span>
+          </label>
+
+          <label class="checkboxContainer">
+            <input is="emby-checkbox" type="checkbox" id="OverlayShowDismissButton">
+            <span data-i18n="overlayShowDismissButton">Show dismiss button</span>
+          </label>
+
+          <div class="inputContainer">
+            <label class="inputLabel inputLabelUnfocused" for="OverlayContinueButtonTextEn" data-i18n="overlayContinueButtonTextEn">Continue button text (English)</label>
+            <input is="emby-input" type="text" id="OverlayContinueButtonTextEn" placeholder="Continue watching">
+          </div>
+
+          <div class="inputContainer">
+            <label class="inputLabel inputLabelUnfocused" for="OverlayContinueButtonTextIt" data-i18n="overlayContinueButtonTextIt">Continue button text (Italian)</label>
+            <input is="emby-input" type="text" id="OverlayContinueButtonTextIt" placeholder="Continua la riproduzione">
+          </div>
+
+          <div class="inputContainer">
+            <label class="inputLabel inputLabelUnfocused" for="OverlayDismissButtonTextEn" data-i18n="overlayDismissButtonTextEn">Dismiss button text (English)</label>
+            <input is="emby-input" type="text" id="OverlayDismissButtonTextEn" placeholder="Stay paused">
+          </div>
+
+          <div class="inputContainer">
+            <label class="inputLabel inputLabelUnfocused" for="OverlayDismissButtonTextIt" data-i18n="overlayDismissButtonTextIt">Dismiss button text (Italian)</label>
+            <input is="emby-input" type="text" id="OverlayDismissButtonTextIt" placeholder="Resta in pausa">
+          </div>
+
           <h3 class="checkboxListLabel" data-i18n="sectionDiagnostics">Testing and diagnostics</h3>
 
           <div class="inputContainer">
@@ -254,7 +343,22 @@
             logRuleChecks: "Log rule checks",
             save: "Save",
             loadError: "SleepGuard could not load its configuration. Restart Jellyfin and refresh the browser cache.",
-            saveError: "SleepGuard could not save its configuration. Check the Jellyfin log for details."
+            saveError: "SleepGuard could not save its configuration. Check the Jellyfin log for details.",
+            sectionOverlaySetup: "Overlay setup",
+            overlaySetupDescription: "Add this one line to Dashboard → General → Branding → Custom JavaScript:",
+            copySnippet: "Copy",
+            copied: "Copied!",
+            sectionOverlayAppearance: "Overlay appearance",
+            overlayAccentColor: "Accent color",
+            overlayBackgroundOpacity: "Background opacity",
+            overlayUseBackdropImage: "Use backdrop image",
+            overlayBlurBackdrop: "Blur backdrop",
+            overlayShowContinueButton: "Show continue button",
+            overlayShowDismissButton: "Show dismiss button",
+            overlayContinueButtonTextEn: "Continue button text (English)",
+            overlayContinueButtonTextIt: "Continue button text (Italian)",
+            overlayDismissButtonTextEn: "Dismiss button text (English)",
+            overlayDismissButtonTextIt: "Dismiss button text (Italian)"
           },
           it: {
             title: "SleepGuard",
@@ -304,7 +408,22 @@
             logRuleChecks: "Registra controlli regole",
             save: "Salva",
             loadError: "SleepGuard non ha potuto caricare la configurazione. Riavvia Jellyfin e aggiorna la cache del browser.",
-            saveError: "SleepGuard non ha potuto salvare la configurazione. Controlla il log di Jellyfin."
+            saveError: "SleepGuard non ha potuto salvare la configurazione. Controlla il log di Jellyfin.",
+            sectionOverlaySetup: "Configurazione overlay",
+            overlaySetupDescription: "Aggiungi questa riga in Dashboard → Generale → Branding → JavaScript personalizzato:",
+            copySnippet: "Copia",
+            copied: "Copiato!",
+            sectionOverlayAppearance: "Aspetto overlay",
+            overlayAccentColor: "Colore accento",
+            overlayBackgroundOpacity: "Opacità sfondo",
+            overlayUseBackdropImage: "Usa immagine di sfondo",
+            overlayBlurBackdrop: "Sfoca sfondo",
+            overlayShowContinueButton: "Mostra pulsante continua",
+            overlayShowDismissButton: "Mostra pulsante chiudi",
+            overlayContinueButtonTextEn: "Testo pulsante continua (Inglese)",
+            overlayContinueButtonTextIt: "Testo pulsante continua (Italiano)",
+            overlayDismissButtonTextEn: "Testo pulsante chiudi (Inglese)",
+            overlayDismissButtonTextIt: "Testo pulsante chiudi (Italiano)"
           }
         };
 
@@ -399,6 +518,18 @@
           page.querySelector("#ActionRepeatIntervalSeconds").value = config.ActionRepeatIntervalSeconds || 2;
           page.querySelector("#LogProgressEvents").checked = config.LogProgressEvents;
           page.querySelector("#LogRuleChecks").checked = config.LogRuleChecks;
+          page.querySelector("#OverlayAccentColor").value = config.OverlayAccentColor || "#00a4dc";
+          page.querySelector("#OverlayBackgroundOpacity").value = config.OverlayBackgroundOpacity ?? 92;
+          page.querySelector("#OverlayBackgroundOpacityValue").textContent = config.OverlayBackgroundOpacity ?? 92;
+          page.querySelector("#OverlayUseBackdropImage").checked = config.OverlayUseBackdropImage;
+          page.querySelector("#OverlayBlurBackdrop").checked = config.OverlayBlurBackdrop ?? true;
+          page.querySelector("#OverlayBlurBackdropContainer").style.display = config.OverlayUseBackdropImage ? "" : "none";
+          page.querySelector("#OverlayShowContinueButton").checked = config.OverlayShowContinueButton ?? true;
+          page.querySelector("#OverlayShowDismissButton").checked = config.OverlayShowDismissButton ?? true;
+          page.querySelector("#OverlayContinueButtonTextEn").value = config.OverlayContinueButtonTextEn || "";
+          page.querySelector("#OverlayContinueButtonTextIt").value = config.OverlayContinueButtonTextIt || "";
+          page.querySelector("#OverlayDismissButtonTextEn").value = config.OverlayDismissButtonTextEn || "";
+          page.querySelector("#OverlayDismissButtonTextIt").value = config.OverlayDismissButtonTextIt || "";
         };
 
         page.querySelector("#SleepGuardLanguage").addEventListener("change", event => {
@@ -413,6 +544,24 @@
             promptMessage.value = defaults.message;
           }
           applyLanguage(language);
+        });
+
+        page.querySelector("#OverlayUseBackdropImage").addEventListener("change", event => {
+          page.querySelector("#OverlayBlurBackdropContainer").style.display = event.target.checked ? "" : "none";
+        });
+
+        page.querySelector("#OverlayBackgroundOpacity").addEventListener("input", event => {
+          page.querySelector("#OverlayBackgroundOpacityValue").textContent = event.target.value;
+        });
+
+        page.querySelector("#CopyOverlaySnippet").addEventListener("click", () => {
+          const snippet = page.querySelector("#OverlaySnippet").textContent;
+          const lang = normalizeLanguage(page.querySelector("#SleepGuardLanguage").value);
+          navigator.clipboard.writeText(snippet).then(() => {
+            const btn = page.querySelector("#CopyOverlaySnippet");
+            btn.textContent = getText(lang, "copied");
+            setTimeout(() => { btn.textContent = getText(lang, "copySnippet"); }, 1500);
+          });
         });
 
         page.addEventListener("pageshow", () => {
@@ -455,6 +604,16 @@
             config.ActionRepeatIntervalSeconds = Number(page.querySelector("#ActionRepeatIntervalSeconds").value);
             config.LogProgressEvents = page.querySelector("#LogProgressEvents").checked;
             config.LogRuleChecks = page.querySelector("#LogRuleChecks").checked;
+            config.OverlayAccentColor = page.querySelector("#OverlayAccentColor").value;
+            config.OverlayBackgroundOpacity = Number(page.querySelector("#OverlayBackgroundOpacity").value);
+            config.OverlayUseBackdropImage = page.querySelector("#OverlayUseBackdropImage").checked;
+            config.OverlayBlurBackdrop = page.querySelector("#OverlayBlurBackdrop").checked;
+            config.OverlayShowContinueButton = page.querySelector("#OverlayShowContinueButton").checked;
+            config.OverlayShowDismissButton = page.querySelector("#OverlayShowDismissButton").checked;
+            config.OverlayContinueButtonTextEn = page.querySelector("#OverlayContinueButtonTextEn").value.trim() || null;
+            config.OverlayContinueButtonTextIt = page.querySelector("#OverlayContinueButtonTextIt").value.trim() || null;
+            config.OverlayDismissButtonTextEn = page.querySelector("#OverlayDismissButtonTextEn").value.trim() || null;
+            config.OverlayDismissButtonTextIt = page.querySelector("#OverlayDismissButtonTextIt").value.trim() || null;
             ApiClient.updatePluginConfiguration(activePluginId, config).then(() => {
               Dashboard.processPluginConfigurationUpdateResult();
             });
