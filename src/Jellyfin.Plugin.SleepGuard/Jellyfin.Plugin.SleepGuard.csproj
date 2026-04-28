@@ -27,7 +27,7 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Jellyfin.Controller" Version="10.11.8" PrivateAssets="all" ExcludeAssets="runtime" />
     <PackageReference Include="Jellyfin.Model" Version="10.11.8" PrivateAssets="all" ExcludeAssets="runtime" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.1" PrivateAssets="all" ExcludeAssets="runtime" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.7" PrivateAssets="all" ExcludeAssets="runtime" />
   </ItemGroup>
 
 </Project>
