@@ -8,19 +8,14 @@ Versioning follows Jellyfin plugin conventions: `MAJOR.MINOR.PATCH.BUILD`.
 ## [Unreleased]
 
 ### Added
-- Three-section settings page: **Behavior**, **Customization**, and **Developer Tools** tabs.
-- `DeveloperMode` configuration property that unlocks the Developer Tools tab.
-- Keyboard shortcut `Ctrl+Shift+Alt+S` to force-show the overlay during development (Developer Mode only).
-- Inline live-preview panel in the Customization tab for real-time overlay appearance feedback.
-- `GET /SleepGuard/config/developer-mode` endpoint for the overlay to read the developer flag.
+- Simplified settings page with **Main**, **Advanced**, and **Test Mode** sections.
+- Manual JavaScript Injector setup snippet for loading `/SleepGuard/overlay.js`.
 - `IPluginConfigurationAccessor` interface replacing all `Plugin.Instance` static accesses.
 - `PluginConfigurationValidator` that logs warnings and clamps invalid config values instead of silently accepting them.
 - `SessionConstants` class centralising all hardcoded session-timing values.
 - `IGateRule` and `ITriggerRule` interfaces replacing the shared `ISleepRule` interface.
 - TTL-based eviction for orphaned `PlaybackTracker` entries (4-hour idle threshold).
-- `[SettingsGroup]` attribute to annotate every config property with its UI section.
 - TypeScript source for the overlay script with strict type checking.
-- `CONTRIBUTING.md`, `SECURITY.md`, `docs/ARCHITECTURE.md`, GitHub issue templates, and PR template.
 - `Makefile` with Unix-friendly build targets including `deploy-local` for systemd-hosted Jellyfin.
 
 ### Changed
@@ -40,6 +35,8 @@ Versioning follows Jellyfin plugin conventions: `MAJOR.MINOR.PATCH.BUILD`.
 ### Removed
 - `Diagnostics/LogScopes.cs` — dead code, never called.
 - `ISleepRule` — replaced by `IGateRule` and `ITriggerRule`.
+- Browser overlay test shortcut and settings-page overlay test button.
+- Unused diagnostics endpoint, config grouping attribute, repeat-action controls, progress-event logging, prompt-timeout setting, and overlay appearance config.
 
 ## [0.1.0.11] — 2025-01-01
 

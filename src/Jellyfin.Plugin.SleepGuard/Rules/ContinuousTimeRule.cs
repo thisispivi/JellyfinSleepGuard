@@ -9,7 +9,7 @@ namespace Jellyfin.Plugin.SleepGuard.Rules;
 /// <para>
 /// The threshold is controlled by <see cref="PluginConfiguration.MaxContinuousMinutes"/> in production.
 /// <see cref="PluginConfiguration.MaxContinuousSeconds"/> provides a seconds-precision override for
-/// testing (Developer Tools tab) without having to wait for full minutes.
+/// testing without having to wait for full minutes.
 /// </para>
 /// </summary>
 public sealed class ContinuousTimeRule : ITriggerRule

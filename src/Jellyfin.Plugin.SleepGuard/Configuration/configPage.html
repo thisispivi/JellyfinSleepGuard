@@ -3,132 +3,111 @@
 <head>
   <title>SleepGuard</title>
   <style>
-    /* ── Header ──────────────────────────────────────────────────────── */
     .sg-header {
       display: flex;
       align-items: center;
       gap: 1em;
       margin-bottom: 1.25em;
     }
+
     .sg-logo {
-      width: 6.5em;
-      max-width: 28vw;
+      width: 5em;
+      max-width: 24vw;
       height: auto;
       flex: 0 0 auto;
     }
+
     .sg-title { margin: 0; }
 
-    /* ── Tabs ────────────────────────────────────────────────────────── */
     .sg-tabs {
       display: flex;
+      flex-wrap: wrap;
       gap: 0;
       border-bottom: 2px solid rgba(255,255,255,0.12);
-      margin-bottom: 1.5em;
+      margin-bottom: 1.4em;
     }
+
     .sg-tab-btn {
       background: none;
-      border: none;
+      border: 0;
       border-bottom: 3px solid transparent;
       color: inherit;
       cursor: pointer;
       font-size: 0.9em;
-      font-weight: 500;
-      letter-spacing: 0.04em;
+      font-weight: 600;
       margin-bottom: -2px;
-      opacity: 0.65;
-      padding: 0.6em 1.2em;
-      text-transform: uppercase;
-      transition: opacity 0.15s, border-color 0.15s;
+      opacity: 0.68;
+      padding: 0.7em 1em;
     }
-    .sg-tab-btn:hover { opacity: 0.9; }
+
     .sg-tab-btn.active {
       border-bottom-color: #00a4dc;
       opacity: 1;
     }
+
     .sg-tab-panel { display: none; }
     .sg-tab-panel.active { display: block; }
 
-    /* ── Section headings inside tabs ───────────────────────────────── */
     .sg-section {
       font-size: 0.75em;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      margin: 1.6em 0 0.5em;
-      opacity: 0.55;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      margin: 1.6em 0 0.65em;
+      opacity: 0.65;
       text-transform: uppercase;
     }
+
     .sg-section:first-child { margin-top: 0; }
 
-    /* ── Code / snippet block ────────────────────────────────────────── */
-    .sg-code-block {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(0,0,0,0.25);
+    .sg-note {
+      line-height: 1.5;
+      margin: 0.4em 0 1em;
+      opacity: 0.78;
+    }
+
+    .sg-snippet {
+      background: rgba(0,0,0,0.26);
+      border: 1px solid rgba(255,255,255,0.08);
       border-radius: 6px;
+      margin: 0.8em 0;
+      padding: 0.85em;
+    }
+
+    .sg-snippet textarea {
+      background: transparent;
+      border: 0;
+      color: inherit;
+      display: block;
       font-family: monospace;
       font-size: 13px;
-      margin: 6px 0 12px;
-      padding: 10px 14px;
-      word-break: break-all;
+      min-height: 170px;
+      resize: vertical;
+      width: 100%;
+      white-space: pre;
     }
-    .sg-code-block code { flex: 1; }
+
+    .sg-copy-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 0.6em;
+    }
+
     .sg-copy-btn {
       background: rgba(255,255,255,0.12);
       border: 0;
       border-radius: 4px;
       color: inherit;
       cursor: pointer;
-      flex-shrink: 0;
-      font-size: 12px;
-      padding: 4px 10px;
+      font-size: 13px;
+      padding: 0.45em 0.8em;
     }
 
-    /* ── Developer tab warning banner ───────────────────────────────── */
-    .sg-dev-warning {
-      align-items: flex-start;
-      background: rgba(255, 160, 0, 0.12);
-      border: 1px solid rgba(255, 160, 0, 0.35);
+    .sg-test-panel {
+      background: rgba(0, 164, 220, 0.1);
+      border: 1px solid rgba(0, 164, 220, 0.28);
       border-radius: 6px;
-      display: flex;
-      gap: 10px;
-      margin-bottom: 1.25em;
-      padding: 12px 14px;
-    }
-    .sg-dev-warning-icon {
-      color: #ffa000;
-      flex-shrink: 0;
-      font-size: 1.2em;
-      margin-top: 1px;
-    }
-    .sg-dev-warning-text { font-size: 0.88em; line-height: 1.5; opacity: 0.9; }
-
-    /* ── Live preview panel ──────────────────────────────────────────── */
-    .sg-preview-wrap { margin: 0.75em 0 1em; }
-    .sg-preview {
-      background: rgba(0,0,0,0.7);
-      border-radius: 8px;
-      display: inline-flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      height: 100px;
-      padding: 12px 20px;
-      width: 180px;
-    }
-    .sg-preview-msg {
-      color: #fff;
-      font-size: 12px;
-      opacity: 0.85;
-      text-align: center;
-    }
-    .sg-preview-btn {
-      border: none;
-      border-radius: 4px;
-      color: #fff;
-      font-size: 11px;
-      padding: 4px 12px;
+      margin-bottom: 1.2em;
+      padding: 1em;
     }
   </style>
 </head>
@@ -138,36 +117,20 @@
     <div data-role="content">
       <div class="content-primary">
 
-        <!-- Header -->
         <div class="sg-header">
           <img class="sg-logo" src="configurationpage?name=sleepguardlogo.png" alt="SleepGuard logo">
           <h2 class="sectionTitle sg-title" data-i18n="title">SleepGuard</h2>
         </div>
 
         <form id="SleepGuardConfigForm">
-
-          <!-- Tab navigation -->
           <div class="sg-tabs" id="sg-tabs">
-            <button type="button" class="sg-tab-btn active" data-tab="behavior" data-i18n="tabBehavior">Behavior</button>
-            <button type="button" class="sg-tab-btn" data-tab="customization" data-i18n="tabCustomization">Customization</button>
-            <button type="button" id="sg-dev-tab-btn" class="sg-tab-btn" data-tab="developer"
-                    data-i18n="tabDeveloper" style="display:none">Developer Tools</button>
+            <button type="button" class="sg-tab-btn active" data-tab="main" data-i18n="tabMain">Main</button>
+            <button type="button" class="sg-tab-btn" data-tab="advanced" data-i18n="tabAdvanced">Advanced</button>
+            <button type="button" class="sg-tab-btn" data-tab="test" data-i18n="tabTest">Test Mode</button>
           </div>
 
-          <!-- ══════════════════════════════════════════════════════════
-               TAB 1: BEHAVIOR
-          ══════════════════════════════════════════════════════════ -->
-          <div id="tab-behavior" class="sg-tab-panel active">
-
-            <div class="selectContainer">
-              <label class="selectLabel" for="SleepGuardLanguage" data-i18n="languageLabel">Language</label>
-              <select is="emby-select" id="SleepGuardLanguage" class="emby-select-withcolor">
-                <option value="en" data-i18n="languageEnglish">English</option>
-                <option value="it" data-i18n="languageItalian">Italiano</option>
-              </select>
-            </div>
-
-            <p class="sg-section" data-i18n="sectionGeneral">General</p>
+          <div id="tab-main" class="sg-tab-panel active">
+            <p class="sg-section" data-i18n="sectionBasics">Basics</p>
 
             <label class="checkboxContainer">
               <input is="emby-checkbox" type="checkbox" id="SleepGuardEnabled">
@@ -180,46 +143,71 @@
                 <option value="Pause" data-i18n="actionPause">Pause</option>
                 <option value="Stop" data-i18n="actionStop">Stop</option>
               </select>
+              <div class="fieldDescription" data-i18n="actionDescription">Pause is gentler. Stop closes the active playback session.</div>
             </div>
 
-            <p class="sg-section" data-i18n="sectionInactivityThresholds">Inactivity Thresholds</p>
+            <p class="sg-section" data-i18n="sectionLimits">Limits</p>
 
             <div class="inputContainer">
-              <label class="inputLabel inputLabelUnfocused" for="MaxContinuousMinutes" data-i18n="maxContinuousMinutes">Max continuous minutes</label>
+              <label class="inputLabel inputLabelUnfocused" for="MaxContinuousMinutes" data-i18n="maxContinuousMinutes">Continuous minutes</label>
               <input is="emby-input" type="number" min="0" id="MaxContinuousMinutes">
-              <div class="fieldDescription" data-i18n="disableContinuousRule">Set to 0 to disable the continuous-time rule.</div>
+              <div class="fieldDescription" data-i18n="maxContinuousDescription">Pause or stop after this many minutes of uninterrupted playback. Use 0 to disable.</div>
             </div>
 
             <div class="inputContainer">
-              <label class="inputLabel inputLabelUnfocused" for="MaxAutoplayEpisodes" data-i18n="maxAutoplayEpisodes">Max autoplay episodes</label>
+              <label class="inputLabel inputLabelUnfocused" for="MaxAutoplayEpisodes" data-i18n="maxAutoplayEpisodes">Autoplay episodes</label>
               <input is="emby-input" type="number" min="0" id="MaxAutoplayEpisodes">
-              <div class="fieldDescription" data-i18n="disableAutoplayRule">Set to 0 to disable the autoplay episode rule.</div>
+              <div class="fieldDescription" data-i18n="maxAutoplayDescription">Pause or stop after this many same-series episodes. Use 0 to disable.</div>
             </div>
 
-            <p class="sg-section" data-i18n="sectionPromptTiming">Prompt Timing</p>
+            <div class="inputContainer">
+              <label class="inputLabel inputLabelUnfocused" for="PromptGraceSeconds" data-i18n="promptGraceSeconds">Grace period seconds</label>
+              <input is="emby-input" type="number" min="0" id="PromptGraceSeconds">
+              <div class="fieldDescription" data-i18n="promptGraceDescription">Delay after the prompt before SleepGuard sends pause or stop.</div>
+            </div>
 
             <label class="checkboxContainer">
               <input is="emby-checkbox" type="checkbox" id="SendPrompt">
-              <span data-i18n="sendPrompt">Send prompt message</span>
+              <span data-i18n="sendPrompt">Send Jellyfin prompt before acting</span>
             </label>
 
-            <div class="inputContainer">
-              <label class="inputLabel inputLabelUnfocused" for="PromptTimeoutSeconds" data-i18n="promptTimeoutSeconds">Prompt timeout (seconds)</label>
-              <input is="emby-input" type="number" min="1" id="PromptTimeoutSeconds">
-              <div class="fieldDescription" data-i18n="promptTimeoutDescription">How long clients keep the toast visible.</div>
+            <p class="sg-section" data-i18n="sectionOverlaySetup">Overlay Setup</p>
+            <p class="sg-note" data-i18n="overlaySetupDescription">Install a JavaScript Injector plugin, add a script named SleepGuard, paste this code, enable it, save, then refresh Jellyfin Web.</p>
+
+            <div class="sg-snippet">
+              <textarea id="InjectorSnippet" readonly spellcheck="false"></textarea>
+              <div class="sg-copy-row">
+                <button type="button" class="sg-copy-btn" id="CopyInjectorSnippet" data-i18n="copySnippet">Copy script</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="tab-advanced" class="sg-tab-panel">
+            <p class="sg-section" data-i18n="sectionLanguage">Language and Prompt</p>
+
+            <div class="selectContainer">
+              <label class="selectLabel" for="SleepGuardLanguage" data-i18n="languageLabel">Language</label>
+              <select is="emby-select" id="SleepGuardLanguage" class="emby-select-withcolor">
+                <option value="en" data-i18n="languageEnglish">English</option>
+                <option value="it" data-i18n="languageItalian">Italiano</option>
+              </select>
             </div>
 
             <div class="inputContainer">
-              <label class="inputLabel inputLabelUnfocused" for="PromptGraceSeconds" data-i18n="promptGraceSeconds">Grace period (seconds)</label>
-              <input is="emby-input" type="number" min="0" id="PromptGraceSeconds">
-              <div class="fieldDescription" data-i18n="promptGraceDescription">Delay after prompt before pause or stop. 0 acts immediately.</div>
+              <label class="inputLabel inputLabelUnfocused" for="PromptHeader" data-i18n="promptHeader">Prompt title</label>
+              <input is="emby-input" type="text" id="PromptHeader">
+            </div>
+
+            <div class="inputContainer">
+              <label class="inputLabel inputLabelUnfocused" for="PromptMessage" data-i18n="promptMessage">Prompt message</label>
+              <input is="emby-input" type="text" id="PromptMessage">
             </div>
 
             <p class="sg-section" data-i18n="sectionTimeWindow">Time Window</p>
 
             <label class="checkboxContainer">
               <input is="emby-checkbox" type="checkbox" id="OnlyWithinTimeWindow">
-              <span data-i18n="onlyWithinTimeWindow">Only within time window</span>
+              <span data-i18n="onlyWithinTimeWindow">Only run during a time window</span>
             </label>
 
             <div class="inputContainer">
@@ -236,20 +224,20 @@
 
             <label class="checkboxContainer">
               <input is="emby-checkbox" type="checkbox" id="IncludeMovies">
-              <span data-i18n="includeMovies">Include movies</span>
+              <span data-i18n="includeMovies">Apply to movies</span>
             </label>
 
             <label class="checkboxContainer">
               <input is="emby-checkbox" type="checkbox" id="IncludeMusic">
-              <span data-i18n="includeMusic">Include music</span>
+              <span data-i18n="includeMusic">Apply to music</span>
             </label>
 
             <label class="checkboxContainer">
               <input is="emby-checkbox" type="checkbox" id="IncludeLiveTv">
-              <span data-i18n="includeLiveTv">Include Live TV</span>
+              <span data-i18n="includeLiveTv">Apply to Live TV</span>
             </label>
 
-            <p class="sg-section" data-i18n="sectionUserScope">User Scope</p>
+            <p class="sg-section" data-i18n="sectionUserScope">Users</p>
 
             <div class="selectContainer">
               <label class="selectLabel" for="UserMode" data-i18n="userScope">User scope</label>
@@ -263,185 +251,43 @@
             <div class="inputContainer">
               <label class="inputLabel inputLabelUnfocused" for="UserIds" data-i18n="userIds">User IDs</label>
               <input is="emby-input" type="text" id="UserIds">
-              <div class="fieldDescription" data-i18n="userIdsDescription">Comma-separated Jellyfin user IDs for whitelist or blacklist mode.</div>
+              <div class="fieldDescription" data-i18n="userIdsDescription">Comma-separated Jellyfin user IDs.</div>
             </div>
+          </div>
 
-            <p class="sg-section" data-i18n="sectionDeveloperMode">Developer Mode</p>
-
-            <label class="checkboxContainer">
-              <input is="emby-checkbox" type="checkbox" id="DeveloperMode">
-              <span data-i18n="developerModeLabel">Enable Developer Tools tab</span>
-            </label>
-            <div class="fieldDescription" data-i18n="developerModeDescription">
-              Unlocks the Developer Tools tab and activates the overlay keyboard shortcut (Ctrl+Shift+Alt+S). Disable on production servers.
-            </div>
-
-          </div><!-- /tab-behavior -->
-
-          <!-- ══════════════════════════════════════════════════════════
-               TAB 2: CUSTOMIZATION
-          ══════════════════════════════════════════════════════════ -->
-          <div id="tab-customization" class="sg-tab-panel">
-
-            <p class="sg-section" data-i18n="sectionPromptText">Prompt Text</p>
-
-            <div class="inputContainer">
-              <label class="inputLabel inputLabelUnfocused" for="PromptHeader" data-i18n="promptHeader">Prompt header</label>
-              <input is="emby-input" type="text" id="PromptHeader">
+          <div id="tab-test" class="sg-tab-panel">
+            <div class="sg-test-panel">
+              <label class="checkboxContainer">
+                <input is="emby-checkbox" type="checkbox" id="TestModeEnabled">
+                <span data-i18n="testModeEnabled">Enable test mode</span>
+              </label>
+              <div class="fieldDescription" data-i18n="testModeDescription">Use this for short local checks. Turn it off when you are done.</div>
             </div>
 
             <div class="inputContainer">
-              <label class="inputLabel inputLabelUnfocused" for="PromptMessage" data-i18n="promptMessage">Prompt message</label>
-              <input is="emby-input" type="text" id="PromptMessage">
+              <label class="inputLabel inputLabelUnfocused" for="MaxContinuousSeconds" data-i18n="maxContinuousSeconds">Continuous seconds</label>
+              <input is="emby-input" type="number" min="0" id="MaxContinuousSeconds">
+              <div class="fieldDescription" data-i18n="maxContinuousSecondsDescription">Overrides continuous minutes while testing. Use 15 for a quick check, or 0 to disable.</div>
             </div>
-
-            <p class="sg-section" data-i18n="sectionOverlayAppearance">Overlay Appearance</p>
-
-            <div class="inputContainer">
-              <label class="inputLabel inputLabelUnfocused" for="OverlayAccentColor" data-i18n="overlayAccentColor">Accent color</label>
-              <input type="color" id="OverlayAccentColor" style="height:38px;width:80px;padding:2px;border:0;cursor:pointer;">
-            </div>
-
-            <div class="inputContainer">
-              <label class="inputLabel inputLabelUnfocused" for="OverlayBackgroundOpacity" data-i18n="overlayBackgroundOpacity">Background opacity</label>
-              <input type="range" min="0" max="100" id="OverlayBackgroundOpacity" style="width:100%;max-width:320px;">
-              <span id="OverlayBackgroundOpacityValue">92</span>%
-            </div>
-
-            <label class="checkboxContainer">
-              <input is="emby-checkbox" type="checkbox" id="OverlayUseBackdropImage">
-              <span data-i18n="overlayUseBackdropImage">Use backdrop image</span>
-            </label>
-
-            <label class="checkboxContainer" id="OverlayBlurBackdropContainer">
-              <input is="emby-checkbox" type="checkbox" id="OverlayBlurBackdrop">
-              <span data-i18n="overlayBlurBackdrop">Blur backdrop</span>
-            </label>
-
-            <!-- Live preview -->
-            <div class="sg-preview-wrap">
-              <div class="sg-preview" id="sg-preview">
-                <div class="sg-preview-msg" id="sg-preview-msg">Are you still watching?</div>
-                <button type="button" class="sg-preview-btn" id="sg-preview-btn">Continue watching</button>
-              </div>
-            </div>
-
-            <p class="sg-section" data-i18n="sectionOverlayButtons">Overlay Buttons</p>
-
-            <label class="checkboxContainer">
-              <input is="emby-checkbox" type="checkbox" id="OverlayShowContinueButton">
-              <span data-i18n="overlayShowContinueButton">Show continue button</span>
-            </label>
-
-            <label class="checkboxContainer">
-              <input is="emby-checkbox" type="checkbox" id="OverlayShowDismissButton">
-              <span data-i18n="overlayShowDismissButton">Show dismiss button</span>
-            </label>
-
-            <div class="inputContainer">
-              <label class="inputLabel inputLabelUnfocused" for="OverlayContinueButtonTextEn" data-i18n="overlayContinueButtonTextEn">Continue button (English)</label>
-              <input is="emby-input" type="text" id="OverlayContinueButtonTextEn" placeholder="Continue watching">
-            </div>
-
-            <div class="inputContainer">
-              <label class="inputLabel inputLabelUnfocused" for="OverlayContinueButtonTextIt" data-i18n="overlayContinueButtonTextIt">Continue button (Italian)</label>
-              <input is="emby-input" type="text" id="OverlayContinueButtonTextIt" placeholder="Continua la riproduzione">
-            </div>
-
-            <div class="inputContainer">
-              <label class="inputLabel inputLabelUnfocused" for="OverlayDismissButtonTextEn" data-i18n="overlayDismissButtonTextEn">Dismiss button (English)</label>
-              <input is="emby-input" type="text" id="OverlayDismissButtonTextEn" placeholder="Stay paused">
-            </div>
-
-            <div class="inputContainer">
-              <label class="inputLabel inputLabelUnfocused" for="OverlayDismissButtonTextIt" data-i18n="overlayDismissButtonTextIt">Dismiss button (Italian)</label>
-              <input is="emby-input" type="text" id="OverlayDismissButtonTextIt" placeholder="Resta in pausa">
-            </div>
-
-            <p class="sg-section" data-i18n="sectionOverlaySetup">Overlay Setup</p>
-
-            <div class="fieldDescription" data-i18n="overlaySetupDescription">
-              Register this URL in the Jellyfin JavaScript Injector plugin:
-            </div>
-            <div class="sg-code-block">
-              <code id="OverlayScriptUrl"></code>
-              <button type="button" class="sg-copy-btn" id="CopyOverlayUrl" data-i18n="copySnippet">Copy</button>
-            </div>
-            <div class="fieldDescription" data-i18n="overlaySetupNote">
-              Add this URL to the JavaScript Injector settings to automatically load the overlay on every page. No Branding configuration is needed.
-            </div>
-
-          </div><!-- /tab-customization -->
-
-          <!-- ══════════════════════════════════════════════════════════
-               TAB 3: DEVELOPER TOOLS
-          ══════════════════════════════════════════════════════════ -->
-          <div id="tab-developer" class="sg-tab-panel">
-
-            <div class="sg-dev-warning">
-              <span class="sg-dev-warning-icon">⚠</span>
-              <span class="sg-dev-warning-text" data-i18n="devWarning">
-                Developer Tools are intended for testing and debugging only.
-                These settings can cause unexpected behaviour on a production server.
-                Disable Developer Mode when you are done.
-              </span>
-            </div>
-
-            <label class="checkboxContainer">
-              <input is="emby-checkbox" type="checkbox" id="DeveloperModeDev">
-              <span data-i18n="developerModeLabel">Enable Developer Mode</span>
-            </label>
-
-            <p class="sg-section" data-i18n="sectionDiagnostics">Diagnostics</p>
 
             <label class="checkboxContainer">
               <input is="emby-checkbox" type="checkbox" id="DryRun">
-              <span data-i18n="dryRun">Dry run (log actions, do not send)</span>
-            </label>
-
-            <label class="checkboxContainer">
-              <input is="emby-checkbox" type="checkbox" id="LogProgressEvents">
-              <span data-i18n="logProgressEvents">Log playback progress events</span>
+              <span data-i18n="dryRun">Dry run: log actions, do not send pause/stop</span>
             </label>
 
             <label class="checkboxContainer">
               <input is="emby-checkbox" type="checkbox" id="LogRuleChecks">
-              <span data-i18n="logRuleChecks">Log rule evaluation results</span>
+              <span data-i18n="logRuleChecks">Log rule checks</span>
             </label>
 
-            <div class="inputContainer">
-              <label class="inputLabel inputLabelUnfocused" for="MaxContinuousSeconds" data-i18n="maxContinuousSeconds">Max continuous seconds (testing override)</label>
-              <input is="emby-input" type="number" min="0" id="MaxContinuousSeconds">
-              <div class="fieldDescription" data-i18n="maxContinuousSecondsDescription">Overrides the minutes threshold. Set to 0 to use MaxContinuousMinutes.</div>
-            </div>
+            <p class="sg-note" data-i18n="testModeLogHelp">During testing, watch the Jellyfin server log for rule-fired and dry-run lines. The browser shortcut and overlay test button were removed because they were unreliable.</p>
+          </div>
 
-            <div class="inputContainer">
-              <label class="inputLabel inputLabelUnfocused" for="ActionRepeatCount" data-i18n="actionRepeatCount">Action repeat count</label>
-              <input is="emby-input" type="number" min="1" max="5" id="ActionRepeatCount">
-              <div class="fieldDescription" data-i18n="actionRepeatDescription">Send pause or stop this many times for clients that miss the first command.</div>
-            </div>
-
-            <div class="inputContainer">
-              <label class="inputLabel inputLabelUnfocused" for="ActionRepeatIntervalSeconds" data-i18n="actionRepeatIntervalSeconds">Action repeat interval (seconds)</label>
-              <input is="emby-input" type="number" min="0" max="30" id="ActionRepeatIntervalSeconds">
-            </div>
-
-            <p class="sg-section" data-i18n="sectionOverlayTesting">Overlay Testing</p>
-
-            <button type="button" is="emby-button" class="raised" id="TestOverlay" data-i18n="testOverlay">Show Overlay (test)</button>
-            <div class="fieldDescription" data-i18n="testOverlayNote">
-              Triggers the overlay in this browser window. Only works if the overlay script is loaded via the JavaScript Injector.
-              Keyboard shortcut: Ctrl+Shift+Alt+S.
-            </div>
-
-          </div><!-- /tab-developer -->
-
-          <div style="margin-top:1.5em;">
+          <div style="margin-top:2em">
             <button is="emby-button" type="submit" class="raised button-submit block">
               <span data-i18n="save">Save</span>
             </button>
           </div>
-
         </form>
       </div>
     </div>
@@ -456,175 +302,136 @@
         const page = document.querySelector("#SleepGuardConfigPage");
         const form = page.querySelector("#SleepGuardConfigForm");
 
-        // ── Prompt defaults per language ─────────────────────────────────
+        const injectorSnippet = [
+          "(() => {",
+          "  const src = \"/SleepGuard/overlay.js\";",
+          "  if (document.querySelector(`script[src=\"${src}\"]`)) return;",
+          "",
+          "  const script = document.createElement(\"script\");",
+          "  script.src = src;",
+          "  script.defer = true;",
+          "  script.onerror = () => console.warn(\"[SleepGuard] Failed to load overlay script:\", src);",
+          "  document.head.appendChild(script);",
+          "})();"
+        ].join("\n");
+
         const promptDefaults = {
           en: { header: "SleepGuard", message: "Are you still watching?" },
           it: { header: "SleepGuard", message: "Stai ancora guardando?" }
         };
 
-        // ── Translations ─────────────────────────────────────────────────
         const translations = {
           en: {
             title: "SleepGuard",
-            tabBehavior: "Behavior",
-            tabCustomization: "Customization",
-            tabDeveloper: "Developer Tools",
-            languageLabel: "Language",
-            languageEnglish: "English",
-            languageItalian: "Italiano",
-            sectionGeneral: "General",
+            tabMain: "Main",
+            tabAdvanced: "Advanced",
+            tabTest: "Test Mode",
+            sectionBasics: "Basics",
             enabled: "Enabled",
             action: "Action",
             actionPause: "Pause",
             actionStop: "Stop",
-            sectionInactivityThresholds: "Inactivity Thresholds",
-            maxContinuousMinutes: "Max continuous minutes",
-            disableContinuousRule: "Set to 0 to disable the continuous-time rule.",
-            maxAutoplayEpisodes: "Max autoplay episodes",
-            disableAutoplayRule: "Set to 0 to disable the autoplay episode rule.",
-            sectionPromptTiming: "Prompt Timing",
-            sendPrompt: "Send prompt message",
-            promptTimeoutSeconds: "Prompt timeout (seconds)",
-            promptTimeoutDescription: "How long clients keep the toast visible.",
-            promptGraceSeconds: "Grace period (seconds)",
-            promptGraceDescription: "Delay after prompt before pause or stop. 0 acts immediately.",
+            actionDescription: "Pause is gentler. Stop closes the active playback session.",
+            sectionLimits: "Limits",
+            maxContinuousMinutes: "Continuous minutes",
+            maxContinuousDescription: "Pause or stop after this many minutes of uninterrupted playback. Use 0 to disable.",
+            maxAutoplayEpisodes: "Autoplay episodes",
+            maxAutoplayDescription: "Pause or stop after this many same-series episodes. Use 0 to disable.",
+            promptGraceSeconds: "Grace period seconds",
+            promptGraceDescription: "Delay after the prompt before SleepGuard sends pause or stop.",
+            sendPrompt: "Send Jellyfin prompt before acting",
+            sectionOverlaySetup: "Overlay Setup",
+            overlaySetupDescription: "Install a JavaScript Injector plugin, add a script named SleepGuard, paste this code, enable it, save, then refresh Jellyfin Web.",
+            copySnippet: "Copy script",
+            copied: "Copied",
+            sectionLanguage: "Language and Prompt",
+            languageLabel: "Language",
+            languageEnglish: "English",
+            languageItalian: "Italiano",
+            promptHeader: "Prompt title",
+            promptMessage: "Prompt message",
             sectionTimeWindow: "Time Window",
-            onlyWithinTimeWindow: "Only within time window",
+            onlyWithinTimeWindow: "Only run during a time window",
             timeWindowStart: "Window start",
             timeWindowEnd: "Window end",
             sectionMediaTypes: "Media Types",
-            includeMovies: "Include movies",
-            includeMusic: "Include music",
-            includeLiveTv: "Include Live TV",
-            sectionUserScope: "User Scope",
+            includeMovies: "Apply to movies",
+            includeMusic: "Apply to music",
+            includeLiveTv: "Apply to Live TV",
+            sectionUserScope: "Users",
             userScope: "User scope",
             userAll: "All users",
             userWhitelist: "Only listed users",
             userBlacklist: "All except listed users",
             userIds: "User IDs",
-            userIdsDescription: "Comma-separated Jellyfin user IDs for whitelist or blacklist mode.",
-            sectionDeveloperMode: "Developer Mode",
-            developerModeLabel: "Enable Developer Tools tab",
-            developerModeDescription: "Unlocks the Developer Tools tab and activates the overlay keyboard shortcut (Ctrl+Shift+Alt+S). Disable on production servers.",
-            sectionPromptText: "Prompt Text",
-            promptHeader: "Prompt header",
-            promptMessage: "Prompt message",
-            sectionOverlayAppearance: "Overlay Appearance",
-            overlayAccentColor: "Accent color",
-            overlayBackgroundOpacity: "Background opacity",
-            overlayUseBackdropImage: "Use backdrop image",
-            overlayBlurBackdrop: "Blur backdrop",
-            sectionOverlayButtons: "Overlay Buttons",
-            overlayShowContinueButton: "Show continue button",
-            overlayShowDismissButton: "Show dismiss button",
-            overlayContinueButtonTextEn: "Continue button (English)",
-            overlayContinueButtonTextIt: "Continue button (Italian)",
-            overlayDismissButtonTextEn: "Dismiss button (English)",
-            overlayDismissButtonTextIt: "Dismiss button (Italian)",
-            sectionOverlaySetup: "Overlay Setup",
-            overlaySetupDescription: "Register this URL in the Jellyfin JavaScript Injector plugin:",
-            overlaySetupNote: "Add this URL to the JavaScript Injector settings to automatically load the overlay on every page. No Branding configuration is needed.",
-            copySnippet: "Copy",
-            copied: "Copied!",
-            sectionDiagnostics: "Diagnostics",
-            dryRun: "Dry run (log actions, do not send)",
-            logProgressEvents: "Log playback progress events",
-            logRuleChecks: "Log rule evaluation results",
-            maxContinuousSeconds: "Max continuous seconds (testing override)",
-            maxContinuousSecondsDescription: "Overrides the minutes threshold. Set to 0 to use MaxContinuousMinutes.",
-            actionRepeatCount: "Action repeat count",
-            actionRepeatDescription: "Send pause or stop this many times for clients that miss the first command.",
-            actionRepeatIntervalSeconds: "Action repeat interval (seconds)",
-            sectionOverlayTesting: "Overlay Testing",
-            testOverlay: "Show Overlay (test)",
-            testOverlayNote: "Triggers the overlay in this browser window. Only works if the overlay script is loaded via the JavaScript Injector. Keyboard shortcut: Ctrl+Shift+Alt+S.",
-            devWarning: "Developer Tools are intended for testing and debugging only. These settings can cause unexpected behaviour on a production server. Disable Developer Mode when you are done.",
+            userIdsDescription: "Comma-separated Jellyfin user IDs.",
+            testModeEnabled: "Enable test mode",
+            testModeDescription: "Use this for short local checks. Turn it off when you are done.",
+            maxContinuousSeconds: "Continuous seconds",
+            maxContinuousSecondsDescription: "Overrides continuous minutes while testing. Use 15 for a quick check, or 0 to disable.",
+            dryRun: "Dry run: log actions, do not send pause/stop",
+            logRuleChecks: "Log rule checks",
+            testModeLogHelp: "During testing, watch the Jellyfin server log for rule-fired and dry-run lines. The browser shortcut and overlay test button were removed because they were unreliable.",
             save: "Save",
             loadError: "SleepGuard could not load its configuration. Restart Jellyfin and refresh the browser cache.",
             saveError: "SleepGuard could not save its configuration. Check the Jellyfin log for details."
           },
           it: {
             title: "SleepGuard",
-            tabBehavior: "Comportamento",
-            tabCustomization: "Personalizzazione",
-            tabDeveloper: "Strumenti sviluppatore",
-            languageLabel: "Lingua",
-            languageEnglish: "English",
-            languageItalian: "Italiano",
-            sectionGeneral: "Generale",
+            tabMain: "Principale",
+            tabAdvanced: "Avanzate",
+            tabTest: "Modalita test",
+            sectionBasics: "Base",
             enabled: "Abilitato",
             action: "Azione",
             actionPause: "Pausa",
             actionStop: "Ferma",
-            sectionInactivityThresholds: "Soglie di inattività",
-            maxContinuousMinutes: "Minuti continui massimi",
-            disableContinuousRule: "Imposta 0 per disattivare la regola del tempo continuo.",
-            maxAutoplayEpisodes: "Episodi autoplay massimi",
-            disableAutoplayRule: "Imposta 0 per disattivare la regola degli episodi in autoplay.",
-            sectionPromptTiming: "Tempistiche messaggio",
-            sendPrompt: "Invia messaggio di conferma",
-            promptTimeoutSeconds: "Durata messaggio (secondi)",
-            promptTimeoutDescription: "Per quanto tempo i client mantengono visibile il messaggio.",
-            promptGraceSeconds: "Periodo di attesa (secondi)",
-            promptGraceDescription: "Attesa dopo il messaggio prima di inviare pausa o stop. 0 agisce immediatamente.",
+            actionDescription: "Pausa e piu delicata. Ferma chiude la sessione di riproduzione attiva.",
+            sectionLimits: "Limiti",
+            maxContinuousMinutes: "Minuti continui",
+            maxContinuousDescription: "Mette in pausa o ferma dopo questi minuti di riproduzione continua. Usa 0 per disattivare.",
+            maxAutoplayEpisodes: "Episodi autoplay",
+            maxAutoplayDescription: "Mette in pausa o ferma dopo questi episodi consecutivi della stessa serie. Usa 0 per disattivare.",
+            promptGraceSeconds: "Secondi di attesa",
+            promptGraceDescription: "Attesa dopo il messaggio prima che SleepGuard invii pausa o stop.",
+            sendPrompt: "Invia messaggio Jellyfin prima dell'azione",
+            sectionOverlaySetup: "Configurazione overlay",
+            overlaySetupDescription: "Installa un plugin JavaScript Injector, aggiungi uno script chiamato SleepGuard, incolla questo codice, abilitalo, salva e aggiorna Jellyfin Web.",
+            copySnippet: "Copia script",
+            copied: "Copiato",
+            sectionLanguage: "Lingua e messaggio",
+            languageLabel: "Lingua",
+            languageEnglish: "English",
+            languageItalian: "Italiano",
+            promptHeader: "Titolo messaggio",
+            promptMessage: "Testo messaggio",
             sectionTimeWindow: "Finestra oraria",
-            onlyWithinTimeWindow: "Solo nella finestra oraria",
+            onlyWithinTimeWindow: "Esegui solo in una finestra oraria",
             timeWindowStart: "Inizio finestra",
             timeWindowEnd: "Fine finestra",
             sectionMediaTypes: "Tipi di media",
-            includeMovies: "Includi film",
-            includeMusic: "Includi musica",
-            includeLiveTv: "Includi TV in diretta",
-            sectionUserScope: "Ambito utenti",
+            includeMovies: "Applica ai film",
+            includeMusic: "Applica alla musica",
+            includeLiveTv: "Applica alla TV in diretta",
+            sectionUserScope: "Utenti",
             userScope: "Ambito utenti",
             userAll: "Tutti gli utenti",
             userWhitelist: "Solo utenti elencati",
             userBlacklist: "Tutti tranne gli utenti elencati",
             userIds: "ID utenti",
-            userIdsDescription: "ID utente Jellyfin separati da virgola per whitelist o blacklist.",
-            sectionDeveloperMode: "Modalità sviluppatore",
-            developerModeLabel: "Abilita la scheda Strumenti sviluppatore",
-            developerModeDescription: "Sblocca la scheda Strumenti sviluppatore e attiva la scorciatoia da tastiera (Ctrl+Shift+Alt+S). Disabilitare sui server di produzione.",
-            sectionPromptText: "Testo messaggio",
-            promptHeader: "Titolo messaggio",
-            promptMessage: "Testo messaggio",
-            sectionOverlayAppearance: "Aspetto overlay",
-            overlayAccentColor: "Colore accento",
-            overlayBackgroundOpacity: "Opacità sfondo",
-            overlayUseBackdropImage: "Usa immagine di sfondo",
-            overlayBlurBackdrop: "Sfoca sfondo",
-            sectionOverlayButtons: "Pulsanti overlay",
-            overlayShowContinueButton: "Mostra pulsante continua",
-            overlayShowDismissButton: "Mostra pulsante chiudi",
-            overlayContinueButtonTextEn: "Pulsante continua (Inglese)",
-            overlayContinueButtonTextIt: "Pulsante continua (Italiano)",
-            overlayDismissButtonTextEn: "Pulsante chiudi (Inglese)",
-            overlayDismissButtonTextIt: "Pulsante chiudi (Italiano)",
-            sectionOverlaySetup: "Configurazione overlay",
-            overlaySetupDescription: "Registra questo URL nel plugin Jellyfin JavaScript Injector:",
-            overlaySetupNote: "Aggiungi questo URL nelle impostazioni del JavaScript Injector per caricare automaticamente l'overlay. Non è necessaria la configurazione Branding.",
-            copySnippet: "Copia",
-            copied: "Copiato!",
-            sectionDiagnostics: "Diagnostica",
-            dryRun: "Solo simulazione (registra azioni, non le invia)",
-            logProgressEvents: "Registra eventi avanzamento",
-            logRuleChecks: "Registra risultati valutazione regole",
-            maxContinuousSeconds: "Secondi continui massimi (override test)",
-            maxContinuousSecondsDescription: "Sovrascrive la soglia in minuti. Imposta 0 per usare MaxContinuousMinutes.",
-            actionRepeatCount: "Numero ripetizioni azione",
-            actionRepeatDescription: "Invia pausa o stop più volte per i client che ignorano il primo comando.",
-            actionRepeatIntervalSeconds: "Intervallo ripetizioni (secondi)",
-            sectionOverlayTesting: "Test overlay",
-            testOverlay: "Mostra overlay (test)",
-            testOverlayNote: "Attiva l'overlay in questa finestra del browser. Funziona solo se lo script overlay è caricato tramite JavaScript Injector. Scorciatoia: Ctrl+Shift+Alt+S.",
-            devWarning: "Gli strumenti sviluppatore sono destinati solo a test e debug. Queste impostazioni possono causare comportamenti imprevisti su un server di produzione. Disabilita la modalità sviluppatore quando hai finito.",
+            userIdsDescription: "ID utente Jellyfin separati da virgola.",
+            testModeEnabled: "Abilita modalita test",
+            testModeDescription: "Usala per controlli locali brevi. Spegnila quando hai finito.",
+            maxContinuousSeconds: "Secondi continui",
+            maxContinuousSecondsDescription: "Sostituisce i minuti continui durante i test. Usa 15 per un controllo rapido, oppure 0 per disattivare.",
+            dryRun: "Solo log: non inviare pausa/stop",
+            logRuleChecks: "Registra controllo regole",
+            testModeLogHelp: "Durante i test, guarda il log del server Jellyfin per le righe di regola attivata e dry-run. La scorciatoia browser e il pulsante di test overlay sono stati rimossi perche erano inaffidabili.",
             save: "Salva",
             loadError: "SleepGuard non ha potuto caricare la configurazione. Riavvia Jellyfin e aggiorna la cache del browser.",
             saveError: "SleepGuard non ha potuto salvare la configurazione. Controlla il log di Jellyfin."
           }
         };
-
-        // ── Helpers ──────────────────────────────────────────────────────
 
         const normalizeLanguage = value => {
           const lang = String(value || "").toLowerCase().split("-")[0];
@@ -646,7 +453,6 @@
             el.textContent = getText(n, el.dataset.i18n);
           });
           document.title = getText(n, "title");
-          updatePreview();
         };
 
         const isDefaultPromptValue = (value, key) => {
@@ -662,10 +468,15 @@
             : ["00", "00", "00"];
         };
 
-        const toTimeInput = v => { const p = toTimeParts(v); return `${p[0]}:${p[1]}`; };
-        const toTimeSpan  = v => { const p = toTimeParts(v); return `${p[0]}:${p[1]}:${p[2]}.0000000`; };
+        const toTimeInput = value => {
+          const p = toTimeParts(value);
+          return `${p[0]}:${p[1]}`;
+        };
 
-        // ── API helpers ───────────────────────────────────────────────────
+        const toTimeSpan = value => {
+          const p = toTimeParts(value);
+          return `${p[0]}:${p[1]}:${p[2]}.0000000`;
+        };
 
         const getConfiguration = () =>
           pluginIds.reduce((p, id) => p.catch(() => {
@@ -673,164 +484,77 @@
             return ApiClient.getPluginConfiguration(id);
           }), Promise.reject());
 
-        // ── Tab switching ─────────────────────────────────────────────────
-
-        let activeTab = "behavior";
-
         const showTab = name => {
-          activeTab = name;
-          page.querySelectorAll(".sg-tab-btn").forEach(b =>
-            b.classList.toggle("active", b.dataset.tab === name));
-          page.querySelectorAll(".sg-tab-panel").forEach(p =>
-            p.classList.toggle("active", p.id === `tab-${name}`));
+          page.querySelectorAll(".sg-tab-btn").forEach(btn =>
+            btn.classList.toggle("active", btn.dataset.tab === name));
+          page.querySelectorAll(".sg-tab-panel").forEach(panel =>
+            panel.classList.toggle("active", panel.id === `tab-${name}`));
         };
 
         page.querySelectorAll(".sg-tab-btn").forEach(btn =>
           btn.addEventListener("click", () => showTab(btn.dataset.tab)));
 
-        // ── Live preview ──────────────────────────────────────────────────
+        page.querySelector("#InjectorSnippet").value = injectorSnippet;
 
-        const updatePreview = () => {
-          const color   = page.querySelector("#OverlayAccentColor").value || "#00a4dc";
-          const opacity = Number(page.querySelector("#OverlayBackgroundOpacity").value ?? 92);
-          const alpha   = Math.round(opacity * 2.55).toString(16).padStart(2, "0");
-          const msg     = page.querySelector("#PromptMessage").value ||
-                          promptDefaults[currentLang()].message;
-
-          const preview = page.querySelector("#sg-preview");
-          const btn     = page.querySelector("#sg-preview-btn");
-
-          preview.style.background = `#000000${alpha}`;
-          preview.querySelector(".sg-preview-msg").textContent = msg;
-          btn.style.background = color;
-        };
-
-        page.querySelector("#OverlayAccentColor").addEventListener("input", updatePreview);
-        page.querySelector("#OverlayBackgroundOpacity").addEventListener("input", e => {
-          page.querySelector("#OverlayBackgroundOpacityValue").textContent = e.target.value;
-          updatePreview();
-        });
-        page.querySelector("#PromptMessage").addEventListener("input", updatePreview);
-
-        // ── Developer mode toggle (syncs two checkboxes) ──────────────────
-
-        const syncDevMode = enabled => {
-          page.querySelector("#DeveloperMode").checked    = enabled;
-          page.querySelector("#DeveloperModeDev").checked = enabled;
-          const tabBtn = page.querySelector("#sg-dev-tab-btn");
-          tabBtn.style.display = enabled ? "" : "none";
-          if (!enabled && activeTab === "developer") showTab("behavior");
-        };
-
-        page.querySelector("#DeveloperMode").addEventListener("change", e =>
-          syncDevMode(e.target.checked));
-        page.querySelector("#DeveloperModeDev").addEventListener("change", e =>
-          syncDevMode(e.target.checked));
-
-        // ── Overlay URL (JS Injector) ─────────────────────────────────────
-
-        const setOverlayUrl = () => {
-          const url = `${window.location.origin}/SleepGuard/overlay.js`;
-          page.querySelector("#OverlayScriptUrl").textContent = url;
-        };
-
-        page.querySelector("#CopyOverlayUrl").addEventListener("click", () => {
-          const url  = page.querySelector("#OverlayScriptUrl").textContent;
+        page.querySelector("#CopyInjectorSnippet").addEventListener("click", () => {
           const lang = currentLang();
-          const btn  = page.querySelector("#CopyOverlayUrl");
-          navigator.clipboard.writeText(url).then(() => {
+          const btn = page.querySelector("#CopyInjectorSnippet");
+          navigator.clipboard.writeText(injectorSnippet).then(() => {
             btn.textContent = getText(lang, "copied");
             setTimeout(() => { btn.textContent = getText(lang, "copySnippet"); }, 1500);
           });
         });
 
-        // ── Backdrop blur visibility ──────────────────────────────────────
-
-        page.querySelector("#OverlayUseBackdropImage").addEventListener("change", e => {
-          page.querySelector("#OverlayBlurBackdropContainer").style.display =
-            e.target.checked ? "" : "none";
-        });
-
-        // ── Language change ───────────────────────────────────────────────
-
         page.querySelector("#SleepGuardLanguage").addEventListener("change", e => {
-          const lang     = normalizeLanguage(e.target.value);
+          const lang = normalizeLanguage(e.target.value);
           const defaults = promptDefaults[lang];
-          const hdr      = page.querySelector("#PromptHeader");
-          const msg      = page.querySelector("#PromptMessage");
-          if (isDefaultPromptValue(hdr.value, "header")) hdr.value = defaults.header;
-          if (isDefaultPromptValue(msg.value, "message")) msg.value = defaults.message;
+          const header = page.querySelector("#PromptHeader");
+          const message = page.querySelector("#PromptMessage");
+          if (isDefaultPromptValue(header.value, "header")) header.value = defaults.header;
+          if (isDefaultPromptValue(message.value, "message")) message.value = defaults.message;
           applyLanguage(lang);
         });
-
-        // ── Test overlay button ───────────────────────────────────────────
-
-        page.querySelector("#TestOverlay").addEventListener("click", () => {
-          if (typeof window.SleepGuardOverlay !== "undefined" &&
-              typeof window.SleepGuardOverlay.show === "function") {
-            window.SleepGuardOverlay.show();
-          } else {
-            alert("SleepGuard overlay is not loaded in this window.\n" +
-                  "Make sure the JavaScript Injector has loaded /SleepGuard/overlay.js.");
-          }
-        });
-
-        // ── Populate form from config ─────────────────────────────────────
 
         const populateForm = config => {
-          const lang     = normalizeLanguage(config.Language || getBrowserLanguage());
+          const lang = normalizeLanguage(config.Language || getBrowserLanguage());
           const defaults = promptDefaults[lang];
+          const hasActiveTestSettings =
+            Number(config.MaxContinuousSeconds || 0) > 0 ||
+            !!config.DryRun ||
+            !!config.LogRuleChecks;
 
-          page.querySelector("#SleepGuardLanguage").value              = lang;
-          page.querySelector("#SleepGuardEnabled").checked             = config.Enabled;
-          page.querySelector("#SleepGuardAction").value                = config.Action || "Pause";
-          page.querySelector("#MaxContinuousMinutes").value            = config.MaxContinuousMinutes || 0;
-          page.querySelector("#MaxAutoplayEpisodes").value             = config.MaxAutoplayEpisodes || 0;
-          page.querySelector("#OnlyWithinTimeWindow").checked          = config.OnlyWithinTimeWindow;
-          page.querySelector("#TimeWindowStart").value                 = toTimeInput(config.TimeWindowStart);
-          page.querySelector("#TimeWindowEnd").value                   = toTimeInput(config.TimeWindowEnd);
-          page.querySelector("#IncludeMovies").checked                 = config.IncludeMovies;
-          page.querySelector("#IncludeMusic").checked                  = config.IncludeMusic;
-          page.querySelector("#IncludeLiveTv").checked                 = config.IncludeLiveTv;
-          page.querySelector("#UserMode").value                        = config.UserMode || "AllUsers";
-          page.querySelector("#UserIds").value                         = (config.UserIds || []).join(", ");
-          page.querySelector("#SendPrompt").checked                    = config.SendPrompt;
-          page.querySelector("#PromptTimeoutSeconds").value            = config.PromptTimeoutSeconds || 8;
-          page.querySelector("#PromptGraceSeconds").value              = config.PromptGraceSeconds ?? 30;
-          page.querySelector("#PromptHeader").value                    = config.PromptHeader || defaults.header;
-          page.querySelector("#PromptMessage").value                   = config.PromptMessage || defaults.message;
-          page.querySelector("#OverlayAccentColor").value              = config.OverlayAccentColor || "#00a4dc";
-          page.querySelector("#OverlayBackgroundOpacity").value        = config.OverlayBackgroundOpacity ?? 92;
-          page.querySelector("#OverlayBackgroundOpacityValue").textContent = config.OverlayBackgroundOpacity ?? 92;
-          page.querySelector("#OverlayUseBackdropImage").checked       = config.OverlayUseBackdropImage;
-          page.querySelector("#OverlayBlurBackdrop").checked           = config.OverlayBlurBackdrop ?? true;
-          page.querySelector("#OverlayBlurBackdropContainer").style.display = config.OverlayUseBackdropImage ? "" : "none";
-          page.querySelector("#OverlayShowContinueButton").checked     = config.OverlayShowContinueButton ?? true;
-          page.querySelector("#OverlayShowDismissButton").checked      = config.OverlayShowDismissButton ?? true;
-          page.querySelector("#OverlayContinueButtonTextEn").value     = config.OverlayContinueButtonTextEn || "";
-          page.querySelector("#OverlayContinueButtonTextIt").value     = config.OverlayContinueButtonTextIt || "";
-          page.querySelector("#OverlayDismissButtonTextEn").value      = config.OverlayDismissButtonTextEn || "";
-          page.querySelector("#OverlayDismissButtonTextIt").value      = config.OverlayDismissButtonTextIt || "";
-          // Developer tab fields
-          page.querySelector("#MaxContinuousSeconds").value            = config.MaxContinuousSeconds || 0;
-          page.querySelector("#DryRun").checked                        = config.DryRun;
-          page.querySelector("#ActionRepeatCount").value               = config.ActionRepeatCount || 1;
-          page.querySelector("#ActionRepeatIntervalSeconds").value     = config.ActionRepeatIntervalSeconds || 2;
-          page.querySelector("#LogProgressEvents").checked             = config.LogProgressEvents;
-          page.querySelector("#LogRuleChecks").checked                 = config.LogRuleChecks;
+          page.querySelector("#SleepGuardLanguage").value = lang;
+          page.querySelector("#SleepGuardEnabled").checked = config.Enabled ?? true;
+          page.querySelector("#SleepGuardAction").value = config.Action || "Pause";
+          page.querySelector("#MaxContinuousMinutes").value = config.MaxContinuousMinutes ?? 120;
+          page.querySelector("#MaxAutoplayEpisodes").value = config.MaxAutoplayEpisodes ?? 3;
+          page.querySelector("#SendPrompt").checked = config.SendPrompt ?? true;
+          page.querySelector("#PromptGraceSeconds").value = config.PromptGraceSeconds ?? 30;
+          page.querySelector("#PromptHeader").value = config.PromptHeader || defaults.header;
+          page.querySelector("#PromptMessage").value = config.PromptMessage || defaults.message;
+          page.querySelector("#OnlyWithinTimeWindow").checked = !!config.OnlyWithinTimeWindow;
+          page.querySelector("#TimeWindowStart").value = toTimeInput(config.TimeWindowStart);
+          page.querySelector("#TimeWindowEnd").value = toTimeInput(config.TimeWindowEnd);
+          page.querySelector("#IncludeMovies").checked = config.IncludeMovies ?? true;
+          page.querySelector("#IncludeMusic").checked = !!config.IncludeMusic;
+          page.querySelector("#IncludeLiveTv").checked = !!config.IncludeLiveTv;
+          page.querySelector("#UserMode").value = config.UserMode || "AllUsers";
+          page.querySelector("#UserIds").value = (config.UserIds || []).join(", ");
+          page.querySelector("#TestModeEnabled").checked = hasActiveTestSettings;
+          page.querySelector("#MaxContinuousSeconds").value = config.MaxContinuousSeconds || 0;
+          page.querySelector("#DryRun").checked = !!config.DryRun;
+          page.querySelector("#LogRuleChecks").checked = !!config.LogRuleChecks;
 
-          syncDevMode(!!config.DeveloperMode);
           applyLanguage(lang);
-          setOverlayUrl();
-          updatePreview();
         };
-
-        // ── Page show ─────────────────────────────────────────────────────
 
         page.addEventListener("pageshow", () => {
           Dashboard.showLoadingMsg();
           getConfiguration()
-            .then(config => { populateForm(config); Dashboard.hideLoadingMsg(); })
+            .then(config => {
+              populateForm(config);
+              Dashboard.hideLoadingMsg();
+            })
             .catch(err => {
               console.error("SleepGuard failed to load configuration", err);
               Dashboard.hideLoadingMsg();
@@ -838,48 +562,34 @@
             });
         });
 
-        // ── Form submit ───────────────────────────────────────────────────
-
         form.addEventListener("submit", event => {
           event.preventDefault();
           Dashboard.showLoadingMsg();
           getConfiguration()
             .then(config => {
-              config.Language                   = normalizeLanguage(page.querySelector("#SleepGuardLanguage").value);
-              config.Enabled                    = page.querySelector("#SleepGuardEnabled").checked;
-              config.Action                     = page.querySelector("#SleepGuardAction").value;
-              config.MaxContinuousMinutes       = Number(page.querySelector("#MaxContinuousMinutes").value);
-              config.MaxAutoplayEpisodes        = Number(page.querySelector("#MaxAutoplayEpisodes").value);
-              config.OnlyWithinTimeWindow       = page.querySelector("#OnlyWithinTimeWindow").checked;
-              config.TimeWindowStart            = toTimeSpan(page.querySelector("#TimeWindowStart").value);
-              config.TimeWindowEnd              = toTimeSpan(page.querySelector("#TimeWindowEnd").value);
-              config.IncludeMovies              = page.querySelector("#IncludeMovies").checked;
-              config.IncludeMusic               = page.querySelector("#IncludeMusic").checked;
-              config.IncludeLiveTv              = page.querySelector("#IncludeLiveTv").checked;
-              config.UserMode                   = page.querySelector("#UserMode").value;
-              config.UserIds                    = page.querySelector("#UserIds").value.split(",").map(x => x.trim()).filter(Boolean);
-              config.SendPrompt                 = page.querySelector("#SendPrompt").checked;
-              config.PromptTimeoutSeconds       = Number(page.querySelector("#PromptTimeoutSeconds").value);
-              config.PromptGraceSeconds         = Number(page.querySelector("#PromptGraceSeconds").value);
-              config.PromptHeader               = page.querySelector("#PromptHeader").value;
-              config.PromptMessage              = page.querySelector("#PromptMessage").value;
-              config.OverlayAccentColor         = page.querySelector("#OverlayAccentColor").value;
-              config.OverlayBackgroundOpacity   = Number(page.querySelector("#OverlayBackgroundOpacity").value);
-              config.OverlayUseBackdropImage    = page.querySelector("#OverlayUseBackdropImage").checked;
-              config.OverlayBlurBackdrop        = page.querySelector("#OverlayBlurBackdrop").checked;
-              config.OverlayShowContinueButton  = page.querySelector("#OverlayShowContinueButton").checked;
-              config.OverlayShowDismissButton   = page.querySelector("#OverlayShowDismissButton").checked;
-              config.OverlayContinueButtonTextEn = page.querySelector("#OverlayContinueButtonTextEn").value.trim() || null;
-              config.OverlayContinueButtonTextIt = page.querySelector("#OverlayContinueButtonTextIt").value.trim() || null;
-              config.OverlayDismissButtonTextEn = page.querySelector("#OverlayDismissButtonTextEn").value.trim() || null;
-              config.OverlayDismissButtonTextIt = page.querySelector("#OverlayDismissButtonTextIt").value.trim() || null;
-              config.DeveloperMode              = page.querySelector("#DeveloperMode").checked;
-              config.MaxContinuousSeconds       = Number(page.querySelector("#MaxContinuousSeconds").value);
-              config.DryRun                     = page.querySelector("#DryRun").checked;
-              config.ActionRepeatCount          = Number(page.querySelector("#ActionRepeatCount").value);
-              config.ActionRepeatIntervalSeconds = Number(page.querySelector("#ActionRepeatIntervalSeconds").value);
-              config.LogProgressEvents          = page.querySelector("#LogProgressEvents").checked;
-              config.LogRuleChecks              = page.querySelector("#LogRuleChecks").checked;
+              const testModeEnabled = page.querySelector("#TestModeEnabled").checked;
+
+              config.Language = normalizeLanguage(page.querySelector("#SleepGuardLanguage").value);
+              config.Enabled = page.querySelector("#SleepGuardEnabled").checked;
+              config.Action = page.querySelector("#SleepGuardAction").value;
+              config.MaxContinuousMinutes = Number(page.querySelector("#MaxContinuousMinutes").value);
+              config.MaxAutoplayEpisodes = Number(page.querySelector("#MaxAutoplayEpisodes").value);
+              config.SendPrompt = page.querySelector("#SendPrompt").checked;
+              config.PromptGraceSeconds = Number(page.querySelector("#PromptGraceSeconds").value);
+              config.PromptHeader = page.querySelector("#PromptHeader").value;
+              config.PromptMessage = page.querySelector("#PromptMessage").value;
+              config.OnlyWithinTimeWindow = page.querySelector("#OnlyWithinTimeWindow").checked;
+              config.TimeWindowStart = toTimeSpan(page.querySelector("#TimeWindowStart").value);
+              config.TimeWindowEnd = toTimeSpan(page.querySelector("#TimeWindowEnd").value);
+              config.IncludeMovies = page.querySelector("#IncludeMovies").checked;
+              config.IncludeMusic = page.querySelector("#IncludeMusic").checked;
+              config.IncludeLiveTv = page.querySelector("#IncludeLiveTv").checked;
+              config.UserMode = page.querySelector("#UserMode").value;
+              config.UserIds = page.querySelector("#UserIds").value.split(",").map(x => x.trim()).filter(Boolean);
+
+              config.MaxContinuousSeconds = testModeEnabled ? Number(page.querySelector("#MaxContinuousSeconds").value) : 0;
+              config.DryRun = testModeEnabled && page.querySelector("#DryRun").checked;
+              config.LogRuleChecks = testModeEnabled && page.querySelector("#LogRuleChecks").checked;
 
               return ApiClient.updatePluginConfiguration(activePluginId, config);
             })

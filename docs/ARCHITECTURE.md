@@ -39,7 +39,6 @@ This document describes the internal structure of the SleepGuard plugin for cont
 │  ┌───────────────────────────────────────────────────────────┐ │
 │  │ SleepGuardController                                      │ │
 │  │   GET /SleepGuard/overlay.js  (AllowAnonymous)            │ │
-│  │   GET /SleepGuard/config/developer-mode  (AllowAnonymous) │ │
 │  └───────────────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -56,7 +55,7 @@ This document describes the internal structure of the SleepGuard plugin for cont
 | `ITriggerRule` | Fires actions when returning `Fired` (ContinuousTimeRule, AutoplayEpisodeRule) |
 | `PromptAction` | Sends `SendMessageCommand` to the client; schedules the grace-period timer |
 | `PauseAction` / `StopAction` | Sends `SendPlaystateCommand` to the client |
-| `SleepGuardController` | ASP.NET Core controller; serves the overlay script and developer-mode flag |
+| `SleepGuardController` | ASP.NET Core controller; serves the overlay script |
 | `OverlayScriptBuilder` | Reads the embedded `overlay.js` template, prepends `window.__SLEEPGUARD_CONFIG__` |
 
 ---
@@ -123,8 +122,8 @@ Plugin XML file  ─────▶  Jellyfin deserialization  ─────�
 ```
 Browser
   │
-  │ 1. Jellyfin-JavaScript-Injector fetches overlay URL at page load
-  │    (before the user is authenticated in the browser session)
+  │ 1. A JavaScript Injector script entry appends /SleepGuard/overlay.js
+  │    to the Jellyfin Web page
   │
   ▼
 GET /SleepGuard/overlay.js  [AllowAnonymous]
@@ -136,7 +135,7 @@ SleepGuardController.GetOverlayScript()
        ├─ Reads embedded resource: Jellyfin.Plugin.SleepGuard.Api.overlay.js
        │    (compiled from client/sleepguard-overlay.ts by dotnet build)
        └─ Prepends:  window.__SLEEPGUARD_CONFIG__ = { ... };
-            (accent color, opacity, button text overrides, developerMode, …)
+            (prompt text, language, appearance settings, ...)
   Response headers: Cache-Control: no-cache, no-store
   │
   ▼
@@ -147,9 +146,9 @@ Browser executes the IIFE
   └─ Exposes window.SleepGuardOverlay = { show, hide, settings }
 ```
 
-**Why `AllowAnonymous`?** The Jellyfin JavaScript Injector fetches the script URL as part of the page bootstrap, before the user's browser session has been established. Adding auth to this endpoint would break script loading for all users.
+**Why `AllowAnonymous`?** The JavaScript Injector loader requests the script from Jellyfin Web without adding a SleepGuard-specific token. The response contains only overlay display settings.
 
-**Why `no-cache, no-store`?** Config changes (e.g. changing the accent color or button text) must be reflected on the next page load without the admin having to clear the browser cache. The settings are baked in at serve time; caching the old response would show stale config.
+**Why `no-cache, no-store`?** Prompt text and language changes must be reflected on the next page load without the admin having to clear the browser cache. The settings are baked in at serve time; caching the old response would show stale config.
 
 **Why `window.__SLEEPGUARD_CONFIG__` instead of a separate fetch?** A single request brings both the script and its config. This eliminates the FOUC/race condition that would occur if the overlay initialised with defaults and then fetched its config in a second request.
 
@@ -157,19 +156,11 @@ Browser executes the IIFE
 
 ---
 
-## Developer Mode Contract
+## Test Mode Contract
 
-`DeveloperMode` is a `bool` in `PluginConfiguration` that unlocks testing features. The three layers that respond to it:
+Test Mode uses only server-side settings: `MaxContinuousSeconds`, `DryRun`, and `LogRuleChecks`. The settings page treats Test Mode as enabled when any of those values are active, and saving with Test Mode disabled clears all three.
 
-| Layer | Behaviour when `DeveloperMode = true` |
-|-------|---------------------------------------|
-| **Settings page** | Shows the Developer Tools tab with dry-run, logging, and fast-fire overrides |
-| **Overlay (client)** | Registers `Ctrl+Shift+Alt+S` keyboard shortcut to force-show the overlay |
-| **Backend API** | `GET /SleepGuard/config/developer-mode` returns `{"developerMode":true}` |
-
-The keyboard shortcut is **only** registered in the browser when `window.__SLEEPGUARD_CONFIG__.developerMode === true`. It is never present on production servers where `DeveloperMode` defaults to `false`.
-
-The Developer Tools tab is also shown/hidden purely client-side: the settings page reads the saved `DeveloperMode` value on load and uses `syncDevMode(enabled)` to toggle the tab button visibility. The tab header has `display:none` by default.
+The overlay does not register a browser shortcut or call a diagnostics endpoint.
 
 ---
 
@@ -198,7 +189,7 @@ The Developer Tools tab is also shown/hidden purely client-side: the settings pa
    serviceCollection.AddSingleton<ITriggerRule, MyNewRule>();
    ```
 
-3. **Add configuration** if needed: new property in `PluginConfiguration` with `[SettingsGroup("Behavior")]` and a corresponding field in `configPage.html`.
+3. **Add configuration** if needed: new property in `PluginConfiguration` and a corresponding field in `configPage.html`.
 
 4. **Write a test** in `tests/...` that verifies the rule returns `Fired` and `Continue` at the expected boundary values.
 

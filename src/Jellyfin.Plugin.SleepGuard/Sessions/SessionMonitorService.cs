@@ -172,22 +172,7 @@ public sealed class SessionMonitorService : IHostedService, IDisposable
         // Snapshot config once for this event cycle — all downstream calls share the same view.
         var configuration = _configAccessor.GetConfiguration();
 
-        if (configuration.LogProgressEvents)
-        {
-            _logger.LogInformation(
-                "SleepGuard progress session {SessionId}: transition={Transition}, paused={IsPaused}, elapsed={ElapsedSeconds}s, episodes={Episodes}, item={ItemKind}, positionTicks={PositionTicks}",
-                playbackEvent.SessionId,
-                transition,
-                playbackEvent.IsPaused,
-                Math.Round(tracker.ContinuousElapsed.TotalSeconds, 1),
-                tracker.EpisodesInChain,
-                tracker.ItemKind,
-                playbackEvent.PositionTicks);
-        }
-        else
-        {
-            _logger.LogDebug("SleepGuard transition {Transition} for session {SessionId}", transition, playbackEvent.SessionId);
-        }
+        _logger.LogDebug("SleepGuard transition {Transition} for session {SessionId}", transition, playbackEvent.SessionId);
 
         var token = _cts?.Token ?? CancellationToken.None;
         await EvaluateAsync(tracker, configuration, now, token).ConfigureAwait(false);
@@ -319,22 +304,7 @@ public sealed class SessionMonitorService : IHostedService, IDisposable
                 return;
             }
 
-            var repeatCount = Math.Clamp(configuration.ActionRepeatCount, 1, 5);
-            var repeatDelay = TimeSpan.FromSeconds(Math.Clamp(configuration.ActionRepeatIntervalSeconds, 0, 30));
-
-            for (var attempt = 1; attempt <= repeatCount; attempt++)
-            {
-                await action.ExecuteAsync(tracker, configuration, cancellationToken).ConfigureAwait(false);
-                _logger.LogInformation(
-                    "SleepGuard sent {Action} command attempt {Attempt}/{AttemptCount} to session {SessionId}",
-                    configuration.Action, attempt, repeatCount, sessionId);
-
-                if (attempt < repeatCount && repeatDelay > TimeSpan.Zero)
-                {
-                    await Task.Delay(repeatDelay, cancellationToken).ConfigureAwait(false);
-                }
-            }
-
+            await action.ExecuteAsync(tracker, configuration, cancellationToken).ConfigureAwait(false);
             tracker.MarkActionIssued(DateTimeOffset.UtcNow, configuration.Action == SleepGuardAction.Pause);
             _logger.LogInformation("SleepGuard sent {Action} command to session {SessionId}", configuration.Action, sessionId);
         }

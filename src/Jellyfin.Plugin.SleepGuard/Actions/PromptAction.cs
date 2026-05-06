@@ -5,6 +5,8 @@ namespace Jellyfin.Plugin.SleepGuard.Actions;
 
 public sealed class PromptAction : ISleepAction
 {
+    private static readonly TimeSpan PromptTimeout = TimeSpan.FromSeconds(8);
+
     private readonly ISessionCommandGateway _gateway;
 
     public PromptAction(ISessionCommandGateway gateway)
@@ -20,7 +22,7 @@ public sealed class PromptAction : ISleepAction
             tracker.SessionId,
             string.IsNullOrWhiteSpace(configuration.PromptHeader) ? "SleepGuard" : configuration.PromptHeader,
             string.IsNullOrWhiteSpace(configuration.PromptMessage) ? GetDefaultPromptMessage(language) : configuration.PromptMessage,
-            TimeSpan.FromSeconds(Math.Max(1, configuration.PromptTimeoutSeconds)),
+            PromptTimeout,
             cancellationToken);
     }
 

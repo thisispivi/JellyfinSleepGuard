@@ -37,20 +37,9 @@ public static class OverlayScriptBuilder
 
         var overlayConfig = new
         {
-            accentColor = config.OverlayAccentColor,
-            backgroundOpacity = config.OverlayBackgroundOpacity,
-            useBackdropImage = config.OverlayUseBackdropImage,
-            blurBackdrop = config.OverlayBlurBackdrop,
-            showContinueButton = config.OverlayShowContinueButton,
-            showDismissButton = config.OverlayShowDismissButton,
-            continueTextEn = config.OverlayContinueButtonTextEn,
-            continueTextIt = config.OverlayContinueButtonTextIt,
-            dismissTextEn = config.OverlayDismissButtonTextEn,
-            dismissTextIt = config.OverlayDismissButtonTextIt,
             language = config.Language,
             promptMessage = config.PromptMessage,
             promptHeader = config.PromptHeader,
-            developerMode = config.DeveloperMode,
         };
 
         var json = JsonSerializer.Serialize(overlayConfig, JsonOptions);

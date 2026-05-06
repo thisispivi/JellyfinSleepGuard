@@ -24,11 +24,7 @@ public sealed class SleepGuardController : ControllerBase
     /// Returns the overlay JavaScript with the current plugin settings prepended as
     /// <c>window.__SLEEPGUARD_CONFIG__</c>.
     /// </summary>
-    /// <remarks>
-    /// <c>[AllowAnonymous]</c> is required because the Jellyfin JavaScript Injector
-    /// fetches this script before an authenticated session is established in the browser.
-    /// The response contains only appearance / UX settings; no user PII is included.
-    /// </remarks>
+    /// <remarks>The response contains only overlay text settings; no user PII is included.</remarks>
     [HttpGet("overlay.js")]
     [AllowAnonymous]
     [Produces("application/javascript")]
@@ -45,19 +41,5 @@ public sealed class SleepGuardController : ControllerBase
 
         Response.Headers.CacheControl = "no-cache, no-store";
         return Content(script, "application/javascript");
-    }
-
-    /// <summary>
-    /// Returns whether Developer Mode is currently enabled.
-    /// The overlay reads this at load time to decide whether to register the keyboard shortcut.
-    /// </summary>
-    [HttpGet("config/developer-mode")]
-    [AllowAnonymous]
-    [Produces("application/json")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    public IActionResult GetDeveloperMode()
-    {
-        var config = _configAccessor.GetConfiguration();
-        return Ok(new { developerMode = config.DeveloperMode });
     }
 }
