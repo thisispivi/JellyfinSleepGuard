@@ -29,6 +29,13 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+function Set-Utf8NoBomContent {
+    param([string]$Path, [string]$Content)
+
+    $encoding = [System.Text.UTF8Encoding]::new($false)
+    [System.IO.File]::WriteAllText($Path, $Content, $encoding)
+}
+
 function Resolve-RepoInfo {
     $remote = git remote get-url origin 2>$null
     if (-not $remote) {
@@ -50,7 +57,7 @@ function Set-BuildYamlVersion {
 
     $content = Get-Content $Path -Raw
     $content = $content -replace "(?m)^version:\s*.+$", "version: $VersionValue"
-    Set-Content $Path $content -Encoding utf8
+    Set-Utf8NoBomContent -Path $Path -Content $content
 }
 
 function Invoke-DotNet {
@@ -96,7 +103,8 @@ function New-Manifest {
         }
     )
 
-    ConvertTo-Json -InputObject $manifest -Depth 8 | Set-Content $Path -Encoding utf8
+    $json = (ConvertTo-Json -InputObject $manifest -Depth 8) + [Environment]::NewLine
+    Set-Utf8NoBomContent -Path $Path -Content $json
 }
 
 function Invoke-GitCommitAndPush {

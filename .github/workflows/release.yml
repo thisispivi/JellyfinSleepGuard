@@ -70,7 +70,7 @@ jobs:
           checksum = os.environ["CHECKSUM"]
           repo = os.environ["GITHUB_REPOSITORY"]
 
-          with open("manifest.json", "r") as f:
+          with open("manifest.json", "r", encoding="utf-8-sig") as f:
               manifest = json.load(f)
 
           new_version = {
@@ -84,7 +84,7 @@ jobs:
 
           manifest[0]["versions"].insert(0, new_version)
 
-          with open("manifest.json", "w") as f:
+          with open("manifest.json", "w", encoding="utf-8") as f:
               json.dump(manifest, f, indent=4)
               f.write("\n")
           PYEOF
