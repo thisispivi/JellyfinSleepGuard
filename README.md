@@ -1,6 +1,6 @@
 <div align="center">
   <picture>
-    <img alt="SleepGuard logo" src="./images/logo.png" height="160">
+    <img alt="SleepGuard logo" src="./images/logo.png" height="260">
   </picture>
   <br>
   <br>
@@ -47,24 +47,26 @@ SleepGuard is a server-side Jellyfin plugin that pauses or stops playback when a
 
 ## Compatibility
 
-| Component               | Support                                                                 |
-| ----------------------- | ----------------------------------------------------------------------- |
-| Jellyfin Server         | 10.11.x                                                                 |
-| Target framework        | .NET 9.0                                                                |
-| Settings languages      | English, Italian                                                        |
-| Web full-screen overlay | `/SleepGuard/overlay.js` — register in JS Injector or Branding          |
-| iOS prompt              | Expected to work where message commands are honored                     |
-| Android TV prompt       | Toast may not appear; pause/stop still fires                            |
-| Other clients           | Pause/stop depends on standard Jellyfin media-control support           |
+| Component               | Support                                                        |
+| ----------------------- | -------------------------------------------------------------- |
+| Jellyfin Server         | 10.11.x                                                        |
+| Target framework        | .NET 9.0                                                       |
+| Settings languages      | English, Italian                                               |
+| Web full-screen overlay | `/SleepGuard/overlay.js` — register in JS Injector or Branding |
+| iOS prompt              | Expected to work where message commands are honored            |
+| Android TV prompt       | Toast may not appear; pause/stop still fires                   |
+| Other clients           | Pause/stop depends on standard Jellyfin media-control support  |
 
 ## Installation
 
 **From the plugin catalog (recommended):**
+
 1. Dashboard → Plugins → Repositories → Add repository URL above.
 2. Install SleepGuard from the catalog.
 3. Restart Jellyfin.
 
 **Manual:**
+
 1. Download the release `.zip`.
 2. Extract into `<jellyfin-data>/plugins/SleepGuard_<version>/`.
 3. Restart Jellyfin.
@@ -79,45 +81,45 @@ Settings are organised into three tabs in the plugin admin page.
 <details>
 <summary><strong>Behavior</strong> — controls when and for whom the plugin acts</summary>
 
-| Setting                | Default                   | Meaning                                                          |
-| ---------------------- | ------------------------: | ---------------------------------------------------------------- |
-| `Enabled`              | `true`                    | Master on/off switch.                                            |
-| `Action`               | `Pause`                   | Send pause or stop when a rule fires.                            |
-| `MaxContinuousMinutes` | `120`                     | Continuous playing minutes before action; `0` disables.          |
-| `MaxAutoplayEpisodes`  | `3`                       | Episode-chain count before action; `0` disables.                 |
-| `OnlyWithinTimeWindow` | `false`                   | Only evaluate limits inside the configured clock window.         |
-| `TimeWindowStart`      | `22:00:00`                | Server-local window start.                                       |
-| `TimeWindowEnd`        | `07:00:00`                | Server-local window end; midnight wrap is supported.             |
-| `IncludeMovies`        | `true`                    | Apply continuous-time limits to movies.                          |
-| `IncludeMusic`         | `false`                   | Apply continuous-time limits to music.                           |
-| `IncludeLiveTv`        | `false`                   | Apply continuous-time limits to Live TV.                         |
-| `UserMode`             | `AllUsers`                | All users, whitelist, or blacklist.                              |
-| `UserIds`              | *(empty)*                 | User GUIDs for whitelist / blacklist mode.                       |
-| `SendPrompt`           | `true`                    | Send a best-effort client toast before action.                   |
-| `DeveloperMode`        | `false`                   | Reveals the Developer Tools tab. Disable on production servers.  |
+| Setting                |    Default | Meaning                                                         |
+| ---------------------- | ---------: | --------------------------------------------------------------- |
+| `Enabled`              |     `true` | Master on/off switch.                                           |
+| `Action`               |    `Pause` | Send pause or stop when a rule fires.                           |
+| `MaxContinuousMinutes` |      `120` | Continuous playing minutes before action; `0` disables.         |
+| `MaxAutoplayEpisodes`  |        `3` | Episode-chain count before action; `0` disables.                |
+| `OnlyWithinTimeWindow` |    `false` | Only evaluate limits inside the configured clock window.        |
+| `TimeWindowStart`      | `22:00:00` | Server-local window start.                                      |
+| `TimeWindowEnd`        | `07:00:00` | Server-local window end; midnight wrap is supported.            |
+| `IncludeMovies`        |     `true` | Apply continuous-time limits to movies.                         |
+| `IncludeMusic`         |    `false` | Apply continuous-time limits to music.                          |
+| `IncludeLiveTv`        |    `false` | Apply continuous-time limits to Live TV.                        |
+| `UserMode`             | `AllUsers` | All users, whitelist, or blacklist.                             |
+| `UserIds`              |  _(empty)_ | User GUIDs for whitelist / blacklist mode.                      |
+| `SendPrompt`           |     `true` | Send a best-effort client toast before action.                  |
+| `DeveloperMode`        |    `false` | Reveals the Developer Tools tab. Disable on production servers. |
 
 </details>
 
 <details>
 <summary><strong>Customization</strong> — controls the prompt text and overlay appearance</summary>
 
-| Setting                          | Default                   | Meaning                                                               |
-| -------------------------------- | ------------------------: | --------------------------------------------------------------------- |
-| `Language`                       | `en`                      | `en` or `it`; controls settings text and default prompt text.         |
-| `PromptHeader`                   | `SleepGuard`              | Header text for clients that show toast headers.                      |
-| `PromptMessage`                  | `Are you still watching?` | Body text sent to clients; Italian default: *Stai ancora guardando?*  |
-| `PromptTimeoutSeconds`           | `8`                       | Suggested client toast display duration (1–∞).                        |
-| `PromptGraceSeconds`             | `30`                      | Delay after prompt before pause/stop fires; `0` acts immediately.     |
-| `OverlayAccentColor`             | `#00a4dc`                 | CSS hex color for the continue button.                                |
-| `OverlayBackgroundOpacity`       | `92`                      | Overlay background darkness (0–100).                                  |
-| `OverlayUseBackdropImage`        | `false`                   | Use the current Jellyfin backdrop image behind the overlay.           |
-| `OverlayBlurBackdrop`            | `true`                    | Blur the backdrop image (only when backdrop is enabled).              |
-| `OverlayShowContinueButton`      | `true`                    | Show the continue-watching button on the overlay.                     |
-| `OverlayShowDismissButton`       | `true`                    | Show the stay-paused button on the overlay.                           |
-| `OverlayContinueButtonTextEn`    | *(null)*                  | English override for the continue button label.                       |
-| `OverlayContinueButtonTextIt`    | *(null)*                  | Italian override for the continue button label.                       |
-| `OverlayDismissButtonTextEn`     | *(null)*                  | English override for the dismiss button label.                        |
-| `OverlayDismissButtonTextIt`     | *(null)*                  | Italian override for the dismiss button label.                        |
+| Setting                       |                   Default | Meaning                                                              |
+| ----------------------------- | ------------------------: | -------------------------------------------------------------------- |
+| `Language`                    |                      `en` | `en` or `it`; controls settings text and default prompt text.        |
+| `PromptHeader`                |              `SleepGuard` | Header text for clients that show toast headers.                     |
+| `PromptMessage`               | `Are you still watching?` | Body text sent to clients; Italian default: _Stai ancora guardando?_ |
+| `PromptTimeoutSeconds`        |                       `8` | Suggested client toast display duration (1–∞).                       |
+| `PromptGraceSeconds`          |                      `30` | Delay after prompt before pause/stop fires; `0` acts immediately.    |
+| `OverlayAccentColor`          |                 `#00a4dc` | CSS hex color for the continue button.                               |
+| `OverlayBackgroundOpacity`    |                      `92` | Overlay background darkness (0–100).                                 |
+| `OverlayUseBackdropImage`     |                   `false` | Use the current Jellyfin backdrop image behind the overlay.          |
+| `OverlayBlurBackdrop`         |                    `true` | Blur the backdrop image (only when backdrop is enabled).             |
+| `OverlayShowContinueButton`   |                    `true` | Show the continue-watching button on the overlay.                    |
+| `OverlayShowDismissButton`    |                    `true` | Show the stay-paused button on the overlay.                          |
+| `OverlayContinueButtonTextEn` |                  _(null)_ | English override for the continue button label.                      |
+| `OverlayContinueButtonTextIt` |                  _(null)_ | Italian override for the continue button label.                      |
+| `OverlayDismissButtonTextEn`  |                  _(null)_ | English override for the dismiss button label.                       |
+| `OverlayDismissButtonTextIt`  |                  _(null)_ | Italian override for the dismiss button label.                       |
 
 </details>
 
@@ -126,10 +128,10 @@ Settings are organised into three tabs in the plugin admin page.
 
 | Setting                       | Default | Meaning                                                                  |
 | ----------------------------- | ------: | ------------------------------------------------------------------------ |
-| `MaxContinuousSeconds`        | `0`     | Testing override for the continuous-time rule; `0` uses minutes setting. |
+| `MaxContinuousSeconds`        |     `0` | Testing override for the continuous-time rule; `0` uses minutes setting. |
 | `DryRun`                      | `false` | Log the final pause/stop action without actually sending it.             |
-| `ActionRepeatCount`           | `1`     | Send pause/stop this many times (1–5) for unreliable clients.            |
-| `ActionRepeatIntervalSeconds` | `2`     | Delay between repeated action attempts (0–30 s).                         |
+| `ActionRepeatCount`           |     `1` | Send pause/stop this many times (1–5) for unreliable clients.            |
+| `ActionRepeatIntervalSeconds` |     `2` | Delay between repeated action attempts (0–30 s).                         |
 | `LogProgressEvents`           | `false` | Log every playback progress event at Information level.                  |
 | `LogRuleChecks`               | `false` | Log every rule evaluation and its outcome at Information level.          |
 
@@ -172,7 +174,7 @@ SleepGuard self-hosts the overlay at `/SleepGuard/overlay.js`. Your current plug
 1. Dashboard → General → Branding → Custom JavaScript.
 2. Paste:
    ```js
-   import('/SleepGuard/overlay.js').catch(()=>{});
+   import("/SleepGuard/overlay.js").catch(() => {});
    ```
 3. Save.
 
@@ -209,18 +211,18 @@ See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full development guide: branch 
 
 ## Troubleshooting
 
-| Log line                                | Meaning                                                                    |
-| --------------------------------------- | -------------------------------------------------------------------------- |
-| `SleepGuard session monitor started`    | The hosted service loaded and subscribed to session events.                |
-| `Rule ContinuousTimeRule fired`         | The continuous-time threshold was reached.                                 |
-| `Rule AutoplayEpisodeRule fired`        | The episode-chain threshold was reached.                                   |
-| `SleepGuard sent prompt`                | The toast path worked; final action scheduled or sent immediately.         |
-| `SleepGuard sent Pause command attempt` | The server sent a media-control command to the client.                     |
-| `SleepGuard dry run`                    | Developer mode dry-run is on; no pause/stop command was sent.              |
-| `failed to send prompt`                 | Client may not support message commands; pause/stop can still work.        |
-| `failed to send Pause command`          | The client session did not accept remote media control.                    |
-| `404 on /SleepGuard/overlay.js`         | Plugin DLL was not built with the embedded overlay resource.               |
-| Overlay not appearing in browser        | Verify the URL is registered in JS Injector; check the browser console.    |
+| Log line                                | Meaning                                                                 |
+| --------------------------------------- | ----------------------------------------------------------------------- |
+| `SleepGuard session monitor started`    | The hosted service loaded and subscribed to session events.             |
+| `Rule ContinuousTimeRule fired`         | The continuous-time threshold was reached.                              |
+| `Rule AutoplayEpisodeRule fired`        | The episode-chain threshold was reached.                                |
+| `SleepGuard sent prompt`                | The toast path worked; final action scheduled or sent immediately.      |
+| `SleepGuard sent Pause command attempt` | The server sent a media-control command to the client.                  |
+| `SleepGuard dry run`                    | Developer mode dry-run is on; no pause/stop command was sent.           |
+| `failed to send prompt`                 | Client may not support message commands; pause/stop can still work.     |
+| `failed to send Pause command`          | The client session did not accept remote media control.                 |
+| `404 on /SleepGuard/overlay.js`         | Plugin DLL was not built with the embedded overlay resource.            |
+| Overlay not appearing in browser        | Verify the URL is registered in JS Injector; check the browser console. |
 
 ## Contributing
 

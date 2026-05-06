@@ -192,10 +192,10 @@ public sealed class PluginConfigurationValidatorTests
         var validator = CreateValidator(out var logger);
         var config = new PluginConfiguration
         {
-            PromptTimeoutSeconds        = 0,   // invalid
-            PromptGraceSeconds          = -5,  // invalid
-            ActionRepeatCount           = 10,  // invalid
-            OverlayBackgroundOpacity    = 200, // invalid
+            PromptTimeoutSeconds = 0,   // invalid
+            PromptGraceSeconds = -5,  // invalid
+            ActionRepeatCount = 10,  // invalid
+            OverlayBackgroundOpacity = 200, // invalid
         };
 
         validator.Validate(config);

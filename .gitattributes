@@ -1,2 +1,8 @@
-# Auto detect text files and perform LF normalization
+# Auto detect text files.
 * text=auto
+
+# Match .editorconfig for .NET files so CI checkouts keep CRLF.
+*.cs text eol=crlf
+*.csproj text eol=crlf
+*.props text eol=crlf
+*.sln text eol=crlf
