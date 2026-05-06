@@ -3,7 +3,11 @@ using Jellyfin.Plugin.SleepGuard.Sessions;
 
 namespace Jellyfin.Plugin.SleepGuard.Rules;
 
-public sealed class UserScopeRule : ISleepRule
+/// <summary>
+/// Gate rule that blocks evaluation when the session's user is not in scope.
+/// Supports all-users, whitelist, and blacklist modes.
+/// </summary>
+public sealed class UserScopeRule : IGateRule
 {
     public string Name => nameof(UserScopeRule);
 

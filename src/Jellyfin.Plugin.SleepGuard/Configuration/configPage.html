@@ -3,278 +3,449 @@
 <head>
   <title>SleepGuard</title>
   <style>
-    .sleepGuardHeader {
+    /* ── Header ──────────────────────────────────────────────────────── */
+    .sg-header {
+      display: flex;
       align-items: center;
       gap: 1em;
-      margin-bottom: 1.5em;
+      margin-bottom: 1.25em;
     }
-
-    .sleepGuardLogo {
+    .sg-logo {
       width: 6.5em;
       max-width: 28vw;
       height: auto;
       flex: 0 0 auto;
     }
+    .sg-title { margin: 0; }
 
-    .sleepGuardTitle {
-      margin: 0;
+    /* ── Tabs ────────────────────────────────────────────────────────── */
+    .sg-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 2px solid rgba(255,255,255,0.12);
+      margin-bottom: 1.5em;
     }
+    .sg-tab-btn {
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: inherit;
+      cursor: pointer;
+      font-size: 0.9em;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      margin-bottom: -2px;
+      opacity: 0.65;
+      padding: 0.6em 1.2em;
+      text-transform: uppercase;
+      transition: opacity 0.15s, border-color 0.15s;
+    }
+    .sg-tab-btn:hover { opacity: 0.9; }
+    .sg-tab-btn.active {
+      border-bottom-color: #00a4dc;
+      opacity: 1;
+    }
+    .sg-tab-panel { display: none; }
+    .sg-tab-panel.active { display: block; }
 
-    .sleepGuardCodeBlock {
+    /* ── Section headings inside tabs ───────────────────────────────── */
+    .sg-section {
+      font-size: 0.75em;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      margin: 1.6em 0 0.5em;
+      opacity: 0.55;
+      text-transform: uppercase;
+    }
+    .sg-section:first-child { margin-top: 0; }
+
+    /* ── Code / snippet block ────────────────────────────────────────── */
+    .sg-code-block {
       display: flex;
       align-items: center;
       gap: 8px;
-      background: rgba(0, 0, 0, 0.25);
+      background: rgba(0,0,0,0.25);
       border-radius: 6px;
-      padding: 10px 14px;
-      margin: 8px 0 12px;
       font-family: monospace;
       font-size: 13px;
+      margin: 6px 0 12px;
+      padding: 10px 14px;
       word-break: break-all;
     }
-
-    .sleepGuardCodeBlock code {
-      flex: 1;
-    }
-
-    .sleepGuardCopyBtn {
-      flex-shrink: 0;
-      cursor: pointer;
-      background: rgba(255, 255, 255, 0.12);
+    .sg-code-block code { flex: 1; }
+    .sg-copy-btn {
+      background: rgba(255,255,255,0.12);
       border: 0;
       border-radius: 4px;
       color: inherit;
-      padding: 4px 10px;
+      cursor: pointer;
+      flex-shrink: 0;
       font-size: 12px;
+      padding: 4px 10px;
+    }
+
+    /* ── Developer tab warning banner ───────────────────────────────── */
+    .sg-dev-warning {
+      align-items: flex-start;
+      background: rgba(255, 160, 0, 0.12);
+      border: 1px solid rgba(255, 160, 0, 0.35);
+      border-radius: 6px;
+      display: flex;
+      gap: 10px;
+      margin-bottom: 1.25em;
+      padding: 12px 14px;
+    }
+    .sg-dev-warning-icon {
+      color: #ffa000;
+      flex-shrink: 0;
+      font-size: 1.2em;
+      margin-top: 1px;
+    }
+    .sg-dev-warning-text { font-size: 0.88em; line-height: 1.5; opacity: 0.9; }
+
+    /* ── Live preview panel ──────────────────────────────────────────── */
+    .sg-preview-wrap { margin: 0.75em 0 1em; }
+    .sg-preview {
+      background: rgba(0,0,0,0.7);
+      border-radius: 8px;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      height: 100px;
+      padding: 12px 20px;
+      width: 180px;
+    }
+    .sg-preview-msg {
+      color: #fff;
+      font-size: 12px;
+      opacity: 0.85;
+      text-align: center;
+    }
+    .sg-preview-btn {
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 11px;
+      padding: 4px 12px;
     }
   </style>
 </head>
 <body>
-  <div id="SleepGuardConfigPage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-input,emby-button,emby-checkbox,emby-select">
+  <div id="SleepGuardConfigPage" data-role="page" class="page type-interior pluginConfigurationPage"
+       data-require="emby-input,emby-button,emby-checkbox,emby-select">
     <div data-role="content">
       <div class="content-primary">
+
+        <!-- Header -->
+        <div class="sg-header">
+          <img class="sg-logo" src="configurationpage?name=sleepguardlogo.png" alt="SleepGuard logo">
+          <h2 class="sectionTitle sg-title" data-i18n="title">SleepGuard</h2>
+        </div>
+
         <form id="SleepGuardConfigForm">
-          <div class="sectionTitleContainer flex sleepGuardHeader">
-            <img class="sleepGuardLogo" src="configurationpage?name=sleepguardlogo.png" alt="SleepGuard logo">
-            <h2 class="sectionTitle sleepGuardTitle" data-i18n="title">SleepGuard</h2>
+
+          <!-- Tab navigation -->
+          <div class="sg-tabs" id="sg-tabs">
+            <button type="button" class="sg-tab-btn active" data-tab="behavior" data-i18n="tabBehavior">Behavior</button>
+            <button type="button" class="sg-tab-btn" data-tab="customization" data-i18n="tabCustomization">Customization</button>
+            <button type="button" id="sg-dev-tab-btn" class="sg-tab-btn" data-tab="developer"
+                    data-i18n="tabDeveloper" style="display:none">Developer Tools</button>
           </div>
 
-          <div class="selectContainer">
-            <label class="selectLabel" for="SleepGuardLanguage" data-i18n="languageLabel">Language</label>
-            <select is="emby-select" id="SleepGuardLanguage" class="emby-select-withcolor">
-              <option value="en" data-i18n="languageEnglish">English</option>
-              <option value="it" data-i18n="languageItalian">Italiano</option>
-            </select>
+          <!-- ══════════════════════════════════════════════════════════
+               TAB 1: BEHAVIOR
+          ══════════════════════════════════════════════════════════ -->
+          <div id="tab-behavior" class="sg-tab-panel active">
+
+            <div class="selectContainer">
+              <label class="selectLabel" for="SleepGuardLanguage" data-i18n="languageLabel">Language</label>
+              <select is="emby-select" id="SleepGuardLanguage" class="emby-select-withcolor">
+                <option value="en" data-i18n="languageEnglish">English</option>
+                <option value="it" data-i18n="languageItalian">Italiano</option>
+              </select>
+            </div>
+
+            <p class="sg-section" data-i18n="sectionGeneral">General</p>
+
+            <label class="checkboxContainer">
+              <input is="emby-checkbox" type="checkbox" id="SleepGuardEnabled">
+              <span data-i18n="enabled">Enabled</span>
+            </label>
+
+            <div class="selectContainer">
+              <label class="selectLabel" for="SleepGuardAction" data-i18n="action">Action</label>
+              <select is="emby-select" id="SleepGuardAction" class="emby-select-withcolor">
+                <option value="Pause" data-i18n="actionPause">Pause</option>
+                <option value="Stop" data-i18n="actionStop">Stop</option>
+              </select>
+            </div>
+
+            <p class="sg-section" data-i18n="sectionInactivityThresholds">Inactivity Thresholds</p>
+
+            <div class="inputContainer">
+              <label class="inputLabel inputLabelUnfocused" for="MaxContinuousMinutes" data-i18n="maxContinuousMinutes">Max continuous minutes</label>
+              <input is="emby-input" type="number" min="0" id="MaxContinuousMinutes">
+              <div class="fieldDescription" data-i18n="disableContinuousRule">Set to 0 to disable the continuous-time rule.</div>
+            </div>
+
+            <div class="inputContainer">
+              <label class="inputLabel inputLabelUnfocused" for="MaxAutoplayEpisodes" data-i18n="maxAutoplayEpisodes">Max autoplay episodes</label>
+              <input is="emby-input" type="number" min="0" id="MaxAutoplayEpisodes">
+              <div class="fieldDescription" data-i18n="disableAutoplayRule">Set to 0 to disable the autoplay episode rule.</div>
+            </div>
+
+            <p class="sg-section" data-i18n="sectionPromptTiming">Prompt Timing</p>
+
+            <label class="checkboxContainer">
+              <input is="emby-checkbox" type="checkbox" id="SendPrompt">
+              <span data-i18n="sendPrompt">Send prompt message</span>
+            </label>
+
+            <div class="inputContainer">
+              <label class="inputLabel inputLabelUnfocused" for="PromptTimeoutSeconds" data-i18n="promptTimeoutSeconds">Prompt timeout (seconds)</label>
+              <input is="emby-input" type="number" min="1" id="PromptTimeoutSeconds">
+              <div class="fieldDescription" data-i18n="promptTimeoutDescription">How long clients keep the toast visible.</div>
+            </div>
+
+            <div class="inputContainer">
+              <label class="inputLabel inputLabelUnfocused" for="PromptGraceSeconds" data-i18n="promptGraceSeconds">Grace period (seconds)</label>
+              <input is="emby-input" type="number" min="0" id="PromptGraceSeconds">
+              <div class="fieldDescription" data-i18n="promptGraceDescription">Delay after prompt before pause or stop. 0 acts immediately.</div>
+            </div>
+
+            <p class="sg-section" data-i18n="sectionTimeWindow">Time Window</p>
+
+            <label class="checkboxContainer">
+              <input is="emby-checkbox" type="checkbox" id="OnlyWithinTimeWindow">
+              <span data-i18n="onlyWithinTimeWindow">Only within time window</span>
+            </label>
+
+            <div class="inputContainer">
+              <label class="inputLabel inputLabelUnfocused" for="TimeWindowStart" data-i18n="timeWindowStart">Window start</label>
+              <input is="emby-input" type="time" id="TimeWindowStart">
+            </div>
+
+            <div class="inputContainer">
+              <label class="inputLabel inputLabelUnfocused" for="TimeWindowEnd" data-i18n="timeWindowEnd">Window end</label>
+              <input is="emby-input" type="time" id="TimeWindowEnd">
+            </div>
+
+            <p class="sg-section" data-i18n="sectionMediaTypes">Media Types</p>
+
+            <label class="checkboxContainer">
+              <input is="emby-checkbox" type="checkbox" id="IncludeMovies">
+              <span data-i18n="includeMovies">Include movies</span>
+            </label>
+
+            <label class="checkboxContainer">
+              <input is="emby-checkbox" type="checkbox" id="IncludeMusic">
+              <span data-i18n="includeMusic">Include music</span>
+            </label>
+
+            <label class="checkboxContainer">
+              <input is="emby-checkbox" type="checkbox" id="IncludeLiveTv">
+              <span data-i18n="includeLiveTv">Include Live TV</span>
+            </label>
+
+            <p class="sg-section" data-i18n="sectionUserScope">User Scope</p>
+
+            <div class="selectContainer">
+              <label class="selectLabel" for="UserMode" data-i18n="userScope">User scope</label>
+              <select is="emby-select" id="UserMode" class="emby-select-withcolor">
+                <option value="AllUsers" data-i18n="userAll">All users</option>
+                <option value="Whitelist" data-i18n="userWhitelist">Only listed users</option>
+                <option value="Blacklist" data-i18n="userBlacklist">All except listed users</option>
+              </select>
+            </div>
+
+            <div class="inputContainer">
+              <label class="inputLabel inputLabelUnfocused" for="UserIds" data-i18n="userIds">User IDs</label>
+              <input is="emby-input" type="text" id="UserIds">
+              <div class="fieldDescription" data-i18n="userIdsDescription">Comma-separated Jellyfin user IDs for whitelist or blacklist mode.</div>
+            </div>
+
+            <p class="sg-section" data-i18n="sectionDeveloperMode">Developer Mode</p>
+
+            <label class="checkboxContainer">
+              <input is="emby-checkbox" type="checkbox" id="DeveloperMode">
+              <span data-i18n="developerModeLabel">Enable Developer Tools tab</span>
+            </label>
+            <div class="fieldDescription" data-i18n="developerModeDescription">
+              Unlocks the Developer Tools tab and activates the overlay keyboard shortcut (Ctrl+Shift+Alt+S). Disable on production servers.
+            </div>
+
+          </div><!-- /tab-behavior -->
+
+          <!-- ══════════════════════════════════════════════════════════
+               TAB 2: CUSTOMIZATION
+          ══════════════════════════════════════════════════════════ -->
+          <div id="tab-customization" class="sg-tab-panel">
+
+            <p class="sg-section" data-i18n="sectionPromptText">Prompt Text</p>
+
+            <div class="inputContainer">
+              <label class="inputLabel inputLabelUnfocused" for="PromptHeader" data-i18n="promptHeader">Prompt header</label>
+              <input is="emby-input" type="text" id="PromptHeader">
+            </div>
+
+            <div class="inputContainer">
+              <label class="inputLabel inputLabelUnfocused" for="PromptMessage" data-i18n="promptMessage">Prompt message</label>
+              <input is="emby-input" type="text" id="PromptMessage">
+            </div>
+
+            <p class="sg-section" data-i18n="sectionOverlayAppearance">Overlay Appearance</p>
+
+            <div class="inputContainer">
+              <label class="inputLabel inputLabelUnfocused" for="OverlayAccentColor" data-i18n="overlayAccentColor">Accent color</label>
+              <input type="color" id="OverlayAccentColor" style="height:38px;width:80px;padding:2px;border:0;cursor:pointer;">
+            </div>
+
+            <div class="inputContainer">
+              <label class="inputLabel inputLabelUnfocused" for="OverlayBackgroundOpacity" data-i18n="overlayBackgroundOpacity">Background opacity</label>
+              <input type="range" min="0" max="100" id="OverlayBackgroundOpacity" style="width:100%;max-width:320px;">
+              <span id="OverlayBackgroundOpacityValue">92</span>%
+            </div>
+
+            <label class="checkboxContainer">
+              <input is="emby-checkbox" type="checkbox" id="OverlayUseBackdropImage">
+              <span data-i18n="overlayUseBackdropImage">Use backdrop image</span>
+            </label>
+
+            <label class="checkboxContainer" id="OverlayBlurBackdropContainer">
+              <input is="emby-checkbox" type="checkbox" id="OverlayBlurBackdrop">
+              <span data-i18n="overlayBlurBackdrop">Blur backdrop</span>
+            </label>
+
+            <!-- Live preview -->
+            <div class="sg-preview-wrap">
+              <div class="sg-preview" id="sg-preview">
+                <div class="sg-preview-msg" id="sg-preview-msg">Are you still watching?</div>
+                <button type="button" class="sg-preview-btn" id="sg-preview-btn">Continue watching</button>
+              </div>
+            </div>
+
+            <p class="sg-section" data-i18n="sectionOverlayButtons">Overlay Buttons</p>
+
+            <label class="checkboxContainer">
+              <input is="emby-checkbox" type="checkbox" id="OverlayShowContinueButton">
+              <span data-i18n="overlayShowContinueButton">Show continue button</span>
+            </label>
+
+            <label class="checkboxContainer">
+              <input is="emby-checkbox" type="checkbox" id="OverlayShowDismissButton">
+              <span data-i18n="overlayShowDismissButton">Show dismiss button</span>
+            </label>
+
+            <div class="inputContainer">
+              <label class="inputLabel inputLabelUnfocused" for="OverlayContinueButtonTextEn" data-i18n="overlayContinueButtonTextEn">Continue button (English)</label>
+              <input is="emby-input" type="text" id="OverlayContinueButtonTextEn" placeholder="Continue watching">
+            </div>
+
+            <div class="inputContainer">
+              <label class="inputLabel inputLabelUnfocused" for="OverlayContinueButtonTextIt" data-i18n="overlayContinueButtonTextIt">Continue button (Italian)</label>
+              <input is="emby-input" type="text" id="OverlayContinueButtonTextIt" placeholder="Continua la riproduzione">
+            </div>
+
+            <div class="inputContainer">
+              <label class="inputLabel inputLabelUnfocused" for="OverlayDismissButtonTextEn" data-i18n="overlayDismissButtonTextEn">Dismiss button (English)</label>
+              <input is="emby-input" type="text" id="OverlayDismissButtonTextEn" placeholder="Stay paused">
+            </div>
+
+            <div class="inputContainer">
+              <label class="inputLabel inputLabelUnfocused" for="OverlayDismissButtonTextIt" data-i18n="overlayDismissButtonTextIt">Dismiss button (Italian)</label>
+              <input is="emby-input" type="text" id="OverlayDismissButtonTextIt" placeholder="Resta in pausa">
+            </div>
+
+            <p class="sg-section" data-i18n="sectionOverlaySetup">Overlay Setup</p>
+
+            <div class="fieldDescription" data-i18n="overlaySetupDescription">
+              Register this URL in the Jellyfin JavaScript Injector plugin:
+            </div>
+            <div class="sg-code-block">
+              <code id="OverlayScriptUrl"></code>
+              <button type="button" class="sg-copy-btn" id="CopyOverlayUrl" data-i18n="copySnippet">Copy</button>
+            </div>
+            <div class="fieldDescription" data-i18n="overlaySetupNote">
+              Add this URL to the JavaScript Injector settings to automatically load the overlay on every page. No Branding configuration is needed.
+            </div>
+
+          </div><!-- /tab-customization -->
+
+          <!-- ══════════════════════════════════════════════════════════
+               TAB 3: DEVELOPER TOOLS
+          ══════════════════════════════════════════════════════════ -->
+          <div id="tab-developer" class="sg-tab-panel">
+
+            <div class="sg-dev-warning">
+              <span class="sg-dev-warning-icon">⚠</span>
+              <span class="sg-dev-warning-text" data-i18n="devWarning">
+                Developer Tools are intended for testing and debugging only.
+                These settings can cause unexpected behaviour on a production server.
+                Disable Developer Mode when you are done.
+              </span>
+            </div>
+
+            <label class="checkboxContainer">
+              <input is="emby-checkbox" type="checkbox" id="DeveloperModeDev">
+              <span data-i18n="developerModeLabel">Enable Developer Mode</span>
+            </label>
+
+            <p class="sg-section" data-i18n="sectionDiagnostics">Diagnostics</p>
+
+            <label class="checkboxContainer">
+              <input is="emby-checkbox" type="checkbox" id="DryRun">
+              <span data-i18n="dryRun">Dry run (log actions, do not send)</span>
+            </label>
+
+            <label class="checkboxContainer">
+              <input is="emby-checkbox" type="checkbox" id="LogProgressEvents">
+              <span data-i18n="logProgressEvents">Log playback progress events</span>
+            </label>
+
+            <label class="checkboxContainer">
+              <input is="emby-checkbox" type="checkbox" id="LogRuleChecks">
+              <span data-i18n="logRuleChecks">Log rule evaluation results</span>
+            </label>
+
+            <div class="inputContainer">
+              <label class="inputLabel inputLabelUnfocused" for="MaxContinuousSeconds" data-i18n="maxContinuousSeconds">Max continuous seconds (testing override)</label>
+              <input is="emby-input" type="number" min="0" id="MaxContinuousSeconds">
+              <div class="fieldDescription" data-i18n="maxContinuousSecondsDescription">Overrides the minutes threshold. Set to 0 to use MaxContinuousMinutes.</div>
+            </div>
+
+            <div class="inputContainer">
+              <label class="inputLabel inputLabelUnfocused" for="ActionRepeatCount" data-i18n="actionRepeatCount">Action repeat count</label>
+              <input is="emby-input" type="number" min="1" max="5" id="ActionRepeatCount">
+              <div class="fieldDescription" data-i18n="actionRepeatDescription">Send pause or stop this many times for clients that miss the first command.</div>
+            </div>
+
+            <div class="inputContainer">
+              <label class="inputLabel inputLabelUnfocused" for="ActionRepeatIntervalSeconds" data-i18n="actionRepeatIntervalSeconds">Action repeat interval (seconds)</label>
+              <input is="emby-input" type="number" min="0" max="30" id="ActionRepeatIntervalSeconds">
+            </div>
+
+            <p class="sg-section" data-i18n="sectionOverlayTesting">Overlay Testing</p>
+
+            <button type="button" is="emby-button" class="raised" id="TestOverlay" data-i18n="testOverlay">Show Overlay (test)</button>
+            <div class="fieldDescription" data-i18n="testOverlayNote">
+              Triggers the overlay in this browser window. Only works if the overlay script is loaded via the JavaScript Injector.
+              Keyboard shortcut: Ctrl+Shift+Alt+S.
+            </div>
+
+          </div><!-- /tab-developer -->
+
+          <div style="margin-top:1.5em;">
+            <button is="emby-button" type="submit" class="raised button-submit block">
+              <span data-i18n="save">Save</span>
+            </button>
           </div>
 
-          <h3 class="checkboxListLabel" data-i18n="sectionPlayback">Playback protection</h3>
-
-          <label class="checkboxContainer">
-            <input is="emby-checkbox" type="checkbox" id="SleepGuardEnabled">
-            <span data-i18n="enabled">Enabled</span>
-          </label>
-
-          <div class="selectContainer">
-            <label class="selectLabel" for="SleepGuardAction" data-i18n="action">Action</label>
-            <select is="emby-select" id="SleepGuardAction" class="emby-select-withcolor">
-              <option value="Pause" data-i18n="actionPause">Pause</option>
-              <option value="Stop" data-i18n="actionStop">Stop</option>
-            </select>
-          </div>
-
-          <div class="inputContainer">
-            <label class="inputLabel inputLabelUnfocused" for="MaxContinuousMinutes" data-i18n="maxContinuousMinutes">Max continuous minutes</label>
-            <input is="emby-input" type="number" min="0" id="MaxContinuousMinutes">
-            <div class="fieldDescription" data-i18n="disableContinuousRule">Set to 0 to disable the continuous-time rule.</div>
-          </div>
-
-          <div class="inputContainer">
-            <label class="inputLabel inputLabelUnfocused" for="MaxAutoplayEpisodes" data-i18n="maxAutoplayEpisodes">Max autoplay episodes</label>
-            <input is="emby-input" type="number" min="0" id="MaxAutoplayEpisodes">
-            <div class="fieldDescription" data-i18n="disableAutoplayRule">Set to 0 to disable the autoplay episode rule.</div>
-          </div>
-
-          <h3 class="checkboxListLabel" data-i18n="sectionWindow">Active window</h3>
-
-          <label class="checkboxContainer">
-            <input is="emby-checkbox" type="checkbox" id="OnlyWithinTimeWindow">
-            <span data-i18n="onlyWithinTimeWindow">Only within time window</span>
-          </label>
-
-          <div class="inputContainer">
-            <label class="inputLabel inputLabelUnfocused" for="TimeWindowStart" data-i18n="timeWindowStart">Time window start</label>
-            <input is="emby-input" type="time" id="TimeWindowStart">
-          </div>
-
-          <div class="inputContainer">
-            <label class="inputLabel inputLabelUnfocused" for="TimeWindowEnd" data-i18n="timeWindowEnd">Time window end</label>
-            <input is="emby-input" type="time" id="TimeWindowEnd">
-          </div>
-
-          <h3 class="checkboxListLabel" data-i18n="sectionMedia">Media types</h3>
-
-          <label class="checkboxContainer">
-            <input is="emby-checkbox" type="checkbox" id="IncludeMovies">
-            <span data-i18n="includeMovies">Include movies</span>
-          </label>
-
-          <label class="checkboxContainer">
-            <input is="emby-checkbox" type="checkbox" id="IncludeMusic">
-            <span data-i18n="includeMusic">Include music</span>
-          </label>
-
-          <label class="checkboxContainer">
-            <input is="emby-checkbox" type="checkbox" id="IncludeLiveTv">
-            <span data-i18n="includeLiveTv">Include Live TV</span>
-          </label>
-
-          <h3 class="checkboxListLabel" data-i18n="sectionUsers">Users</h3>
-
-          <div class="selectContainer">
-            <label class="selectLabel" for="UserMode" data-i18n="userScope">User scope</label>
-            <select is="emby-select" id="UserMode" class="emby-select-withcolor">
-              <option value="AllUsers" data-i18n="userAll">All users</option>
-              <option value="Whitelist" data-i18n="userWhitelist">Only listed users</option>
-              <option value="Blacklist" data-i18n="userBlacklist">All except listed users</option>
-            </select>
-          </div>
-
-          <div class="inputContainer">
-            <label class="inputLabel inputLabelUnfocused" for="UserIds" data-i18n="userIds">User IDs</label>
-            <input is="emby-input" type="text" id="UserIds">
-            <div class="fieldDescription" data-i18n="userIdsDescription">Comma-separated Jellyfin user IDs for whitelist or blacklist mode.</div>
-          </div>
-
-          <h3 class="checkboxListLabel" data-i18n="sectionPrompt">Prompt and action</h3>
-
-          <label class="checkboxContainer">
-            <input is="emby-checkbox" type="checkbox" id="SendPrompt">
-            <span data-i18n="sendPrompt">Send prompt message</span>
-          </label>
-
-          <div class="inputContainer">
-            <label class="inputLabel inputLabelUnfocused" for="PromptHeader" data-i18n="promptHeader">Prompt header</label>
-            <input is="emby-input" type="text" id="PromptHeader">
-          </div>
-
-          <div class="inputContainer">
-            <label class="inputLabel inputLabelUnfocused" for="PromptMessage" data-i18n="promptMessage">Prompt message</label>
-            <input is="emby-input" type="text" id="PromptMessage">
-          </div>
-
-          <div class="inputContainer">
-            <label class="inputLabel inputLabelUnfocused" for="PromptTimeoutSeconds" data-i18n="promptTimeoutSeconds">Prompt timeout seconds</label>
-            <input is="emby-input" type="number" min="1" id="PromptTimeoutSeconds">
-            <div class="fieldDescription" data-i18n="promptTimeoutDescription">How long clients should keep the toast visible.</div>
-          </div>
-
-          <div class="inputContainer">
-            <label class="inputLabel inputLabelUnfocused" for="PromptGraceSeconds" data-i18n="promptGraceSeconds">Prompt grace seconds</label>
-            <input is="emby-input" type="number" min="0" id="PromptGraceSeconds">
-            <div class="fieldDescription" data-i18n="promptGraceDescription">How long to wait after the prompt before sending pause or stop.</div>
-          </div>
-
-          <h3 class="checkboxListLabel" data-i18n="sectionOverlaySetup">Overlay setup</h3>
-
-          <div class="fieldDescription" data-i18n="overlaySetupDescription">Add this one line to Dashboard → General → Branding → Custom JavaScript:</div>
-          <div class="sleepGuardCodeBlock">
-            <code id="OverlaySnippet">import('/SleepGuard/overlay.js').catch(()=>{});</code>
-            <button type="button" class="sleepGuardCopyBtn" id="CopyOverlaySnippet" data-i18n="copySnippet">Copy</button>
-          </div>
-
-          <h3 class="checkboxListLabel" data-i18n="sectionOverlayAppearance">Overlay appearance</h3>
-
-          <div class="inputContainer">
-            <label class="inputLabel inputLabelUnfocused" for="OverlayAccentColor" data-i18n="overlayAccentColor">Accent color</label>
-            <input type="color" id="OverlayAccentColor" style="height:38px;width:80px;padding:2px;border:0;cursor:pointer;">
-          </div>
-
-          <div class="inputContainer">
-            <label class="inputLabel inputLabelUnfocused" for="OverlayBackgroundOpacity" data-i18n="overlayBackgroundOpacity">Background opacity</label>
-            <input type="range" min="0" max="100" id="OverlayBackgroundOpacity" style="width:100%;max-width:320px;">
-            <span id="OverlayBackgroundOpacityValue">92</span>%
-          </div>
-
-          <label class="checkboxContainer">
-            <input is="emby-checkbox" type="checkbox" id="OverlayUseBackdropImage">
-            <span data-i18n="overlayUseBackdropImage">Use backdrop image</span>
-          </label>
-
-          <label class="checkboxContainer" id="OverlayBlurBackdropContainer">
-            <input is="emby-checkbox" type="checkbox" id="OverlayBlurBackdrop">
-            <span data-i18n="overlayBlurBackdrop">Blur backdrop</span>
-          </label>
-
-          <label class="checkboxContainer">
-            <input is="emby-checkbox" type="checkbox" id="OverlayShowContinueButton">
-            <span data-i18n="overlayShowContinueButton">Show continue button</span>
-          </label>
-
-          <label class="checkboxContainer">
-            <input is="emby-checkbox" type="checkbox" id="OverlayShowDismissButton">
-            <span data-i18n="overlayShowDismissButton">Show dismiss button</span>
-          </label>
-
-          <div class="inputContainer">
-            <label class="inputLabel inputLabelUnfocused" for="OverlayContinueButtonTextEn" data-i18n="overlayContinueButtonTextEn">Continue button text (English)</label>
-            <input is="emby-input" type="text" id="OverlayContinueButtonTextEn" placeholder="Continue watching">
-          </div>
-
-          <div class="inputContainer">
-            <label class="inputLabel inputLabelUnfocused" for="OverlayContinueButtonTextIt" data-i18n="overlayContinueButtonTextIt">Continue button text (Italian)</label>
-            <input is="emby-input" type="text" id="OverlayContinueButtonTextIt" placeholder="Continua la riproduzione">
-          </div>
-
-          <div class="inputContainer">
-            <label class="inputLabel inputLabelUnfocused" for="OverlayDismissButtonTextEn" data-i18n="overlayDismissButtonTextEn">Dismiss button text (English)</label>
-            <input is="emby-input" type="text" id="OverlayDismissButtonTextEn" placeholder="Stay paused">
-          </div>
-
-          <div class="inputContainer">
-            <label class="inputLabel inputLabelUnfocused" for="OverlayDismissButtonTextIt" data-i18n="overlayDismissButtonTextIt">Dismiss button text (Italian)</label>
-            <input is="emby-input" type="text" id="OverlayDismissButtonTextIt" placeholder="Resta in pausa">
-          </div>
-
-          <h3 class="checkboxListLabel" data-i18n="sectionDiagnostics">Testing and diagnostics</h3>
-
-          <div class="inputContainer">
-            <label class="inputLabel inputLabelUnfocused" for="MaxContinuousSeconds" data-i18n="maxContinuousSeconds">Max continuous seconds</label>
-            <input is="emby-input" type="number" min="0" id="MaxContinuousSeconds">
-            <div class="fieldDescription" data-i18n="maxContinuousSecondsDescription">Testing override. Set to 0 to use minutes.</div>
-          </div>
-
-          <label class="checkboxContainer">
-            <input is="emby-checkbox" type="checkbox" id="DryRun">
-            <span data-i18n="dryRun">Dry run</span>
-          </label>
-
-          <div class="inputContainer">
-            <label class="inputLabel inputLabelUnfocused" for="ActionRepeatCount" data-i18n="actionRepeatCount">Action repeat count</label>
-            <input is="emby-input" type="number" min="1" max="5" id="ActionRepeatCount">
-            <div class="fieldDescription" data-i18n="actionRepeatDescription">Send pause or stop multiple times for clients that miss the first command.</div>
-          </div>
-
-          <div class="inputContainer">
-            <label class="inputLabel inputLabelUnfocused" for="ActionRepeatIntervalSeconds" data-i18n="actionRepeatIntervalSeconds">Action repeat interval seconds</label>
-            <input is="emby-input" type="number" min="0" max="30" id="ActionRepeatIntervalSeconds">
-          </div>
-
-          <label class="checkboxContainer">
-            <input is="emby-checkbox" type="checkbox" id="LogProgressEvents">
-            <span data-i18n="logProgressEvents">Log playback progress</span>
-          </label>
-
-          <label class="checkboxContainer">
-            <input is="emby-checkbox" type="checkbox" id="LogRuleChecks">
-            <span data-i18n="logRuleChecks">Log rule checks</span>
-          </label>
-
-          <button is="emby-button" type="submit" class="raised button-submit block">
-            <span data-i18n="save">Save</span>
-          </button>
         </form>
       </div>
     </div>
+
     <script>
       (() => {
         const pluginIds = [
@@ -284,344 +455,440 @@
         let activePluginId = pluginIds[0];
         const page = document.querySelector("#SleepGuardConfigPage");
         const form = page.querySelector("#SleepGuardConfigForm");
+
+        // ── Prompt defaults per language ─────────────────────────────────
         const promptDefaults = {
-          en: {
-            header: "SleepGuard",
-            message: "Are you still watching?"
-          },
-          it: {
-            header: "SleepGuard",
-            message: "Stai ancora guardando?"
-          }
+          en: { header: "SleepGuard", message: "Are you still watching?" },
+          it: { header: "SleepGuard", message: "Stai ancora guardando?" }
         };
+
+        // ── Translations ─────────────────────────────────────────────────
         const translations = {
           en: {
             title: "SleepGuard",
+            tabBehavior: "Behavior",
+            tabCustomization: "Customization",
+            tabDeveloper: "Developer Tools",
             languageLabel: "Language",
             languageEnglish: "English",
             languageItalian: "Italiano",
-            sectionPlayback: "Playback protection",
+            sectionGeneral: "General",
             enabled: "Enabled",
             action: "Action",
             actionPause: "Pause",
             actionStop: "Stop",
+            sectionInactivityThresholds: "Inactivity Thresholds",
             maxContinuousMinutes: "Max continuous minutes",
             disableContinuousRule: "Set to 0 to disable the continuous-time rule.",
             maxAutoplayEpisodes: "Max autoplay episodes",
             disableAutoplayRule: "Set to 0 to disable the autoplay episode rule.",
-            sectionWindow: "Active window",
+            sectionPromptTiming: "Prompt Timing",
+            sendPrompt: "Send prompt message",
+            promptTimeoutSeconds: "Prompt timeout (seconds)",
+            promptTimeoutDescription: "How long clients keep the toast visible.",
+            promptGraceSeconds: "Grace period (seconds)",
+            promptGraceDescription: "Delay after prompt before pause or stop. 0 acts immediately.",
+            sectionTimeWindow: "Time Window",
             onlyWithinTimeWindow: "Only within time window",
-            timeWindowStart: "Time window start",
-            timeWindowEnd: "Time window end",
-            sectionMedia: "Media types",
+            timeWindowStart: "Window start",
+            timeWindowEnd: "Window end",
+            sectionMediaTypes: "Media Types",
             includeMovies: "Include movies",
             includeMusic: "Include music",
             includeLiveTv: "Include Live TV",
-            sectionUsers: "Users",
+            sectionUserScope: "User Scope",
             userScope: "User scope",
             userAll: "All users",
             userWhitelist: "Only listed users",
             userBlacklist: "All except listed users",
             userIds: "User IDs",
             userIdsDescription: "Comma-separated Jellyfin user IDs for whitelist or blacklist mode.",
-            sectionPrompt: "Prompt and action",
-            sendPrompt: "Send prompt message",
+            sectionDeveloperMode: "Developer Mode",
+            developerModeLabel: "Enable Developer Tools tab",
+            developerModeDescription: "Unlocks the Developer Tools tab and activates the overlay keyboard shortcut (Ctrl+Shift+Alt+S). Disable on production servers.",
+            sectionPromptText: "Prompt Text",
             promptHeader: "Prompt header",
             promptMessage: "Prompt message",
-            promptTimeoutSeconds: "Prompt timeout seconds",
-            promptTimeoutDescription: "How long clients should keep the toast visible.",
-            promptGraceSeconds: "Prompt grace seconds",
-            promptGraceDescription: "How long to wait after the prompt before sending pause or stop.",
-            sectionDiagnostics: "Testing and diagnostics",
-            maxContinuousSeconds: "Max continuous seconds",
-            maxContinuousSecondsDescription: "Testing override. Set to 0 to use minutes.",
-            dryRun: "Dry run",
-            actionRepeatCount: "Action repeat count",
-            actionRepeatDescription: "Send pause or stop multiple times for clients that miss the first command.",
-            actionRepeatIntervalSeconds: "Action repeat interval seconds",
-            logProgressEvents: "Log playback progress",
-            logRuleChecks: "Log rule checks",
-            save: "Save",
-            loadError: "SleepGuard could not load its configuration. Restart Jellyfin and refresh the browser cache.",
-            saveError: "SleepGuard could not save its configuration. Check the Jellyfin log for details.",
-            sectionOverlaySetup: "Overlay setup",
-            overlaySetupDescription: "Add this one line to Dashboard → General → Branding → Custom JavaScript:",
-            copySnippet: "Copy",
-            copied: "Copied!",
-            sectionOverlayAppearance: "Overlay appearance",
+            sectionOverlayAppearance: "Overlay Appearance",
             overlayAccentColor: "Accent color",
             overlayBackgroundOpacity: "Background opacity",
             overlayUseBackdropImage: "Use backdrop image",
             overlayBlurBackdrop: "Blur backdrop",
+            sectionOverlayButtons: "Overlay Buttons",
             overlayShowContinueButton: "Show continue button",
             overlayShowDismissButton: "Show dismiss button",
-            overlayContinueButtonTextEn: "Continue button text (English)",
-            overlayContinueButtonTextIt: "Continue button text (Italian)",
-            overlayDismissButtonTextEn: "Dismiss button text (English)",
-            overlayDismissButtonTextIt: "Dismiss button text (Italian)"
+            overlayContinueButtonTextEn: "Continue button (English)",
+            overlayContinueButtonTextIt: "Continue button (Italian)",
+            overlayDismissButtonTextEn: "Dismiss button (English)",
+            overlayDismissButtonTextIt: "Dismiss button (Italian)",
+            sectionOverlaySetup: "Overlay Setup",
+            overlaySetupDescription: "Register this URL in the Jellyfin JavaScript Injector plugin:",
+            overlaySetupNote: "Add this URL to the JavaScript Injector settings to automatically load the overlay on every page. No Branding configuration is needed.",
+            copySnippet: "Copy",
+            copied: "Copied!",
+            sectionDiagnostics: "Diagnostics",
+            dryRun: "Dry run (log actions, do not send)",
+            logProgressEvents: "Log playback progress events",
+            logRuleChecks: "Log rule evaluation results",
+            maxContinuousSeconds: "Max continuous seconds (testing override)",
+            maxContinuousSecondsDescription: "Overrides the minutes threshold. Set to 0 to use MaxContinuousMinutes.",
+            actionRepeatCount: "Action repeat count",
+            actionRepeatDescription: "Send pause or stop this many times for clients that miss the first command.",
+            actionRepeatIntervalSeconds: "Action repeat interval (seconds)",
+            sectionOverlayTesting: "Overlay Testing",
+            testOverlay: "Show Overlay (test)",
+            testOverlayNote: "Triggers the overlay in this browser window. Only works if the overlay script is loaded via the JavaScript Injector. Keyboard shortcut: Ctrl+Shift+Alt+S.",
+            devWarning: "Developer Tools are intended for testing and debugging only. These settings can cause unexpected behaviour on a production server. Disable Developer Mode when you are done.",
+            save: "Save",
+            loadError: "SleepGuard could not load its configuration. Restart Jellyfin and refresh the browser cache.",
+            saveError: "SleepGuard could not save its configuration. Check the Jellyfin log for details."
           },
           it: {
             title: "SleepGuard",
+            tabBehavior: "Comportamento",
+            tabCustomization: "Personalizzazione",
+            tabDeveloper: "Strumenti sviluppatore",
             languageLabel: "Lingua",
             languageEnglish: "English",
             languageItalian: "Italiano",
-            sectionPlayback: "Protezione riproduzione",
+            sectionGeneral: "Generale",
             enabled: "Abilitato",
             action: "Azione",
             actionPause: "Pausa",
             actionStop: "Ferma",
+            sectionInactivityThresholds: "Soglie di inattività",
             maxContinuousMinutes: "Minuti continui massimi",
             disableContinuousRule: "Imposta 0 per disattivare la regola del tempo continuo.",
             maxAutoplayEpisodes: "Episodi autoplay massimi",
             disableAutoplayRule: "Imposta 0 per disattivare la regola degli episodi in autoplay.",
-            sectionWindow: "Finestra attiva",
+            sectionPromptTiming: "Tempistiche messaggio",
+            sendPrompt: "Invia messaggio di conferma",
+            promptTimeoutSeconds: "Durata messaggio (secondi)",
+            promptTimeoutDescription: "Per quanto tempo i client mantengono visibile il messaggio.",
+            promptGraceSeconds: "Periodo di attesa (secondi)",
+            promptGraceDescription: "Attesa dopo il messaggio prima di inviare pausa o stop. 0 agisce immediatamente.",
+            sectionTimeWindow: "Finestra oraria",
             onlyWithinTimeWindow: "Solo nella finestra oraria",
-            timeWindowStart: "Inizio finestra oraria",
-            timeWindowEnd: "Fine finestra oraria",
-            sectionMedia: "Tipi di media",
+            timeWindowStart: "Inizio finestra",
+            timeWindowEnd: "Fine finestra",
+            sectionMediaTypes: "Tipi di media",
             includeMovies: "Includi film",
             includeMusic: "Includi musica",
             includeLiveTv: "Includi TV in diretta",
-            sectionUsers: "Utenti",
+            sectionUserScope: "Ambito utenti",
             userScope: "Ambito utenti",
             userAll: "Tutti gli utenti",
             userWhitelist: "Solo utenti elencati",
             userBlacklist: "Tutti tranne gli utenti elencati",
             userIds: "ID utenti",
             userIdsDescription: "ID utente Jellyfin separati da virgola per whitelist o blacklist.",
-            sectionPrompt: "Messaggio e azione",
-            sendPrompt: "Invia messaggio di conferma",
+            sectionDeveloperMode: "Modalità sviluppatore",
+            developerModeLabel: "Abilita la scheda Strumenti sviluppatore",
+            developerModeDescription: "Sblocca la scheda Strumenti sviluppatore e attiva la scorciatoia da tastiera (Ctrl+Shift+Alt+S). Disabilitare sui server di produzione.",
+            sectionPromptText: "Testo messaggio",
             promptHeader: "Titolo messaggio",
             promptMessage: "Testo messaggio",
-            promptTimeoutSeconds: "Secondi visibilita messaggio",
-            promptTimeoutDescription: "Per quanto tempo i client devono mantenere visibile il messaggio.",
-            promptGraceSeconds: "Secondi di attesa",
-            promptGraceDescription: "Quanto aspettare dopo il messaggio prima di inviare pausa o stop.",
-            sectionDiagnostics: "Test e diagnostica",
-            maxContinuousSeconds: "Secondi continui massimi",
-            maxContinuousSecondsDescription: "Override di test. Imposta 0 per usare i minuti.",
-            dryRun: "Solo simulazione",
-            actionRepeatCount: "Numero ripetizioni azione",
-            actionRepeatDescription: "Invia pausa o stop piu volte per i client che ignorano il primo comando.",
-            actionRepeatIntervalSeconds: "Secondi tra ripetizioni azione",
-            logProgressEvents: "Registra avanzamento riproduzione",
-            logRuleChecks: "Registra controlli regole",
-            save: "Salva",
-            loadError: "SleepGuard non ha potuto caricare la configurazione. Riavvia Jellyfin e aggiorna la cache del browser.",
-            saveError: "SleepGuard non ha potuto salvare la configurazione. Controlla il log di Jellyfin.",
-            sectionOverlaySetup: "Configurazione overlay",
-            overlaySetupDescription: "Aggiungi questa riga in Dashboard → Generale → Branding → JavaScript personalizzato:",
-            copySnippet: "Copia",
-            copied: "Copiato!",
             sectionOverlayAppearance: "Aspetto overlay",
             overlayAccentColor: "Colore accento",
             overlayBackgroundOpacity: "Opacità sfondo",
             overlayUseBackdropImage: "Usa immagine di sfondo",
             overlayBlurBackdrop: "Sfoca sfondo",
+            sectionOverlayButtons: "Pulsanti overlay",
             overlayShowContinueButton: "Mostra pulsante continua",
             overlayShowDismissButton: "Mostra pulsante chiudi",
-            overlayContinueButtonTextEn: "Testo pulsante continua (Inglese)",
-            overlayContinueButtonTextIt: "Testo pulsante continua (Italiano)",
-            overlayDismissButtonTextEn: "Testo pulsante chiudi (Inglese)",
-            overlayDismissButtonTextIt: "Testo pulsante chiudi (Italiano)"
+            overlayContinueButtonTextEn: "Pulsante continua (Inglese)",
+            overlayContinueButtonTextIt: "Pulsante continua (Italiano)",
+            overlayDismissButtonTextEn: "Pulsante chiudi (Inglese)",
+            overlayDismissButtonTextIt: "Pulsante chiudi (Italiano)",
+            sectionOverlaySetup: "Configurazione overlay",
+            overlaySetupDescription: "Registra questo URL nel plugin Jellyfin JavaScript Injector:",
+            overlaySetupNote: "Aggiungi questo URL nelle impostazioni del JavaScript Injector per caricare automaticamente l'overlay. Non è necessaria la configurazione Branding.",
+            copySnippet: "Copia",
+            copied: "Copiato!",
+            sectionDiagnostics: "Diagnostica",
+            dryRun: "Solo simulazione (registra azioni, non le invia)",
+            logProgressEvents: "Registra eventi avanzamento",
+            logRuleChecks: "Registra risultati valutazione regole",
+            maxContinuousSeconds: "Secondi continui massimi (override test)",
+            maxContinuousSecondsDescription: "Sovrascrive la soglia in minuti. Imposta 0 per usare MaxContinuousMinutes.",
+            actionRepeatCount: "Numero ripetizioni azione",
+            actionRepeatDescription: "Invia pausa o stop più volte per i client che ignorano il primo comando.",
+            actionRepeatIntervalSeconds: "Intervallo ripetizioni (secondi)",
+            sectionOverlayTesting: "Test overlay",
+            testOverlay: "Mostra overlay (test)",
+            testOverlayNote: "Attiva l'overlay in questa finestra del browser. Funziona solo se lo script overlay è caricato tramite JavaScript Injector. Scorciatoia: Ctrl+Shift+Alt+S.",
+            devWarning: "Gli strumenti sviluppatore sono destinati solo a test e debug. Queste impostazioni possono causare comportamenti imprevisti su un server di produzione. Disabilita la modalità sviluppatore quando hai finito.",
+            save: "Salva",
+            loadError: "SleepGuard non ha potuto caricare la configurazione. Riavvia Jellyfin e aggiorna la cache del browser.",
+            saveError: "SleepGuard non ha potuto salvare la configurazione. Controlla il log di Jellyfin."
           }
         };
 
+        // ── Helpers ──────────────────────────────────────────────────────
+
         const normalizeLanguage = value => {
-          const language = String(value || "").toLowerCase().split("-")[0];
-          return Object.prototype.hasOwnProperty.call(translations, language) ? language : "en";
+          const lang = String(value || "").toLowerCase().split("-")[0];
+          return Object.prototype.hasOwnProperty.call(translations, lang) ? lang : "en";
         };
 
-        const getBrowserLanguage = () => {
-          const languages = navigator.languages || [navigator.language];
-          return normalizeLanguage(languages[0]);
-        };
+        const getBrowserLanguage = () =>
+          normalizeLanguage((navigator.languages || [navigator.language])[0]);
 
-        const getText = (language, key) => {
-          return (translations[language] && translations[language][key]) || translations.en[key] || key;
-        };
+        const getText = (lang, key) =>
+          (translations[lang] && translations[lang][key]) || translations.en[key] || key;
 
-        const applyLanguage = language => {
-          const normalizedLanguage = normalizeLanguage(language);
-          page.querySelectorAll("[data-i18n]").forEach(element => {
-            element.textContent = getText(normalizedLanguage, element.dataset.i18n);
+        const currentLang = () =>
+          normalizeLanguage(page.querySelector("#SleepGuardLanguage").value);
+
+        const applyLanguage = lang => {
+          const n = normalizeLanguage(lang);
+          page.querySelectorAll("[data-i18n]").forEach(el => {
+            el.textContent = getText(n, el.dataset.i18n);
           });
-          document.title = getText(normalizedLanguage, "title");
+          document.title = getText(n, "title");
+          updatePreview();
         };
 
         const isDefaultPromptValue = (value, key) => {
-          const normalizedValue = String(value || "").trim();
-          return !normalizedValue || Object.values(promptDefaults).some(defaults => defaults[key] === normalizedValue);
+          const v = String(value || "").trim();
+          return !v || Object.values(promptDefaults).some(d => d[key] === v);
         };
 
         const toTimeParts = value => {
-          if (!value) {
-            return ["00", "00", "00"];
-          }
-
-          const match = String(value).match(/^(?:(\d+)\.)?(\d{1,2}):(\d{2})(?::(\d{2})(?:\.\d+)?)?$/);
-          if (!match) {
-            return ["00", "00", "00"];
-          }
-
-          return [
-            match[2].padStart(2, "0"),
-            match[3].padStart(2, "0"),
-            (match[4] || "00").padStart(2, "0")
-          ];
+          if (!value) return ["00", "00", "00"];
+          const m = String(value).match(/^(?:(\d+)\.)?(\d{1,2}):(\d{2})(?::(\d{2})(?:\.\d+)?)?$/);
+          return m
+            ? [m[2].padStart(2, "0"), m[3].padStart(2, "0"), (m[4] || "00").padStart(2, "0")]
+            : ["00", "00", "00"];
         };
 
-        const toTimeInput = value => {
-          const parts = toTimeParts(value);
-          return `${parts[0]}:${parts[1]}`;
+        const toTimeInput = v => { const p = toTimeParts(v); return `${p[0]}:${p[1]}`; };
+        const toTimeSpan  = v => { const p = toTimeParts(v); return `${p[0]}:${p[1]}:${p[2]}.0000000`; };
+
+        // ── API helpers ───────────────────────────────────────────────────
+
+        const getConfiguration = () =>
+          pluginIds.reduce((p, id) => p.catch(() => {
+            activePluginId = id;
+            return ApiClient.getPluginConfiguration(id);
+          }), Promise.reject());
+
+        // ── Tab switching ─────────────────────────────────────────────────
+
+        let activeTab = "behavior";
+
+        const showTab = name => {
+          activeTab = name;
+          page.querySelectorAll(".sg-tab-btn").forEach(b =>
+            b.classList.toggle("active", b.dataset.tab === name));
+          page.querySelectorAll(".sg-tab-panel").forEach(p =>
+            p.classList.toggle("active", p.id === `tab-${name}`));
         };
 
-        const toTimeSpan = value => {
-          const parts = toTimeParts(value);
-          return `${parts[0]}:${parts[1]}:${parts[2]}.0000000`;
+        page.querySelectorAll(".sg-tab-btn").forEach(btn =>
+          btn.addEventListener("click", () => showTab(btn.dataset.tab)));
+
+        // ── Live preview ──────────────────────────────────────────────────
+
+        const updatePreview = () => {
+          const color   = page.querySelector("#OverlayAccentColor").value || "#00a4dc";
+          const opacity = Number(page.querySelector("#OverlayBackgroundOpacity").value ?? 92);
+          const alpha   = Math.round(opacity * 2.55).toString(16).padStart(2, "0");
+          const msg     = page.querySelector("#PromptMessage").value ||
+                          promptDefaults[currentLang()].message;
+
+          const preview = page.querySelector("#sg-preview");
+          const btn     = page.querySelector("#sg-preview-btn");
+
+          preview.style.background = `#000000${alpha}`;
+          preview.querySelector(".sg-preview-msg").textContent = msg;
+          btn.style.background = color;
         };
 
-        const getConfiguration = () => {
-          return pluginIds.reduce((promise, id) => {
-            return promise.catch(() => {
-              activePluginId = id;
-              return ApiClient.getPluginConfiguration(id);
-            });
-          }, Promise.reject());
-        };
-
-        const populateForm = config => {
-          const language = normalizeLanguage(config.Language || getBrowserLanguage());
-          const defaults = promptDefaults[language];
-          page.querySelector("#SleepGuardLanguage").value = language;
-          applyLanguage(language);
-          page.querySelector("#SleepGuardEnabled").checked = config.Enabled;
-          page.querySelector("#SleepGuardAction").value = config.Action || "Pause";
-          page.querySelector("#MaxContinuousMinutes").value = config.MaxContinuousMinutes || 0;
-          page.querySelector("#MaxContinuousSeconds").value = config.MaxContinuousSeconds || 0;
-          page.querySelector("#MaxAutoplayEpisodes").value = config.MaxAutoplayEpisodes || 0;
-          page.querySelector("#OnlyWithinTimeWindow").checked = config.OnlyWithinTimeWindow;
-          page.querySelector("#TimeWindowStart").value = toTimeInput(config.TimeWindowStart);
-          page.querySelector("#TimeWindowEnd").value = toTimeInput(config.TimeWindowEnd);
-          page.querySelector("#IncludeMovies").checked = config.IncludeMovies;
-          page.querySelector("#IncludeMusic").checked = config.IncludeMusic;
-          page.querySelector("#IncludeLiveTv").checked = config.IncludeLiveTv;
-          page.querySelector("#UserMode").value = config.UserMode || "AllUsers";
-          page.querySelector("#UserIds").value = (config.UserIds || []).join(", ");
-          page.querySelector("#SendPrompt").checked = config.SendPrompt;
-          page.querySelector("#PromptHeader").value = config.PromptHeader || defaults.header;
-          page.querySelector("#PromptMessage").value = config.PromptMessage || defaults.message;
-          page.querySelector("#PromptTimeoutSeconds").value = config.PromptTimeoutSeconds || 8;
-          page.querySelector("#PromptGraceSeconds").value = config.PromptGraceSeconds ?? 30;
-          page.querySelector("#DryRun").checked = config.DryRun;
-          page.querySelector("#ActionRepeatCount").value = config.ActionRepeatCount || 1;
-          page.querySelector("#ActionRepeatIntervalSeconds").value = config.ActionRepeatIntervalSeconds || 2;
-          page.querySelector("#LogProgressEvents").checked = config.LogProgressEvents;
-          page.querySelector("#LogRuleChecks").checked = config.LogRuleChecks;
-          page.querySelector("#OverlayAccentColor").value = config.OverlayAccentColor || "#00a4dc";
-          page.querySelector("#OverlayBackgroundOpacity").value = config.OverlayBackgroundOpacity ?? 92;
-          page.querySelector("#OverlayBackgroundOpacityValue").textContent = config.OverlayBackgroundOpacity ?? 92;
-          page.querySelector("#OverlayUseBackdropImage").checked = config.OverlayUseBackdropImage;
-          page.querySelector("#OverlayBlurBackdrop").checked = config.OverlayBlurBackdrop ?? true;
-          page.querySelector("#OverlayBlurBackdropContainer").style.display = config.OverlayUseBackdropImage ? "" : "none";
-          page.querySelector("#OverlayShowContinueButton").checked = config.OverlayShowContinueButton ?? true;
-          page.querySelector("#OverlayShowDismissButton").checked = config.OverlayShowDismissButton ?? true;
-          page.querySelector("#OverlayContinueButtonTextEn").value = config.OverlayContinueButtonTextEn || "";
-          page.querySelector("#OverlayContinueButtonTextIt").value = config.OverlayContinueButtonTextIt || "";
-          page.querySelector("#OverlayDismissButtonTextEn").value = config.OverlayDismissButtonTextEn || "";
-          page.querySelector("#OverlayDismissButtonTextIt").value = config.OverlayDismissButtonTextIt || "";
-        };
-
-        page.querySelector("#SleepGuardLanguage").addEventListener("change", event => {
-          const language = normalizeLanguage(event.target.value);
-          const defaults = promptDefaults[language];
-          const promptHeader = page.querySelector("#PromptHeader");
-          const promptMessage = page.querySelector("#PromptMessage");
-          if (isDefaultPromptValue(promptHeader.value, "header")) {
-            promptHeader.value = defaults.header;
-          }
-          if (isDefaultPromptValue(promptMessage.value, "message")) {
-            promptMessage.value = defaults.message;
-          }
-          applyLanguage(language);
+        page.querySelector("#OverlayAccentColor").addEventListener("input", updatePreview);
+        page.querySelector("#OverlayBackgroundOpacity").addEventListener("input", e => {
+          page.querySelector("#OverlayBackgroundOpacityValue").textContent = e.target.value;
+          updatePreview();
         });
+        page.querySelector("#PromptMessage").addEventListener("input", updatePreview);
 
-        page.querySelector("#OverlayUseBackdropImage").addEventListener("change", event => {
-          page.querySelector("#OverlayBlurBackdropContainer").style.display = event.target.checked ? "" : "none";
-        });
+        // ── Developer mode toggle (syncs two checkboxes) ──────────────────
 
-        page.querySelector("#OverlayBackgroundOpacity").addEventListener("input", event => {
-          page.querySelector("#OverlayBackgroundOpacityValue").textContent = event.target.value;
-        });
+        const syncDevMode = enabled => {
+          page.querySelector("#DeveloperMode").checked    = enabled;
+          page.querySelector("#DeveloperModeDev").checked = enabled;
+          const tabBtn = page.querySelector("#sg-dev-tab-btn");
+          tabBtn.style.display = enabled ? "" : "none";
+          if (!enabled && activeTab === "developer") showTab("behavior");
+        };
 
-        page.querySelector("#CopyOverlaySnippet").addEventListener("click", () => {
-          const snippet = page.querySelector("#OverlaySnippet").textContent;
-          const lang = normalizeLanguage(page.querySelector("#SleepGuardLanguage").value);
-          navigator.clipboard.writeText(snippet).then(() => {
-            const btn = page.querySelector("#CopyOverlaySnippet");
+        page.querySelector("#DeveloperMode").addEventListener("change", e =>
+          syncDevMode(e.target.checked));
+        page.querySelector("#DeveloperModeDev").addEventListener("change", e =>
+          syncDevMode(e.target.checked));
+
+        // ── Overlay URL (JS Injector) ─────────────────────────────────────
+
+        const setOverlayUrl = () => {
+          const url = `${window.location.origin}/SleepGuard/overlay.js`;
+          page.querySelector("#OverlayScriptUrl").textContent = url;
+        };
+
+        page.querySelector("#CopyOverlayUrl").addEventListener("click", () => {
+          const url  = page.querySelector("#OverlayScriptUrl").textContent;
+          const lang = currentLang();
+          const btn  = page.querySelector("#CopyOverlayUrl");
+          navigator.clipboard.writeText(url).then(() => {
             btn.textContent = getText(lang, "copied");
             setTimeout(() => { btn.textContent = getText(lang, "copySnippet"); }, 1500);
           });
         });
 
+        // ── Backdrop blur visibility ──────────────────────────────────────
+
+        page.querySelector("#OverlayUseBackdropImage").addEventListener("change", e => {
+          page.querySelector("#OverlayBlurBackdropContainer").style.display =
+            e.target.checked ? "" : "none";
+        });
+
+        // ── Language change ───────────────────────────────────────────────
+
+        page.querySelector("#SleepGuardLanguage").addEventListener("change", e => {
+          const lang     = normalizeLanguage(e.target.value);
+          const defaults = promptDefaults[lang];
+          const hdr      = page.querySelector("#PromptHeader");
+          const msg      = page.querySelector("#PromptMessage");
+          if (isDefaultPromptValue(hdr.value, "header")) hdr.value = defaults.header;
+          if (isDefaultPromptValue(msg.value, "message")) msg.value = defaults.message;
+          applyLanguage(lang);
+        });
+
+        // ── Test overlay button ───────────────────────────────────────────
+
+        page.querySelector("#TestOverlay").addEventListener("click", () => {
+          if (typeof window.SleepGuardOverlay !== "undefined" &&
+              typeof window.SleepGuardOverlay.show === "function") {
+            window.SleepGuardOverlay.show();
+          } else {
+            alert("SleepGuard overlay is not loaded in this window.\n" +
+                  "Make sure the JavaScript Injector has loaded /SleepGuard/overlay.js.");
+          }
+        });
+
+        // ── Populate form from config ─────────────────────────────────────
+
+        const populateForm = config => {
+          const lang     = normalizeLanguage(config.Language || getBrowserLanguage());
+          const defaults = promptDefaults[lang];
+
+          page.querySelector("#SleepGuardLanguage").value              = lang;
+          page.querySelector("#SleepGuardEnabled").checked             = config.Enabled;
+          page.querySelector("#SleepGuardAction").value                = config.Action || "Pause";
+          page.querySelector("#MaxContinuousMinutes").value            = config.MaxContinuousMinutes || 0;
+          page.querySelector("#MaxAutoplayEpisodes").value             = config.MaxAutoplayEpisodes || 0;
+          page.querySelector("#OnlyWithinTimeWindow").checked          = config.OnlyWithinTimeWindow;
+          page.querySelector("#TimeWindowStart").value                 = toTimeInput(config.TimeWindowStart);
+          page.querySelector("#TimeWindowEnd").value                   = toTimeInput(config.TimeWindowEnd);
+          page.querySelector("#IncludeMovies").checked                 = config.IncludeMovies;
+          page.querySelector("#IncludeMusic").checked                  = config.IncludeMusic;
+          page.querySelector("#IncludeLiveTv").checked                 = config.IncludeLiveTv;
+          page.querySelector("#UserMode").value                        = config.UserMode || "AllUsers";
+          page.querySelector("#UserIds").value                         = (config.UserIds || []).join(", ");
+          page.querySelector("#SendPrompt").checked                    = config.SendPrompt;
+          page.querySelector("#PromptTimeoutSeconds").value            = config.PromptTimeoutSeconds || 8;
+          page.querySelector("#PromptGraceSeconds").value              = config.PromptGraceSeconds ?? 30;
+          page.querySelector("#PromptHeader").value                    = config.PromptHeader || defaults.header;
+          page.querySelector("#PromptMessage").value                   = config.PromptMessage || defaults.message;
+          page.querySelector("#OverlayAccentColor").value              = config.OverlayAccentColor || "#00a4dc";
+          page.querySelector("#OverlayBackgroundOpacity").value        = config.OverlayBackgroundOpacity ?? 92;
+          page.querySelector("#OverlayBackgroundOpacityValue").textContent = config.OverlayBackgroundOpacity ?? 92;
+          page.querySelector("#OverlayUseBackdropImage").checked       = config.OverlayUseBackdropImage;
+          page.querySelector("#OverlayBlurBackdrop").checked           = config.OverlayBlurBackdrop ?? true;
+          page.querySelector("#OverlayBlurBackdropContainer").style.display = config.OverlayUseBackdropImage ? "" : "none";
+          page.querySelector("#OverlayShowContinueButton").checked     = config.OverlayShowContinueButton ?? true;
+          page.querySelector("#OverlayShowDismissButton").checked      = config.OverlayShowDismissButton ?? true;
+          page.querySelector("#OverlayContinueButtonTextEn").value     = config.OverlayContinueButtonTextEn || "";
+          page.querySelector("#OverlayContinueButtonTextIt").value     = config.OverlayContinueButtonTextIt || "";
+          page.querySelector("#OverlayDismissButtonTextEn").value      = config.OverlayDismissButtonTextEn || "";
+          page.querySelector("#OverlayDismissButtonTextIt").value      = config.OverlayDismissButtonTextIt || "";
+          // Developer tab fields
+          page.querySelector("#MaxContinuousSeconds").value            = config.MaxContinuousSeconds || 0;
+          page.querySelector("#DryRun").checked                        = config.DryRun;
+          page.querySelector("#ActionRepeatCount").value               = config.ActionRepeatCount || 1;
+          page.querySelector("#ActionRepeatIntervalSeconds").value     = config.ActionRepeatIntervalSeconds || 2;
+          page.querySelector("#LogProgressEvents").checked             = config.LogProgressEvents;
+          page.querySelector("#LogRuleChecks").checked                 = config.LogRuleChecks;
+
+          syncDevMode(!!config.DeveloperMode);
+          applyLanguage(lang);
+          setOverlayUrl();
+          updatePreview();
+        };
+
+        // ── Page show ─────────────────────────────────────────────────────
+
         page.addEventListener("pageshow", () => {
           Dashboard.showLoadingMsg();
-          getConfiguration().then(config => {
-            populateForm(config);
-            Dashboard.hideLoadingMsg();
-          }).catch(error => {
-            console.error("SleepGuard failed to load configuration", error);
-            Dashboard.hideLoadingMsg();
-            Dashboard.alert(getText(page.querySelector("#SleepGuardLanguage").value, "loadError"));
-          });
+          getConfiguration()
+            .then(config => { populateForm(config); Dashboard.hideLoadingMsg(); })
+            .catch(err => {
+              console.error("SleepGuard failed to load configuration", err);
+              Dashboard.hideLoadingMsg();
+              Dashboard.alert(getText(currentLang(), "loadError"));
+            });
         });
+
+        // ── Form submit ───────────────────────────────────────────────────
 
         form.addEventListener("submit", event => {
           event.preventDefault();
           Dashboard.showLoadingMsg();
-          getConfiguration().then(config => {
-            config.Language = normalizeLanguage(page.querySelector("#SleepGuardLanguage").value);
-            config.Enabled = page.querySelector("#SleepGuardEnabled").checked;
-            config.Action = page.querySelector("#SleepGuardAction").value;
-            config.MaxContinuousMinutes = Number(page.querySelector("#MaxContinuousMinutes").value);
-            config.MaxContinuousSeconds = Number(page.querySelector("#MaxContinuousSeconds").value);
-            config.MaxAutoplayEpisodes = Number(page.querySelector("#MaxAutoplayEpisodes").value);
-            config.OnlyWithinTimeWindow = page.querySelector("#OnlyWithinTimeWindow").checked;
-            config.TimeWindowStart = toTimeSpan(page.querySelector("#TimeWindowStart").value);
-            config.TimeWindowEnd = toTimeSpan(page.querySelector("#TimeWindowEnd").value);
-            config.IncludeMovies = page.querySelector("#IncludeMovies").checked;
-            config.IncludeMusic = page.querySelector("#IncludeMusic").checked;
-            config.IncludeLiveTv = page.querySelector("#IncludeLiveTv").checked;
-            config.UserMode = page.querySelector("#UserMode").value;
-            config.UserIds = page.querySelector("#UserIds").value.split(",").map(x => x.trim()).filter(Boolean);
-            config.SendPrompt = page.querySelector("#SendPrompt").checked;
-            config.PromptHeader = page.querySelector("#PromptHeader").value;
-            config.PromptMessage = page.querySelector("#PromptMessage").value;
-            config.PromptTimeoutSeconds = Number(page.querySelector("#PromptTimeoutSeconds").value);
-            config.PromptGraceSeconds = Number(page.querySelector("#PromptGraceSeconds").value);
-            config.DryRun = page.querySelector("#DryRun").checked;
-            config.ActionRepeatCount = Number(page.querySelector("#ActionRepeatCount").value);
-            config.ActionRepeatIntervalSeconds = Number(page.querySelector("#ActionRepeatIntervalSeconds").value);
-            config.LogProgressEvents = page.querySelector("#LogProgressEvents").checked;
-            config.LogRuleChecks = page.querySelector("#LogRuleChecks").checked;
-            config.OverlayAccentColor = page.querySelector("#OverlayAccentColor").value;
-            config.OverlayBackgroundOpacity = Number(page.querySelector("#OverlayBackgroundOpacity").value);
-            config.OverlayUseBackdropImage = page.querySelector("#OverlayUseBackdropImage").checked;
-            config.OverlayBlurBackdrop = page.querySelector("#OverlayBlurBackdrop").checked;
-            config.OverlayShowContinueButton = page.querySelector("#OverlayShowContinueButton").checked;
-            config.OverlayShowDismissButton = page.querySelector("#OverlayShowDismissButton").checked;
-            config.OverlayContinueButtonTextEn = page.querySelector("#OverlayContinueButtonTextEn").value.trim() || null;
-            config.OverlayContinueButtonTextIt = page.querySelector("#OverlayContinueButtonTextIt").value.trim() || null;
-            config.OverlayDismissButtonTextEn = page.querySelector("#OverlayDismissButtonTextEn").value.trim() || null;
-            config.OverlayDismissButtonTextIt = page.querySelector("#OverlayDismissButtonTextIt").value.trim() || null;
-            ApiClient.updatePluginConfiguration(activePluginId, config).then(() => {
-              Dashboard.processPluginConfigurationUpdateResult();
+          getConfiguration()
+            .then(config => {
+              config.Language                   = normalizeLanguage(page.querySelector("#SleepGuardLanguage").value);
+              config.Enabled                    = page.querySelector("#SleepGuardEnabled").checked;
+              config.Action                     = page.querySelector("#SleepGuardAction").value;
+              config.MaxContinuousMinutes       = Number(page.querySelector("#MaxContinuousMinutes").value);
+              config.MaxAutoplayEpisodes        = Number(page.querySelector("#MaxAutoplayEpisodes").value);
+              config.OnlyWithinTimeWindow       = page.querySelector("#OnlyWithinTimeWindow").checked;
+              config.TimeWindowStart            = toTimeSpan(page.querySelector("#TimeWindowStart").value);
+              config.TimeWindowEnd              = toTimeSpan(page.querySelector("#TimeWindowEnd").value);
+              config.IncludeMovies              = page.querySelector("#IncludeMovies").checked;
+              config.IncludeMusic               = page.querySelector("#IncludeMusic").checked;
+              config.IncludeLiveTv              = page.querySelector("#IncludeLiveTv").checked;
+              config.UserMode                   = page.querySelector("#UserMode").value;
+              config.UserIds                    = page.querySelector("#UserIds").value.split(",").map(x => x.trim()).filter(Boolean);
+              config.SendPrompt                 = page.querySelector("#SendPrompt").checked;
+              config.PromptTimeoutSeconds       = Number(page.querySelector("#PromptTimeoutSeconds").value);
+              config.PromptGraceSeconds         = Number(page.querySelector("#PromptGraceSeconds").value);
+              config.PromptHeader               = page.querySelector("#PromptHeader").value;
+              config.PromptMessage              = page.querySelector("#PromptMessage").value;
+              config.OverlayAccentColor         = page.querySelector("#OverlayAccentColor").value;
+              config.OverlayBackgroundOpacity   = Number(page.querySelector("#OverlayBackgroundOpacity").value);
+              config.OverlayUseBackdropImage    = page.querySelector("#OverlayUseBackdropImage").checked;
+              config.OverlayBlurBackdrop        = page.querySelector("#OverlayBlurBackdrop").checked;
+              config.OverlayShowContinueButton  = page.querySelector("#OverlayShowContinueButton").checked;
+              config.OverlayShowDismissButton   = page.querySelector("#OverlayShowDismissButton").checked;
+              config.OverlayContinueButtonTextEn = page.querySelector("#OverlayContinueButtonTextEn").value.trim() || null;
+              config.OverlayContinueButtonTextIt = page.querySelector("#OverlayContinueButtonTextIt").value.trim() || null;
+              config.OverlayDismissButtonTextEn = page.querySelector("#OverlayDismissButtonTextEn").value.trim() || null;
+              config.OverlayDismissButtonTextIt = page.querySelector("#OverlayDismissButtonTextIt").value.trim() || null;
+              config.DeveloperMode              = page.querySelector("#DeveloperMode").checked;
+              config.MaxContinuousSeconds       = Number(page.querySelector("#MaxContinuousSeconds").value);
+              config.DryRun                     = page.querySelector("#DryRun").checked;
+              config.ActionRepeatCount          = Number(page.querySelector("#ActionRepeatCount").value);
+              config.ActionRepeatIntervalSeconds = Number(page.querySelector("#ActionRepeatIntervalSeconds").value);
+              config.LogProgressEvents          = page.querySelector("#LogProgressEvents").checked;
+              config.LogRuleChecks              = page.querySelector("#LogRuleChecks").checked;
+
+              return ApiClient.updatePluginConfiguration(activePluginId, config);
+            })
+            .then(() => Dashboard.processPluginConfigurationUpdateResult())
+            .catch(err => {
+              console.error("SleepGuard failed to save configuration", err);
+              Dashboard.hideLoadingMsg();
+              Dashboard.alert(getText(currentLang(), "saveError"));
             });
-          }).catch(error => {
-            console.error("SleepGuard failed to save configuration", error);
-            Dashboard.hideLoadingMsg();
-            Dashboard.alert(getText(page.querySelector("#SleepGuardLanguage").value, "saveError"));
-          });
         });
       })();
     </script>

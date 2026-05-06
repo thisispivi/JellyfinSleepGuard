@@ -7,7 +7,7 @@ namespace Jellyfin.Plugin.SleepGuard.Api;
 
 /// <summary>
 /// Reads the embedded <c>overlay.js</c> template, serializes overlay-relevant
-/// configuration as JSON, and returns the combined script string.
+/// configuration as <c>window.__SLEEPGUARD_CONFIG__</c>, and returns the combined script string.
 /// </summary>
 public static class OverlayScriptBuilder
 {
@@ -21,7 +21,7 @@ public static class OverlayScriptBuilder
 
     /// <summary>
     /// Builds the full overlay script with server configuration prepended.
-    /// Returns <c>null</c> if the embedded resource is missing.
+    /// Returns <c>null</c> if the embedded resource is missing (build misconfiguration).
     /// </summary>
     public static string? Build(PluginConfiguration config)
     {
@@ -50,6 +50,7 @@ public static class OverlayScriptBuilder
             language = config.Language,
             promptMessage = config.PromptMessage,
             promptHeader = config.PromptHeader,
+            developerMode = config.DeveloperMode,
         };
 
         var json = JsonSerializer.Serialize(overlayConfig, JsonOptions);

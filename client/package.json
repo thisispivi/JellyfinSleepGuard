@@ -1,0 +1,12 @@
+{
+  "name": "sleepguard-overlay",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "~5.5.0"
+  }
+}

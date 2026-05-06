@@ -18,10 +18,21 @@
     <EmbeddedResource Include="..\..\images\logo.png">
       <LogicalName>Jellyfin.Plugin.SleepGuard.Configuration.logo.png</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\..\client\sleepguard-overlay.js">
+    <EmbeddedResource Include="..\..\client\dist\sleepguard-overlay.js">
       <LogicalName>Jellyfin.Plugin.SleepGuard.Api.overlay.js</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
+
+  <!--
+    Build the TypeScript overlay before the C# build so the compiled JS is
+    available as an embedded resource. Requires Node 20 and npm on PATH.
+    On Linux/CI: installed via actions/setup-node@v4 in the workflow.
+    On Windows: installed via the Node.js installer or nvm-windows.
+  -->
+  <Target Name="BuildClientAssets" BeforeTargets="BeforeBuild">
+    <Exec Command="npm ci" WorkingDirectory="$(MSBuildThisFileDirectory)..\..\client" />
+    <Exec Command="npm run build" WorkingDirectory="$(MSBuildThisFileDirectory)..\..\client" />
+  </Target>
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

@@ -3,7 +3,11 @@ using Jellyfin.Plugin.SleepGuard.Sessions;
 
 namespace Jellyfin.Plugin.SleepGuard.Rules;
 
-public sealed class TimeWindowRule : ISleepRule
+/// <summary>
+/// Gate rule that blocks evaluation when the server's local time is outside the configured window.
+/// Supports windows that wrap midnight (e.g., 22:00 – 07:00).
+/// </summary>
+public sealed class TimeWindowRule : IGateRule
 {
     public string Name => nameof(TimeWindowRule);
 

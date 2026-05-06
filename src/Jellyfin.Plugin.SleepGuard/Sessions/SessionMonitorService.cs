@@ -9,57 +9,86 @@ using Microsoft.Extensions.Logging;
 
 namespace Jellyfin.Plugin.SleepGuard.Sessions;
 
+/// <summary>
+/// Hosted service that subscribes to Jellyfin playback events and orchestrates the SleepGuard logic.
+/// </summary>
+/// <remarks>
+/// Evaluation pipeline per event:
+/// <list type="number">
+///   <item>Normalize raw Jellyfin event args into a <see cref="PlaybackEvent"/>.</item>
+///   <item>Classify the event into a <see cref="PlaybackTransition"/> via <see cref="PlaybackEventClassifier"/>.</item>
+///   <item>Apply the transition to the session's <see cref="PlaybackTracker"/>.</item>
+///   <item>Run all <see cref="IGateRule"/> instances — any <c>Blocked</c> result exits early.</item>
+///   <item>Run all <see cref="ITriggerRule"/> instances — first <c>Fired</c> result executes actions.</item>
+/// </list>
+/// Gate rules (user scope, time window) run before trigger rules (continuous time, autoplay episodes).
+/// This ordering is explicit through separate DI registrations, not implicit index ordering.
+/// </remarks>
 public sealed class SessionMonitorService : IHostedService, IDisposable
 {
     private readonly ISessionManager _sessionManager;
     private readonly PlaybackTrackerStore _store;
     private readonly PlaybackEventClassifier _classifier;
-    private readonly IReadOnlyList<ISleepRule> _rules;
+    private readonly IReadOnlyList<IGateRule> _gateRules;
+    private readonly IReadOnlyList<ITriggerRule> _triggerRules;
     private readonly PromptAction _promptAction;
     private readonly PauseAction _pauseAction;
     private readonly StopAction _stopAction;
+    private readonly IPluginConfigurationAccessor _configAccessor;
     private readonly ILogger<SessionMonitorService> _logger;
     private readonly Dictionary<string, Timer> _timers = new(StringComparer.Ordinal);
     private readonly object _timerLock = new();
+    private CancellationTokenSource? _cts;
 
     public SessionMonitorService(
         ISessionManager sessionManager,
         PlaybackTrackerStore store,
         PlaybackEventClassifier classifier,
-        IEnumerable<ISleepRule> rules,
+        IEnumerable<IGateRule> gateRules,
+        IEnumerable<ITriggerRule> triggerRules,
         PromptAction promptAction,
         PauseAction pauseAction,
         StopAction stopAction,
+        IPluginConfigurationAccessor configAccessor,
         ILogger<SessionMonitorService> logger)
     {
         _sessionManager = sessionManager;
         _store = store;
         _classifier = classifier;
-        _rules = rules.ToArray();
+        _gateRules = gateRules.ToArray();
+        _triggerRules = triggerRules.ToArray();
         _promptAction = promptAction;
         _pauseAction = pauseAction;
         _stopAction = stopAction;
+        _configAccessor = configAccessor;
         _logger = logger;
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
+        _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+
         _sessionManager.PlaybackStart += OnPlaybackStart;
         _sessionManager.PlaybackProgress += OnPlaybackProgress;
         _sessionManager.PlaybackStopped += OnPlaybackStopped;
         _sessionManager.SessionEnded += OnSessionEnded;
 
         SeedExistingSessions();
+        StartEvictionTimer();
+
         _logger.LogInformation("SleepGuard session monitor started");
         return Task.CompletedTask;
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
     {
+        _cts?.Cancel();
+
         _sessionManager.PlaybackStart -= OnPlaybackStart;
         _sessionManager.PlaybackProgress -= OnPlaybackProgress;
         _sessionManager.PlaybackStopped -= OnPlaybackStopped;
         _sessionManager.SessionEnded -= OnSessionEnded;
+
         DisposeTimers();
         _store.Dispose();
         _logger.LogInformation("SleepGuard session monitor stopped");
@@ -68,23 +97,22 @@ public sealed class SessionMonitorService : IHostedService, IDisposable
 
     public void Dispose()
     {
+        _cts?.Dispose();
         DisposeTimers();
     }
 
+    // -------------------------------------------------------------------------
+    // Event handlers (fire-and-forget; errors are caught by RunSafely)
+    // -------------------------------------------------------------------------
+
     private void OnPlaybackStart(object? sender, PlaybackProgressEventArgs args)
-    {
-        RunSafely(() => HandlePlaybackStartAsync(args));
-    }
+        => RunSafely(() => HandlePlaybackStartAsync(args));
 
     private void OnPlaybackProgress(object? sender, PlaybackProgressEventArgs args)
-    {
-        RunSafely(() => HandlePlaybackProgressAsync(args));
-    }
+        => RunSafely(() => HandlePlaybackProgressAsync(args));
 
     private void OnPlaybackStopped(object? sender, PlaybackStopEventArgs args)
-    {
-        RunSafely(() => HandlePlaybackStoppedAsync(args));
-    }
+        => RunSafely(() => HandlePlaybackStoppedAsync(args));
 
     private void OnSessionEnded(object? sender, SessionEventArgs args)
     {
@@ -96,6 +124,10 @@ public sealed class SessionMonitorService : IHostedService, IDisposable
             _logger.LogDebug("Dropped SleepGuard tracker for ended session {SessionId}", sessionId);
         }
     }
+
+    // -------------------------------------------------------------------------
+    // Core event handling
+    // -------------------------------------------------------------------------
 
     private async Task HandlePlaybackStartAsync(PlaybackProgressEventArgs args)
     {
@@ -111,8 +143,11 @@ public sealed class SessionMonitorService : IHostedService, IDisposable
         var tracker = existed && existing is not null ? existing : _store.GetOrAdd(playbackEvent, now);
         tracker.ApplyStart(playbackEvent, transition, now);
         CancelTimer(playbackEvent.SessionId);
+
         _logger.LogDebug("SleepGuard transition {Transition} for session {SessionId}", transition, playbackEvent.SessionId);
-        await EvaluateAsync(tracker, now, CancellationToken.None).ConfigureAwait(false);
+
+        var token = _cts?.Token ?? CancellationToken.None;
+        await EvaluateAsync(tracker, now, token).ConfigureAwait(false);
     }
 
     private async Task HandlePlaybackProgressAsync(PlaybackProgressEventArgs args)
@@ -126,13 +161,17 @@ public sealed class SessionMonitorService : IHostedService, IDisposable
 
         var tracker = _store.GetOrAdd(playbackEvent, now);
         var transition = _classifier.ClassifyProgress(tracker, playbackEvent, now);
+
         if (transition is PlaybackTransition.ManualPause or PlaybackTransition.ManualResume or PlaybackTransition.Seek or PlaybackTransition.ManualSwitch)
         {
             CancelTimer(playbackEvent.SessionId);
         }
 
         tracker.ApplyProgress(playbackEvent, transition, now);
-        var configuration = Plugin.Instance?.Configuration ?? new PluginConfiguration();
+
+        // Snapshot config once for this event cycle — all downstream calls share the same view.
+        var configuration = _configAccessor.GetConfiguration();
+
         if (configuration.LogProgressEvents)
         {
             _logger.LogInformation(
@@ -150,7 +189,8 @@ public sealed class SessionMonitorService : IHostedService, IDisposable
             _logger.LogDebug("SleepGuard transition {Transition} for session {SessionId}", transition, playbackEvent.SessionId);
         }
 
-        await EvaluateAsync(tracker, now, CancellationToken.None).ConfigureAwait(false);
+        var token = _cts?.Token ?? CancellationToken.None;
+        await EvaluateAsync(tracker, configuration, now, token).ConfigureAwait(false);
     }
 
     private Task HandlePlaybackStoppedAsync(PlaybackStopEventArgs args)
@@ -166,56 +206,75 @@ public sealed class SessionMonitorService : IHostedService, IDisposable
         return Task.CompletedTask;
     }
 
-    private async Task EvaluateAsync(PlaybackTracker tracker, DateTimeOffset now, CancellationToken cancellationToken)
+    // -------------------------------------------------------------------------
+    // Rule evaluation
+    // -------------------------------------------------------------------------
+
+    /// <summary>
+    /// Overload used from <c>HandlePlaybackStartAsync</c> which has not yet captured config.
+    /// </summary>
+    private Task EvaluateAsync(PlaybackTracker tracker, DateTimeOffset now, CancellationToken cancellationToken)
+        => EvaluateAsync(tracker, _configAccessor.GetConfiguration(), now, cancellationToken);
+
+    private async Task EvaluateAsync(
+        PlaybackTracker tracker,
+        PluginConfiguration configuration,
+        DateTimeOffset now,
+        CancellationToken cancellationToken)
     {
-        var configuration = Plugin.Instance?.Configuration ?? new PluginConfiguration();
         if (!configuration.Enabled || tracker.HasPendingOrCompletedAction)
         {
             return;
         }
 
-        foreach (var result in _rules.Select(rule => rule.Evaluate(tracker, configuration, now)))
+        // Phase 1: gate rules — any Blocked result stops all further evaluation.
+        foreach (var gate in _gateRules)
         {
-            if (configuration.LogRuleChecks)
-            {
-                _logger.LogInformation(
-                    "SleepGuard rule check {RuleName} for session {SessionId}: outcome={Outcome}, elapsed={ElapsedSeconds}s, episodes={Episodes}, pendingAction={PendingAction}",
-                    result.RuleName,
-                    tracker.SessionId,
-                    result.Outcome,
-                    Math.Round(tracker.ContinuousElapsed.TotalSeconds, 1),
-                    tracker.EpisodesInChain,
-                    tracker.HasPendingOrCompletedAction);
-            }
-
+            var result = gate.Evaluate(tracker, configuration, now);
+            LogRuleCheck(result, tracker, configuration);
             if (result.Outcome == SleepRuleOutcome.Blocked)
             {
                 return;
             }
+        }
 
+        // Phase 2: trigger rules — first Fired result executes the action pipeline.
+        foreach (var trigger in _triggerRules)
+        {
+            var result = trigger.Evaluate(tracker, configuration, now);
+            LogRuleCheck(result, tracker, configuration);
             if (result.Outcome == SleepRuleOutcome.Fired)
             {
-                _logger.LogInformation("Rule {RuleName} fired for session {SessionId} on device {DeviceId}", result.RuleName, tracker.SessionId, tracker.DeviceId);
+                _logger.LogInformation(
+                    "Rule {RuleName} fired for session {SessionId} on device {DeviceId}",
+                    result.RuleName, tracker.SessionId, tracker.DeviceId);
                 await ExecuteActionsAsync(tracker, configuration, now, cancellationToken).ConfigureAwait(false);
                 return;
             }
         }
     }
 
-    private async Task ExecuteActionsAsync(PlaybackTracker tracker, PluginConfiguration configuration, DateTimeOffset now, CancellationToken cancellationToken)
+    // -------------------------------------------------------------------------
+    // Action execution
+    // -------------------------------------------------------------------------
+
+    private async Task ExecuteActionsAsync(
+        PlaybackTracker tracker,
+        PluginConfiguration configuration,
+        DateTimeOffset now,
+        CancellationToken cancellationToken)
     {
         if (configuration.SendPrompt)
         {
             var graceSeconds = Math.Max(0, configuration.PromptGraceSeconds);
             var grace = TimeSpan.FromSeconds(graceSeconds);
+
             try
             {
                 await _promptAction.ExecuteAsync(tracker, configuration, cancellationToken).ConfigureAwait(false);
                 _logger.LogInformation(
                     "SleepGuard sent prompt to session {SessionId}; final {Action} scheduled in {GraceSeconds}s",
-                    tracker.SessionId,
-                    configuration.Action,
-                    graceSeconds);
+                    tracker.SessionId, configuration.Action, graceSeconds);
             }
             catch (Exception ex)
             {
@@ -236,29 +295,19 @@ public sealed class SessionMonitorService : IHostedService, IDisposable
         await ExecuteFinalActionAsync(tracker.SessionId, cancellationToken).ConfigureAwait(false);
     }
 
-    private void ScheduleFinalAction(string sessionId, TimeSpan dueTime)
-    {
-        CancelTimer(sessionId);
-        lock (_timerLock)
-        {
-            _timers[sessionId] = new Timer(
-                _ => RunSafely(() => ExecuteFinalActionAsync(sessionId, CancellationToken.None)),
-                null,
-                dueTime,
-                Timeout.InfiniteTimeSpan);
-        }
-    }
-
     private async Task ExecuteFinalActionAsync(string sessionId, CancellationToken cancellationToken)
     {
         CancelTimer(sessionId);
+
         if (!_store.TryGet(sessionId, out var tracker) || tracker is null)
         {
             return;
         }
 
-        var configuration = Plugin.Instance?.Configuration ?? new PluginConfiguration();
+        // Re-read config at execution time so a config change during the grace period takes effect.
+        var configuration = _configAccessor.GetConfiguration();
         var action = configuration.Action == SleepGuardAction.Stop ? (ISleepAction)_stopAction : _pauseAction;
+
         try
         {
             if (configuration.DryRun)
@@ -266,22 +315,19 @@ public sealed class SessionMonitorService : IHostedService, IDisposable
                 tracker.MarkActionIssued(DateTimeOffset.UtcNow, configuration.Action == SleepGuardAction.Pause);
                 _logger.LogInformation(
                     "SleepGuard dry run: would send {Action} command to session {SessionId}",
-                    configuration.Action,
-                    sessionId);
+                    configuration.Action, sessionId);
                 return;
             }
 
             var repeatCount = Math.Clamp(configuration.ActionRepeatCount, 1, 5);
             var repeatDelay = TimeSpan.FromSeconds(Math.Clamp(configuration.ActionRepeatIntervalSeconds, 0, 30));
+
             for (var attempt = 1; attempt <= repeatCount; attempt++)
             {
                 await action.ExecuteAsync(tracker, configuration, cancellationToken).ConfigureAwait(false);
                 _logger.LogInformation(
                     "SleepGuard sent {Action} command attempt {Attempt}/{AttemptCount} to session {SessionId}",
-                    configuration.Action,
-                    attempt,
-                    repeatCount,
-                    sessionId);
+                    configuration.Action, attempt, repeatCount, sessionId);
 
                 if (attempt < repeatCount && repeatDelay > TimeSpan.Zero)
                 {
@@ -298,6 +344,83 @@ public sealed class SessionMonitorService : IHostedService, IDisposable
             _logger.LogWarning(ex, "SleepGuard failed to send {Action} command to session {SessionId}", configuration.Action, sessionId);
         }
     }
+
+    // -------------------------------------------------------------------------
+    // Timer management — cancel + create in a single lock to prevent race conditions
+    // -------------------------------------------------------------------------
+
+    private void ScheduleFinalAction(string sessionId, TimeSpan dueTime)
+    {
+        var token = _cts?.Token ?? CancellationToken.None;
+        lock (_timerLock)
+        {
+            if (_timers.Remove(sessionId, out var existing))
+            {
+                existing.Dispose();
+            }
+
+            _timers[sessionId] = new Timer(
+                _ => RunSafely(() => ExecuteFinalActionAsync(sessionId, token)),
+                null,
+                dueTime,
+                Timeout.InfiniteTimeSpan);
+        }
+    }
+
+    private void CancelTimer(string sessionId)
+    {
+        lock (_timerLock)
+        {
+            if (_timers.Remove(sessionId, out var timer))
+            {
+                timer.Dispose();
+            }
+        }
+    }
+
+    private void DisposeTimers()
+    {
+        lock (_timerLock)
+        {
+            foreach (var timer in _timers.Values)
+            {
+                timer.Dispose();
+            }
+
+            _timers.Clear();
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Tracker eviction — removes orphaned trackers (sessions that ended without a SessionEnded event)
+    // -------------------------------------------------------------------------
+
+    private void StartEvictionTimer()
+    {
+        var token = _cts?.Token ?? CancellationToken.None;
+        _ = Task.Run(async () =>
+        {
+            using var timer = new PeriodicTimer(SessionConstants.EvictionInterval);
+            while (await timer.WaitForNextTickAsync(token).ConfigureAwait(false))
+            {
+                EvictStaleSessions();
+            }
+        }, token);
+    }
+
+    private void EvictStaleSessions()
+    {
+        var cutoff = DateTimeOffset.UtcNow - SessionConstants.TrackerEvictionAge;
+        var evicted = _store.EvictBefore(cutoff);
+        if (evicted > 0)
+        {
+            _logger.LogInformation("SleepGuard evicted {Count} stale session tracker(s) not accessed since {Cutoff}", evicted, cutoff);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Session seeding and normalisation
+    // -------------------------------------------------------------------------
 
     private void SeedExistingSessions()
     {
@@ -358,28 +481,25 @@ public sealed class SessionMonitorService : IHostedService, IDisposable
             session.PlayState?.IsPaused ?? false);
     }
 
-    private void CancelTimer(string sessionId)
-    {
-        lock (_timerLock)
-        {
-            if (_timers.Remove(sessionId, out var timer))
-            {
-                timer.Dispose();
-            }
-        }
-    }
+    // -------------------------------------------------------------------------
+    // Helpers
+    // -------------------------------------------------------------------------
 
-    private void DisposeTimers()
+    private void LogRuleCheck(SleepRuleResult result, PlaybackTracker tracker, PluginConfiguration configuration)
     {
-        lock (_timerLock)
+        if (!configuration.LogRuleChecks)
         {
-            foreach (var timer in _timers.Values)
-            {
-                timer.Dispose();
-            }
-
-            _timers.Clear();
+            return;
         }
+
+        _logger.LogInformation(
+            "SleepGuard rule check {RuleName} for session {SessionId}: outcome={Outcome}, elapsed={ElapsedSeconds}s, episodes={Episodes}, pendingAction={PendingAction}",
+            result.RuleName,
+            tracker.SessionId,
+            result.Outcome,
+            Math.Round(tracker.ContinuousElapsed.TotalSeconds, 1),
+            tracker.EpisodesInChain,
+            tracker.HasPendingOrCompletedAction);
     }
 
     private void RunSafely(Func<Task> action)
@@ -390,10 +510,14 @@ public sealed class SessionMonitorService : IHostedService, IDisposable
             {
                 await action().ConfigureAwait(false);
             }
+            catch (OperationCanceledException)
+            {
+                // Normal shutdown path — not an error.
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unhandled SleepGuard session monitor error");
             }
-        });
+        }, _cts?.Token ?? CancellationToken.None);
     }
 }
