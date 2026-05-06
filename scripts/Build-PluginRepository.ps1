@@ -148,11 +148,9 @@ function Invoke-GitHubRelease {
     }
 
     if ($releaseExists) {
-        if (-not $Force) {
-            throw "Release $tag already exists. Re-run with -ForceRelease to replace the uploaded zip."
-        }
-
+        Write-Host "Release $tag already exists. Uploading zip with --clobber."
         gh release upload $tag $ZipPath --clobber
+        gh release edit $tag --title "SleepGuard $VersionValue"
         return
     }
 

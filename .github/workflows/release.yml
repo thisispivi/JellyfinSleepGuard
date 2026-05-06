@@ -107,9 +107,18 @@ jobs:
 
       - name: Create GitHub Release
         run: |
-          gh release create "${{ github.ref_name }}" \
-            "artifacts/Jellyfin.Plugin.SleepGuard_${{ steps.version.outputs.version }}.zip" \
-            --title "SleepGuard ${{ steps.version.outputs.version }}" \
-            --generate-notes
+          tag="${{ github.ref_name }}"
+          zip_path="artifacts/Jellyfin.Plugin.SleepGuard_${{ steps.version.outputs.version }}.zip"
+          title="SleepGuard ${{ steps.version.outputs.version }}"
+
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" "$zip_path" --clobber
+            gh release edit "$tag" --title "$title"
+          else
+            gh release create "$tag" \
+              "$zip_path" \
+              --title "$title" \
+              --generate-notes
+          fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
