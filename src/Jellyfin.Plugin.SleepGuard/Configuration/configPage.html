@@ -304,13 +304,24 @@
 
         const injectorSnippet = [
           "(() => {",
-          "  const src = \"/SleepGuard/overlay.js\";",
-          "  if (document.querySelector(`script[src=\"${src}\"]`)) return;",
+          "  const endpoint = \"SleepGuard/overlay.js\";",
+          "  const getOverlayUrl = () => {",
+          "    if (window.ApiClient && typeof window.ApiClient.getUrl === \"function\") {",
+          "      return window.ApiClient.getUrl(endpoint);",
+          "    }",
+          "",
+          "    const webIndex = window.location.pathname.toLowerCase().indexOf(\"/web\");",
+          "    const basePath = webIndex >= 0 ? window.location.pathname.slice(0, webIndex) : \"\";",
+          "    return `${window.location.origin}${basePath}/${endpoint}`;",
+          "  };",
+          "",
+          "  if (document.querySelector('script[data-sleepguard-overlay=\"true\"]')) return;",
           "",
           "  const script = document.createElement(\"script\");",
-          "  script.src = src;",
+          "  script.dataset.sleepguardOverlay = \"true\";",
+          "  script.src = getOverlayUrl();",
           "  script.defer = true;",
-          "  script.onerror = () => console.warn(\"[SleepGuard] Failed to load overlay script:\", src);",
+          "  script.onerror = () => console.warn(\"[SleepGuard] Failed to load overlay script:\", script.src);",
           "  document.head.appendChild(script);",
           "})();"
         ].join("\n");

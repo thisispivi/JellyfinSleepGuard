@@ -33,10 +33,16 @@ Use the Advanced section only if you need user filtering, media type filtering, 
 
 ## Overlay Setup
 
-SleepGuard serves its browser overlay at:
+SleepGuard serves its browser overlay at this Jellyfin server endpoint:
 
 ```text
 /SleepGuard/overlay.js
+```
+
+If Jellyfin runs under a URL prefix, for example `/jellyfin/jellyfin`, the real URL is under that prefix:
+
+```text
+/jellyfin/jellyfin/SleepGuard/overlay.js
 ```
 
 To load it in Jellyfin Web:
@@ -49,13 +55,24 @@ To load it in Jellyfin Web:
 
    ```js
    (() => {
-     const src = "/SleepGuard/overlay.js";
-     if (document.querySelector(`script[src="${src}"]`)) return;
+     const endpoint = "SleepGuard/overlay.js";
+     const getOverlayUrl = () => {
+       if (window.ApiClient && typeof window.ApiClient.getUrl === "function") {
+         return window.ApiClient.getUrl(endpoint);
+       }
+
+       const webIndex = window.location.pathname.toLowerCase().indexOf("/web");
+       const basePath = webIndex >= 0 ? window.location.pathname.slice(0, webIndex) : "";
+       return `${window.location.origin}${basePath}/${endpoint}`;
+     };
+
+     if (document.querySelector('script[data-sleepguard-overlay="true"]')) return;
 
      const script = document.createElement("script");
-     script.src = src;
+     script.dataset.sleepguardOverlay = "true";
+     script.src = getOverlayUrl();
      script.defer = true;
-     script.onerror = () => console.warn("[SleepGuard] Failed to load overlay script:", src);
+     script.onerror = () => console.warn("[SleepGuard] Failed to load overlay script:", script.src);
      document.head.appendChild(script);
    })();
    ```
@@ -100,8 +117,8 @@ When you are done testing, disable test mode or set `Continuous seconds` back to
 | Problem | What to check |
 | ------- | ------------- |
 | Overlay does not appear | Confirm the JavaScript Injector script is enabled, then refresh Jellyfin Web. |
-| `window.SleepGuardOverlay` is undefined | The loader script did not run or `/SleepGuard/overlay.js` failed to load. Check the browser console. |
-| `404` on `/SleepGuard/overlay.js` | Rebuild/reinstall SleepGuard and restart Jellyfin. |
+| `window.SleepGuardOverlay` is undefined | The loader script did not run or the overlay failed to load. Check the browser console. |
+| `404` on `/SleepGuard/overlay.js` | If Jellyfin is under a URL prefix, replace the old loader snippet with the current one above. Also rebuild/reinstall SleepGuard and restart Jellyfin. |
 | Prompt appears but playback does not pause | Check whether the client accepts Jellyfin remote pause/stop commands. |
 | Nothing happens during testing | Enable dry run and rule-check logging, then watch the Jellyfin server log while a video plays. |
 | Too many logs | Turn off `Log rule checks` after testing. |

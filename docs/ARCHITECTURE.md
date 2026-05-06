@@ -122,11 +122,11 @@ Plugin XML file  ─────▶  Jellyfin deserialization  ─────�
 ```
 Browser
   │
-  │ 1. A JavaScript Injector script entry appends /SleepGuard/overlay.js
-  │    to the Jellyfin Web page
+  │ 1. A JavaScript Injector script entry appends SleepGuard/overlay.js
+  │    to the Jellyfin Web page, preserving any Jellyfin URL prefix
   │
   ▼
-GET /SleepGuard/overlay.js  [AllowAnonymous]
+GET <jellyfin-base>/SleepGuard/overlay.js  [AllowAnonymous]
   │
   ▼
 SleepGuardController.GetOverlayScript()
