@@ -4,7 +4,15 @@ using Jellyfin.Plugin.SleepGuard.Sessions;
 
 namespace Jellyfin.Plugin.SleepGuard.Rules;
 
-public sealed class ContinuousTimeRule : ISleepRule
+/// <summary>
+/// Trigger rule that fires when a session's accumulated uninterrupted playing time reaches the configured threshold.
+/// <para>
+/// The threshold is controlled by <see cref="PluginConfiguration.MaxContinuousMinutes"/> in production.
+/// <see cref="PluginConfiguration.MaxContinuousSeconds"/> provides a seconds-precision override for
+/// testing (Developer Tools tab) without having to wait for full minutes.
+/// </para>
+/// </summary>
+public sealed class ContinuousTimeRule : ITriggerRule
 {
     public string Name => nameof(ContinuousTimeRule);
 

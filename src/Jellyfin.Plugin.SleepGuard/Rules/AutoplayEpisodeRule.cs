@@ -3,7 +3,11 @@ using Jellyfin.Plugin.SleepGuard.Sessions;
 
 namespace Jellyfin.Plugin.SleepGuard.Rules;
 
-public sealed class AutoplayEpisodeRule : ISleepRule
+/// <summary>
+/// Trigger rule that fires when the number of consecutive episodes in the current autoplay chain
+/// reaches or exceeds <see cref="PluginConfiguration.MaxAutoplayEpisodes"/>.
+/// </summary>
+public sealed class AutoplayEpisodeRule : ITriggerRule
 {
     public string Name => nameof(AutoplayEpisodeRule);
 

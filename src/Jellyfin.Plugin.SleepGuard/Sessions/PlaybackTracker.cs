@@ -2,11 +2,17 @@ using Jellyfin.Data.Enums;
 
 namespace Jellyfin.Plugin.SleepGuard.Sessions;
 
+/// <summary>
+/// Maintains accumulated playback state for a single Jellyfin session.
+/// One tracker exists per active session; it is updated on every playback event
+/// and read by the rule evaluation pipeline.
+/// </summary>
 public sealed class PlaybackTracker
 {
     public PlaybackTracker(PlaybackEvent playbackEvent, DateTimeOffset now)
     {
         SessionId = playbackEvent.SessionId;
+        LastAccessedUtc = now;
         ApplyNewChain(playbackEvent, now);
     }
 
@@ -24,6 +30,10 @@ public sealed class PlaybackTracker
 
     public DateTimeOffset StartedAtUtc { get; private set; }
 
+    /// <summary>
+    /// Total wall-clock time the session has been actively playing since the last counter reset.
+    /// Paused periods are excluded.
+    /// </summary>
     public TimeSpan ContinuousElapsed { get; private set; }
 
     public int EpisodesInChain { get; private set; }
@@ -46,10 +56,22 @@ public sealed class PlaybackTracker
 
     public bool IsPaused { get; private set; }
 
+    /// <summary>
+    /// Timestamp of the last event applied to this tracker.
+    /// Used by the eviction policy to remove orphaned trackers after a period of inactivity.
+    /// </summary>
+    public DateTimeOffset LastAccessedUtc { get; private set; }
+
+    /// <summary>
+    /// <c>true</c> when a prompt has been sent and the grace timer is running,
+    /// or when the final pause/stop action has already been issued.
+    /// Gates prevent rules from firing again while an action is pending or complete.
+    /// </summary>
     public bool HasPendingOrCompletedAction => PendingPromptUntilUtc is not null || LastActionAtUtc is not null;
 
     public void ApplyStart(PlaybackEvent playbackEvent, PlaybackTransition transition, DateTimeOffset now)
     {
+        LastAccessedUtc = now;
         switch (transition)
         {
             case PlaybackTransition.AutoplayNext:
@@ -73,6 +95,7 @@ public sealed class PlaybackTracker
 
     public void ApplyProgress(PlaybackEvent playbackEvent, PlaybackTransition transition, DateTimeOffset now)
     {
+        LastAccessedUtc = now;
         if (transition is PlaybackTransition.Seek or PlaybackTransition.ManualPause or PlaybackTransition.ManualResume or PlaybackTransition.ManualSwitch)
         {
             LastUserActionUtc = now;
@@ -98,6 +121,7 @@ public sealed class PlaybackTracker
 
     public void ApplyStopped(DateTimeOffset now)
     {
+        LastAccessedUtc = now;
         AddElapsedUntil(now);
         LastStoppedAtUtc = now;
         LastTickUtc = now;
@@ -120,7 +144,7 @@ public sealed class PlaybackTracker
         PendingPromptUntilUtc = null;
         if (suppressPauseEvent)
         {
-            SuppressNextPauseEventUntilUtc = now.AddSeconds(15);
+            SuppressNextPauseEventUntilUtc = now.Add(SessionConstants.PauseSuppression);
         }
     }
 

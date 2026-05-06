@@ -3,214 +3,199 @@ using MediaBrowser.Model.Plugins;
 namespace Jellyfin.Plugin.SleepGuard.Configuration;
 
 /// <summary>
-/// SleepGuard plugin settings serialized by Jellyfin.
+/// SleepGuard plugin settings serialized by Jellyfin as XML.
+/// Properties are grouped by their <see cref="SettingsGroupAttribute"/> for the settings-page UI.
+/// The flat class structure is intentional — nesting into sub-classes would change the XML
+/// element hierarchy and break existing saved configurations.
 /// </summary>
 public sealed class PluginConfiguration : BasePluginConfiguration
 {
-    /// <summary>
-    /// Gets or sets a value indicating whether SleepGuard evaluates playback sessions.
-    /// </summary>
+    // =========================================================================
+    // Behavior group
+    // =========================================================================
+
+    /// <summary>Master on/off switch. When false, no rules are evaluated.</summary>
+    [SettingsGroup("Behavior")]
     public bool Enabled { get; set; } = true;
 
-    /// <summary>
-    /// Gets or sets the playstate command sent after a rule fires and the prompt grace period expires.
-    /// </summary>
+    /// <summary>The playstate command sent after a rule fires and the prompt grace period expires.</summary>
+    [SettingsGroup("Behavior")]
     public SleepGuardAction Action { get; set; } = SleepGuardAction.Pause;
 
-    /// <summary>
-    /// Gets or sets the production continuous-playback threshold in minutes. A value of 0 disables this rule.
-    /// </summary>
+    /// <summary>Continuous playing minutes before action. Set to 0 to disable this rule.</summary>
+    [SettingsGroup("Behavior")]
     public int MaxContinuousMinutes { get; set; } = 120;
 
-    /// <summary>
-    /// Gets or sets a diagnostics-only continuous-playback threshold in seconds. A value of 0 uses <see cref="MaxContinuousMinutes"/>.
-    /// </summary>
-    public int MaxContinuousSeconds { get; set; }
-
-    /// <summary>
-    /// Gets or sets the maximum number of episodes allowed in a same-series autoplay chain. A value of 0 disables this rule.
-    /// </summary>
+    /// <summary>Maximum consecutive same-series episodes before action. Set to 0 to disable.</summary>
+    [SettingsGroup("Behavior")]
     public int MaxAutoplayEpisodes { get; set; } = 3;
 
-    /// <summary>
-    /// Gets or sets a value indicating whether all sleep rules are gated by the server-local time window.
-    /// </summary>
+    /// <summary>Gate all rules by the server-local time window when true.</summary>
+    [SettingsGroup("Behavior")]
     public bool OnlyWithinTimeWindow { get; set; }
 
-    /// <summary>
-    /// Gets or sets the server-local time window start in HH:mm:ss form.
-    /// </summary>
+    /// <summary>Server-local time window start in <c>HH:mm:ss</c> form.</summary>
+    [SettingsGroup("Behavior")]
     public string TimeWindowStart { get; set; } = "22:00:00";
 
-    /// <summary>
-    /// Gets or sets the server-local time window end in HH:mm:ss form. Values earlier than the start wrap midnight.
-    /// </summary>
+    /// <summary>Server-local time window end in <c>HH:mm:ss</c> form. Values earlier than the start wrap midnight.</summary>
+    [SettingsGroup("Behavior")]
     public string TimeWindowEnd { get; set; } = "07:00:00";
 
-    /// <summary>
-    /// Gets or sets a value indicating whether continuous-time limits apply to movies.
-    /// </summary>
+    /// <summary>Apply continuous-time limits to movies.</summary>
+    [SettingsGroup("Behavior")]
     public bool IncludeMovies { get; set; } = true;
 
-    /// <summary>
-    /// Gets or sets a value indicating whether continuous-time limits apply to audio and music videos.
-    /// </summary>
+    /// <summary>Apply continuous-time limits to audio and music videos.</summary>
+    [SettingsGroup("Behavior")]
     public bool IncludeMusic { get; set; }
 
-    /// <summary>
-    /// Gets or sets a value indicating whether continuous-time limits apply to Live TV items.
-    /// </summary>
+    /// <summary>Apply continuous-time limits to Live TV items.</summary>
+    [SettingsGroup("Behavior")]
     public bool IncludeLiveTv { get; set; }
 
-    /// <summary>
-    /// Gets or sets how <see cref="UserIds"/> is applied.
-    /// </summary>
+    /// <summary>How <see cref="UserIds"/> is applied.</summary>
+    [SettingsGroup("Behavior")]
     public SleepGuardUserMode UserMode { get; set; } = SleepGuardUserMode.AllUsers;
 
-    /// <summary>
-    /// Gets or sets user IDs for whitelist and blacklist modes.
-    /// </summary>
+    /// <summary>User IDs for whitelist and blacklist modes.</summary>
+    [SettingsGroup("Behavior")]
     public Guid[] UserIds { get; set; } = [];
 
-    /// <summary>
-    /// Gets or sets a value indicating whether SleepGuard sends a best-effort client message before action.
-    /// </summary>
+    /// <summary>Send a best-effort client message before the pause/stop action.</summary>
+    [SettingsGroup("Behavior")]
     public bool SendPrompt { get; set; } = true;
 
     /// <summary>
-    /// Gets or sets the language used for the configuration page and default prompt text.
+    /// When true, the Developer Tools tab is visible in the settings page and the
+    /// overlay keyboard shortcut (<c>Ctrl+Shift+Alt+S</c>) is active in the browser.
+    /// Disable on production servers.
     /// </summary>
+    [SettingsGroup("Behavior")]
+    public bool DeveloperMode { get; set; }
+
+    // =========================================================================
+    // Customization group
+    // =========================================================================
+
+    /// <summary>Language used for the configuration page and default prompt text.</summary>
+    [SettingsGroup("Customization")]
     public string Language { get; set; } = "en";
 
-    /// <summary>
-    /// Gets or sets the prompt toast header.
-    /// </summary>
+    /// <summary>Prompt toast header text.</summary>
+    [SettingsGroup("Customization")]
     public string PromptHeader { get; set; } = "SleepGuard";
 
-    /// <summary>
-    /// Gets or sets the prompt toast body.
-    /// </summary>
+    /// <summary>Prompt toast body text.</summary>
+    [SettingsGroup("Customization")]
     public string PromptMessage { get; set; } = "Are you still watching?";
 
-    /// <summary>
-    /// Gets or sets how long clients should keep the prompt toast visible.
-    /// </summary>
+    /// <summary>Suggested client toast display duration in seconds.</summary>
+    [SettingsGroup("Customization")]
     public int PromptTimeoutSeconds { get; set; } = 8;
 
-    /// <summary>
-    /// Gets or sets how long SleepGuard waits after the prompt before sending the configured action. A value of 0 acts immediately.
-    /// </summary>
+    /// <summary>Delay in seconds after the prompt before pause or stop is sent. 0 acts immediately.</summary>
+    [SettingsGroup("Customization")]
     public int PromptGraceSeconds { get; set; } = 30;
 
+    /// <summary>CSS hex accent color for the overlay continue button.</summary>
+    [SettingsGroup("Customization")]
+    public string OverlayAccentColor { get; set; } = "#00a4dc";
+
+    /// <summary>Overlay background darkness, 0–100.</summary>
+    [SettingsGroup("Customization")]
+    public int OverlayBackgroundOpacity { get; set; } = 92;
+
+    /// <summary>Use the current Jellyfin backdrop image behind the overlay.</summary>
+    [SettingsGroup("Customization")]
+    public bool OverlayUseBackdropImage { get; set; }
+
+    /// <summary>Blur the backdrop image (only visible when backdrop is enabled).</summary>
+    [SettingsGroup("Customization")]
+    public bool OverlayBlurBackdrop { get; set; } = true;
+
+    /// <summary>Show the continue-watching button on the overlay.</summary>
+    [SettingsGroup("Customization")]
+    public bool OverlayShowContinueButton { get; set; } = true;
+
+    /// <summary>Show the stay-paused (dismiss) button on the overlay.</summary>
+    [SettingsGroup("Customization")]
+    public bool OverlayShowDismissButton { get; set; } = true;
+
+    /// <summary>English override for the continue button label. Null uses the built-in default.</summary>
+    [SettingsGroup("Customization")]
+    public string? OverlayContinueButtonTextEn { get; set; }
+
+    /// <summary>Italian override for the continue button label. Null uses the built-in default.</summary>
+    [SettingsGroup("Customization")]
+    public string? OverlayContinueButtonTextIt { get; set; }
+
+    /// <summary>English override for the dismiss button label. Null uses the built-in default.</summary>
+    [SettingsGroup("Customization")]
+    public string? OverlayDismissButtonTextEn { get; set; }
+
+    /// <summary>Italian override for the dismiss button label. Null uses the built-in default.</summary>
+    [SettingsGroup("Customization")]
+    public string? OverlayDismissButtonTextIt { get; set; }
+
+    // =========================================================================
+    // Developer group (hidden unless DeveloperMode = true)
+    // =========================================================================
+
     /// <summary>
-    /// Gets or sets a diagnostics-only value that logs the final action without sending media-control commands.
+    /// Testing override: continuous-time threshold in seconds.
+    /// When > 0, overrides <see cref="MaxContinuousMinutes"/> so rules fire quickly during development.
+    /// Set to 0 to use the production minutes threshold.
     /// </summary>
+    [SettingsGroup("Developer")]
+    public int MaxContinuousSeconds { get; set; }
+
+    /// <summary>
+    /// When true, logs the final pause/stop action without actually sending it.
+    /// Safe to enable on a live server for observation.
+    /// </summary>
+    [SettingsGroup("Developer")]
     public bool DryRun { get; set; }
 
     /// <summary>
-    /// Gets or sets a diagnostics-only number of repeated pause/stop commands to send when testing clients.
+    /// Send the pause/stop command this many times. Useful for clients that
+    /// intermittently miss the first command during testing.
     /// </summary>
+    [SettingsGroup("Developer")]
     public int ActionRepeatCount { get; set; } = 1;
 
-    /// <summary>
-    /// Gets or sets the delay between repeated diagnostics action attempts.
-    /// </summary>
+    /// <summary>Delay in seconds between repeated action attempts.</summary>
+    [SettingsGroup("Developer")]
     public int ActionRepeatIntervalSeconds { get; set; } = 2;
 
-    /// <summary>
-    /// Gets or sets a value indicating whether every playback progress event is logged.
-    /// </summary>
+    /// <summary>Log every playback progress event at Information level.</summary>
+    [SettingsGroup("Developer")]
     public bool LogProgressEvents { get; set; }
 
-    /// <summary>
-    /// Gets or sets a value indicating whether every rule evaluation is logged.
-    /// </summary>
+    /// <summary>Log every rule evaluation and its outcome at Information level.</summary>
+    [SettingsGroup("Developer")]
     public bool LogRuleChecks { get; set; }
-
-    /// <summary>
-    /// Gets or sets the overlay accent color as a CSS hex string.
-    /// </summary>
-    public string OverlayAccentColor { get; set; } = "#00a4dc";
-
-    /// <summary>
-    /// Gets or sets the overlay background opacity percentage (0–100).
-    /// </summary>
-    public int OverlayBackgroundOpacity { get; set; } = 92;
-
-    /// <summary>
-    /// Gets or sets a value indicating whether the overlay uses the current Jellyfin backdrop image.
-    /// </summary>
-    public bool OverlayUseBackdropImage { get; set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether the backdrop image is blurred when shown behind the overlay.
-    /// </summary>
-    public bool OverlayBlurBackdrop { get; set; } = true;
-
-    /// <summary>
-    /// Gets or sets a value indicating whether the continue-watching button is shown on the overlay.
-    /// </summary>
-    public bool OverlayShowContinueButton { get; set; } = true;
-
-    /// <summary>
-    /// Gets or sets a value indicating whether the dismiss (stay paused) button is shown on the overlay.
-    /// </summary>
-    public bool OverlayShowDismissButton { get; set; } = true;
-
-    /// <summary>
-    /// Gets or sets the English override text for the continue button, or null for the built-in default.
-    /// </summary>
-    public string? OverlayContinueButtonTextEn { get; set; }
-
-    /// <summary>
-    /// Gets or sets the Italian override text for the continue button, or null for the built-in default.
-    /// </summary>
-    public string? OverlayContinueButtonTextIt { get; set; }
-
-    /// <summary>
-    /// Gets or sets the English override text for the dismiss button, or null for the built-in default.
-    /// </summary>
-    public string? OverlayDismissButtonTextEn { get; set; }
-
-    /// <summary>
-    /// Gets or sets the Italian override text for the dismiss button, or null for the built-in default.
-    /// </summary>
-    public string? OverlayDismissButtonTextIt { get; set; }
 }
 
-/// <summary>
-/// Final media-control command sent when SleepGuard acts.
-/// </summary>
+/// <summary>Final media-control command sent when SleepGuard acts.</summary>
 public enum SleepGuardAction
 {
-    /// <summary>
-    /// Pause the active session.
-    /// </summary>
+    /// <summary>Pause the active session.</summary>
     Pause,
 
-    /// <summary>
-    /// Stop the active session.
-    /// </summary>
+    /// <summary>Stop the active session.</summary>
     Stop
 }
 
-/// <summary>
-/// User scoping mode for SleepGuard rule evaluation.
-/// </summary>
+/// <summary>User scoping mode for SleepGuard rule evaluation.</summary>
 public enum SleepGuardUserMode
 {
-    /// <summary>
-    /// Evaluate all users.
-    /// </summary>
+    /// <summary>Evaluate all users.</summary>
     AllUsers,
 
-    /// <summary>
-    /// Evaluate only users in <see cref="PluginConfiguration.UserIds"/>.
-    /// </summary>
+    /// <summary>Evaluate only users in <see cref="PluginConfiguration.UserIds"/>.</summary>
     Whitelist,
 
-    /// <summary>
-    /// Evaluate every user except users in <see cref="PluginConfiguration.UserIds"/>.
-    /// </summary>
+    /// <summary>Evaluate every user except those in <see cref="PluginConfiguration.UserIds"/>.</summary>
     Blacklist
 }

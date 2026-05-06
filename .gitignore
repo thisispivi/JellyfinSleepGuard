@@ -10,3 +10,8 @@ artifacts/
 *.nupkg
 *.snupkg
 *.zip
+
+# Client build outputs
+client/node_modules/
+client/dist/
+client/*.js.map

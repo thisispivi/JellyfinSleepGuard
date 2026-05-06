@@ -1,0 +1,71 @@
+name: Bug Report
+description: Report something that is broken or behaving incorrectly
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for filing a bug report. Please fill in as much detail as possible so the issue can be reproduced and fixed quickly.
+
+  - type: input
+    id: jellyfin_version
+    attributes:
+      label: Jellyfin Server version
+      placeholder: "10.11.x"
+    validations:
+      required: true
+
+  - type: input
+    id: plugin_version
+    attributes:
+      label: SleepGuard version
+      placeholder: "0.1.x.x"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: client
+    attributes:
+      label: Jellyfin client
+      options:
+        - Jellyfin Web (browser)
+        - Jellyfin Android
+        - Jellyfin iOS / tvOS
+        - Jellyfin Android TV
+        - Infuse
+        - Other (describe below)
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: A clear description of the bug. What did you expect, and what actually occurred?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Set MaxContinuousMinutes to …
+        2. Play a movie for …
+        3. Observe …
+    validations:
+      required: true
+
+  - type: textarea
+    id: config
+    attributes:
+      label: Relevant configuration
+      description: Copy the non-sensitive fields from Dashboard → SleepGuard (omit user IDs if on a shared server).
+      render: text
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Jellyfin log snippet
+      description: Paste relevant lines from `journalctl -u jellyfin` or the Jellyfin log file. Look for lines containing "SleepGuard".
+      render: text

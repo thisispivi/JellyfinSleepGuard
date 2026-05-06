@@ -2,12 +2,15 @@ using Jellyfin.Data.Enums;
 
 namespace Jellyfin.Plugin.SleepGuard.Sessions;
 
+/// <summary>
+/// Classifies raw playback events into typed <see cref="PlaybackTransition"/> values
+/// by comparing the incoming event against the current tracker state.
+/// </summary>
 public sealed class PlaybackEventClassifier
 {
-    private static readonly TimeSpan AutoplayWindow = TimeSpan.FromSeconds(10);
-    private static readonly TimeSpan LongPauseWindow = TimeSpan.FromSeconds(30);
-    private static readonly TimeSpan SeekTolerance = TimeSpan.FromSeconds(10);
-
+    /// <summary>
+    /// Classifies a playback-start event (fired when a new item begins playing).
+    /// </summary>
     public PlaybackTransition ClassifyStart(PlaybackTracker? tracker, PlaybackEvent playbackEvent, DateTimeOffset now)
     {
         if (tracker is null || tracker.NowPlayingItemId is null)
@@ -28,6 +31,9 @@ public sealed class PlaybackEventClassifier
         return PlaybackTransition.ManualSwitch;
     }
 
+    /// <summary>
+    /// Classifies a playback-progress event (periodic tick, pause, resume, or seek).
+    /// </summary>
     public PlaybackTransition ClassifyProgress(PlaybackTracker tracker, PlaybackEvent playbackEvent, DateTimeOffset now)
     {
         if (playbackEvent.IsPaused && !tracker.IsPaused)
@@ -39,7 +45,8 @@ public sealed class PlaybackEventClassifier
 
         if (!playbackEvent.IsPaused && tracker.IsPaused)
         {
-            return tracker.LastActionAtUtc is not null || tracker.LastPausedAtUtc is not null && now - tracker.LastPausedAtUtc.Value > LongPauseWindow
+            return tracker.LastActionAtUtc is not null
+                || (tracker.LastPausedAtUtc is not null && now - tracker.LastPausedAtUtc.Value > SessionConstants.LongPauseWindow)
                 ? PlaybackTransition.ManualResume
                 : PlaybackTransition.Tick;
         }
@@ -55,7 +62,7 @@ public sealed class PlaybackEventClassifier
     private static bool IsAutoplayNext(PlaybackTracker tracker, PlaybackEvent playbackEvent, DateTimeOffset now)
     {
         return tracker.LastStoppedAtUtc is not null
-            && now - tracker.LastStoppedAtUtc.Value <= AutoplayWindow
+            && now - tracker.LastStoppedAtUtc.Value <= SessionConstants.AutoplayWindow
             && tracker.ItemKind == BaseItemKind.Episode
             && playbackEvent.ItemKind == BaseItemKind.Episode
             && tracker.SeriesId is not null
@@ -73,17 +80,17 @@ public sealed class PlaybackEventClassifier
         var wallclockTicks = Math.Max(0, (now - tracker.LastTickUtc.Value).Ticks);
         var playbackDelta = playbackEvent.PositionTicks.Value - tracker.LastPositionTicks.Value;
 
-        if (playbackDelta < -SeekTolerance.Ticks)
+        if (playbackDelta < -SessionConstants.SeekTolerance.Ticks)
         {
             return true;
         }
 
         if (wallclockTicks == 0)
         {
-            return playbackDelta > SeekTolerance.Ticks;
+            return playbackDelta > SessionConstants.SeekTolerance.Ticks;
         }
 
         return playbackDelta > wallclockTicks * 1.5
-            && playbackDelta - wallclockTicks > SeekTolerance.Ticks;
+            && playbackDelta - wallclockTicks > SessionConstants.SeekTolerance.Ticks;
     }
 }
