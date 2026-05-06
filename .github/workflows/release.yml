@@ -93,7 +93,8 @@ jobs:
           CHECKSUM: ${{ steps.checksum.outputs.md5 }}
 
       - name: Update build.yaml version
-        run: sed -i "s/^version:.*/version: ${{ steps.version.outputs.version }}/" build.yaml
+        run: |
+          sed -i "s/^version:.*/version: ${{ steps.version.outputs.version }}/" build.yaml
 
       # Requires branch protection to allow github-actions[bot] to push directly to main.
       - name: Commit manifest and build.yaml
