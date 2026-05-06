@@ -1,21 +1,21 @@
-﻿[
-    {
-        "guid":  "7bb5959b-5a11-45da-b9db-52eed4456090",
-        "name":  "SleepGuard",
-        "description":  "Pauses or stops Jellyfin playback after configurable sleep-friendly thresholds.",
-        "overview":  "Sleep-friendly playback limits for Jellyfin.",
-        "imageUrl":  "https://raw.githubusercontent.com/thisispivi/JellyfinSleepGuard/main/images/logo.png",
-        "owner":  "thisispivi",
-        "category":  "General",
-        "versions":  [
-                         {
-                             "version":  "0.1.0.11",
-                             "changelog":  "SleepGuard 0.1.0.11 release.",
-                             "targetAbi":  "10.11.0.0",
-                             "sourceUrl":  "https://github.com/thisispivi/JellyfinSleepGuard/releases/download/v0.1.0.11/Jellyfin.Plugin.SleepGuard_0.1.0.11.zip",
-                             "checksum":  "36836453359d7b0755ed2f3a08e6eb41",
-                             "timestamp":  "2026-04-28T23:20:11Z"
-                         }
-                     ]
-    }
+[
+  {
+    "guid": "7bb5959b-5a11-45da-b9db-52eed4456090",
+    "name": "SleepGuard",
+    "description": "Pauses or stops Jellyfin playback after configurable sleep-friendly thresholds.",
+    "overview": "Sleep-friendly playback limits for Jellyfin.",
+    "imageUrl": "https://raw.githubusercontent.com/thisispivi/JellyfinSleepGuard/main/images/logo.png",
+    "owner": "thisispivi",
+    "category": "General",
+    "versions": [
+      {
+        "version": "0.1.0.12",
+        "changelog": "SleepGuard 0.1.0.12 release.",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://github.com/thisispivi/JellyfinSleepGuard/releases/download/v0.1.0.12/Jellyfin.Plugin.SleepGuard_0.1.0.12.zip",
+        "checksum": "9d29dce3b4183fa41361b957e9bec366",
+        "timestamp": "2026-05-06T08:24:45Z"
+      }
+    ]
+  }
 ]
