@@ -9,12 +9,12 @@
         "category":  "General",
         "versions":  [
                          {
-                             "version":  "0.1.0.13",
-                             "changelog":  "SleepGuard 0.1.0.13 release.",
+                             "version":  "0.1.0.14",
+                             "changelog":  "SleepGuard 0.1.0.14 release.",
                              "targetAbi":  "10.11.0.0",
-                             "sourceUrl":  "https://github.com/thisispivi/JellyfinSleepGuard/releases/download/v0.1.0.13/Jellyfin.Plugin.SleepGuard_0.1.0.13.zip",
-                             "checksum":  "4e786211a741d8125008ddfc91170aed",
-                             "timestamp":  "2026-05-06T08:29:22Z"
+                             "sourceUrl":  "https://github.com/thisispivi/JellyfinSleepGuard/releases/download/v0.1.0.14/Jellyfin.Plugin.SleepGuard_0.1.0.14.zip",
+                             "checksum":  "0554e69c9c753fc5789675c76d8d9405",
+                             "timestamp":  "2026-05-06T08:49:17Z"
                          }
                      ]
     }
