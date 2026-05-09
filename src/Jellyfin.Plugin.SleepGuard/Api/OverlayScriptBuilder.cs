@@ -40,6 +40,18 @@ public static class OverlayScriptBuilder
             language = config.Language,
             promptMessage = config.PromptMessage,
             promptHeader = config.PromptHeader,
+            overlayBackgroundMode = config.OverlayBackgroundMode.ToString(),
+            overlayArtworkPreference = config.OverlayArtworkPreference.ToString(),
+            overlayBackgroundColor = config.OverlayBackgroundColor,
+            overlayTextColor = config.OverlayTextColor,
+            overlayPrimaryButtonColor = config.OverlayPrimaryButtonColor,
+            overlayPrimaryButtonTextColor = config.OverlayPrimaryButtonTextColor,
+            overlaySecondaryButtonColor = config.OverlaySecondaryButtonColor,
+            overlaySecondaryButtonTextColor = config.OverlaySecondaryButtonTextColor,
+            overlayBackgroundDimPercent = config.OverlayBackgroundDimPercent,
+            overlayArtworkBlurPixels = config.OverlayArtworkBlurPixels,
+            overlayPanelOpacityPercent = config.OverlayPanelOpacityPercent,
+            overlayCustomBackgroundUrl = config.OverlayCustomBackgroundUrl,
         };
 
         var json = JsonSerializer.Serialize(overlayConfig, JsonOptions);

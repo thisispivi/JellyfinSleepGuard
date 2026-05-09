@@ -143,6 +143,9 @@ Browser executes the IIFE
   ├─ Reads window.__SLEEPGUARD_CONFIG__
   ├─ Starts MutationObserver watching document.body
   │    (disconnects while overlay is displayed; reconnects on dismiss)
+  ├─ Applies appearance settings as CSS variables
+  ├─ Optionally resolves current Jellyfin artwork through window.ApiClient
+  │    (best-effort; falls back to the configured solid background)
   └─ Exposes window.SleepGuardOverlay = { show, hide, settings }
 ```
 
@@ -151,6 +154,8 @@ Browser executes the IIFE
 **Why `no-cache, no-store`?** Prompt text and language changes must be reflected on the next page load without the admin having to clear the browser cache. The settings are baked in at serve time; caching the old response would show stale config.
 
 **Why `window.__SLEEPGUARD_CONFIG__` instead of a separate fetch?** A single request brings both the script and its config. This eliminates the FOUC/race condition that would occur if the overlay initialised with defaults and then fetched its config in a second request.
+
+**Artwork backgrounds:** The overlay does not add a server endpoint for artwork. In Jellyfin Web it tries to use the existing `window.ApiClient` session and image helpers to find the current item or series backdrop. This is intentionally best-effort because injected scripts should tolerate Jellyfin Web internals changing across versions; missing metadata simply leaves the solid fallback background in place.
 
 **TypeScript compilation:** The overlay source lives in `client/sleepguard-overlay.ts`. The `dotnet build` MSBuild target `BuildClientAssets` runs `npm ci && npm run build` (TypeScript → `client/dist/sleepguard-overlay.js`) before the C# compilation step. The compiled file is embedded into the DLL with logical name `Jellyfin.Plugin.SleepGuard.Api.overlay.js`.
 

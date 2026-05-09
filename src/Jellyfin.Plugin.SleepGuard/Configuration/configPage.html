@@ -109,6 +109,162 @@
       margin-bottom: 1.2em;
       padding: 1em;
     }
+
+    .sg-appearance-grid {
+      display: grid;
+      gap: 1em;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    .sg-color-field {
+      background: rgba(255,255,255,0.045);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 6px;
+      padding: 0.85em;
+    }
+
+    .sg-color-field label {
+      display: block;
+      font-size: 0.88em;
+      font-weight: 600;
+      margin-bottom: 0.65em;
+      opacity: 0.86;
+    }
+
+    .sg-color-row {
+      align-items: center;
+      display: grid;
+      gap: 0.7em;
+      grid-template-columns: 3.2em 1fr;
+    }
+
+    .sg-color-row input[type="color"] {
+      background: transparent;
+      border: 0;
+      cursor: pointer;
+      height: 2.6em;
+      padding: 0;
+      width: 3.2em;
+    }
+
+    .sg-range-row {
+      align-items: center;
+      display: grid;
+      gap: 0.85em;
+      grid-template-columns: 1fr 4.5em;
+    }
+
+    .sg-range-row input[type="range"] {
+      width: 100%;
+    }
+
+    .sg-range-value {
+      font-variant-numeric: tabular-nums;
+      opacity: 0.78;
+      text-align: right;
+    }
+
+    .sg-preview {
+      --sg-preview-bg: #05080d;
+      --sg-preview-text: #ffffff;
+      --sg-preview-primary: #00a4dc;
+      --sg-preview-primary-text: #ffffff;
+      --sg-preview-secondary: #2b3038;
+      --sg-preview-secondary-text: #ffffff;
+      --sg-preview-dim: 0.62;
+      --sg-preview-blur: 10px;
+      --sg-preview-panel: 0.72;
+      background: var(--sg-preview-bg);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      color: var(--sg-preview-text);
+      display: grid;
+      min-height: 270px;
+      overflow: hidden;
+      place-items: center;
+      position: relative;
+    }
+
+    .sg-preview-bg,
+    .sg-preview-dim {
+      inset: 0;
+      position: absolute;
+    }
+
+    .sg-preview-bg {
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      filter: blur(var(--sg-preview-blur));
+      inset: -24px;
+      opacity: 0;
+      transform: scale(1.04);
+    }
+
+    .sg-preview.has-image .sg-preview-bg {
+      opacity: 1;
+    }
+
+    .sg-preview-dim {
+      background: rgba(0,0,0,var(--sg-preview-dim));
+      opacity: 0;
+    }
+
+    .sg-preview.has-image .sg-preview-dim {
+      opacity: 1;
+    }
+
+    .sg-preview-panel {
+      background: rgba(10,14,22,var(--sg-preview-panel));
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 8px;
+      box-shadow: 0 18px 54px rgba(0,0,0,0.38);
+      margin: 1em;
+      max-width: 30em;
+      padding: 1.5em;
+      position: relative;
+      text-align: center;
+      width: min(82%, 30em);
+    }
+
+    .sg-preview-title {
+      font-size: 0.95em;
+      margin-bottom: 0.8em;
+      opacity: 0.76;
+    }
+
+    .sg-preview-message {
+      font-size: clamp(1.65em, 4vw, 2.7em);
+      font-weight: 700;
+      line-height: 1.08;
+      margin-bottom: 0.9em;
+    }
+
+    .sg-preview-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7em;
+      justify-content: center;
+    }
+
+    .sg-preview-actions button {
+      border: 0;
+      border-radius: 6px;
+      cursor: default;
+      font: inherit;
+      font-weight: 600;
+      padding: 0.75em 1em;
+    }
+
+    .sg-preview-primary {
+      background: var(--sg-preview-primary);
+      color: var(--sg-preview-primary-text);
+    }
+
+    .sg-preview-secondary {
+      background: var(--sg-preview-secondary);
+      color: var(--sg-preview-secondary-text);
+    }
   </style>
 </head>
 <body>
@@ -125,6 +281,7 @@
         <form id="SleepGuardConfigForm">
           <div class="sg-tabs" id="sg-tabs">
             <button type="button" class="sg-tab-btn active" data-tab="main" data-i18n="tabMain">Main</button>
+            <button type="button" class="sg-tab-btn" data-tab="appearance" data-i18n="tabAppearance">Appearance</button>
             <button type="button" class="sg-tab-btn" data-tab="advanced" data-i18n="tabAdvanced">Advanced</button>
             <button type="button" class="sg-tab-btn" data-tab="test" data-i18n="tabTest">Test Mode</button>
           </div>
@@ -178,6 +335,129 @@
               <textarea id="InjectorSnippet" readonly spellcheck="false"></textarea>
               <div class="sg-copy-row">
                 <button type="button" class="sg-copy-btn" id="CopyInjectorSnippet" data-i18n="copySnippet">Copy script</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="tab-appearance" class="sg-tab-panel">
+            <p class="sg-section" data-i18n="sectionAppearanceTheme">Theme</p>
+
+            <div class="sg-preview" id="OverlayPreview">
+              <div class="sg-preview-bg" id="OverlayPreviewBg"></div>
+              <div class="sg-preview-dim"></div>
+              <div class="sg-preview-panel">
+                <div class="sg-preview-title" id="OverlayPreviewTitle">SleepGuard</div>
+                <div class="sg-preview-message" id="OverlayPreviewMessage">Are you still watching?</div>
+                <div class="sg-preview-actions">
+                  <button type="button" class="sg-preview-primary" data-i18n="previewContinue">Continue watching</button>
+                  <button type="button" class="sg-preview-secondary" data-i18n="previewDismiss">Stay paused</button>
+                </div>
+              </div>
+            </div>
+
+            <p class="sg-section" data-i18n="sectionArtworkBackground">Artwork Background</p>
+
+            <div class="sg-appearance-grid">
+              <div class="selectContainer">
+                <label class="selectLabel" for="OverlayBackgroundMode" data-i18n="overlayBackgroundMode">Background</label>
+                <select is="emby-select" id="OverlayBackgroundMode" class="emby-select-withcolor">
+                  <option value="NowPlayingArtwork" data-i18n="backgroundNowPlaying">Now playing artwork</option>
+                  <option value="Solid" data-i18n="backgroundSolid">Solid color</option>
+                  <option value="CustomUrl" data-i18n="backgroundCustomUrl">Custom image URL</option>
+                </select>
+              </div>
+
+              <div class="selectContainer">
+                <label class="selectLabel" for="OverlayArtworkPreference" data-i18n="overlayArtworkPreference">Artwork preference</label>
+                <select is="emby-select" id="OverlayArtworkPreference" class="emby-select-withcolor">
+                  <option value="SeriesBackdrop" data-i18n="artworkSeriesBackdrop">Series backdrop first</option>
+                  <option value="ItemBackdrop" data-i18n="artworkItemBackdrop">Item backdrop first</option>
+                  <option value="PrimaryImage" data-i18n="artworkPrimaryImage">Primary image first</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="inputContainer">
+              <label class="inputLabel inputLabelUnfocused" for="OverlayCustomBackgroundUrl" data-i18n="overlayCustomBackgroundUrl">Custom background URL</label>
+              <input is="emby-input" type="text" id="OverlayCustomBackgroundUrl">
+              <div class="fieldDescription" data-i18n="overlayCustomBackgroundUrlDescription">Use an http(s) URL or a server-relative path that starts with /.</div>
+            </div>
+
+            <div class="sg-appearance-grid">
+              <div class="inputContainer">
+                <label class="inputLabel inputLabelUnfocused" for="OverlayBackgroundDimPercent" data-i18n="overlayBackgroundDimPercent">Artwork dim</label>
+                <div class="sg-range-row">
+                  <input type="range" min="0" max="95" id="OverlayBackgroundDimPercent">
+                  <span class="sg-range-value" id="OverlayBackgroundDimPercentValue">62%</span>
+                </div>
+              </div>
+
+              <div class="inputContainer">
+                <label class="inputLabel inputLabelUnfocused" for="OverlayArtworkBlurPixels" data-i18n="overlayArtworkBlurPixels">Artwork blur</label>
+                <div class="sg-range-row">
+                  <input type="range" min="0" max="40" id="OverlayArtworkBlurPixels">
+                  <span class="sg-range-value" id="OverlayArtworkBlurPixelsValue">10px</span>
+                </div>
+              </div>
+
+              <div class="inputContainer">
+                <label class="inputLabel inputLabelUnfocused" for="OverlayPanelOpacityPercent" data-i18n="overlayPanelOpacityPercent">Panel opacity</label>
+                <div class="sg-range-row">
+                  <input type="range" min="0" max="100" id="OverlayPanelOpacityPercent">
+                  <span class="sg-range-value" id="OverlayPanelOpacityPercentValue">72%</span>
+                </div>
+              </div>
+            </div>
+
+            <p class="sg-section" data-i18n="sectionOverlayColors">Colors</p>
+
+            <div class="sg-appearance-grid">
+              <div class="sg-color-field">
+                <label for="OverlayBackgroundColor" data-i18n="overlayBackgroundColor">Fallback background</label>
+                <div class="sg-color-row">
+                  <input type="color" id="OverlayBackgroundColor">
+                  <input is="emby-input" type="text" id="OverlayBackgroundColorText" aria-label="Fallback background color">
+                </div>
+              </div>
+
+              <div class="sg-color-field">
+                <label for="OverlayTextColor" data-i18n="overlayTextColor">Text</label>
+                <div class="sg-color-row">
+                  <input type="color" id="OverlayTextColor">
+                  <input is="emby-input" type="text" id="OverlayTextColorText" aria-label="Text color">
+                </div>
+              </div>
+
+              <div class="sg-color-field">
+                <label for="OverlayPrimaryButtonColor" data-i18n="overlayPrimaryButtonColor">Continue button</label>
+                <div class="sg-color-row">
+                  <input type="color" id="OverlayPrimaryButtonColor">
+                  <input is="emby-input" type="text" id="OverlayPrimaryButtonColorText" aria-label="Continue button color">
+                </div>
+              </div>
+
+              <div class="sg-color-field">
+                <label for="OverlayPrimaryButtonTextColor" data-i18n="overlayPrimaryButtonTextColor">Continue text</label>
+                <div class="sg-color-row">
+                  <input type="color" id="OverlayPrimaryButtonTextColor">
+                  <input is="emby-input" type="text" id="OverlayPrimaryButtonTextColorText" aria-label="Continue text color">
+                </div>
+              </div>
+
+              <div class="sg-color-field">
+                <label for="OverlaySecondaryButtonColor" data-i18n="overlaySecondaryButtonColor">Dismiss button</label>
+                <div class="sg-color-row">
+                  <input type="color" id="OverlaySecondaryButtonColor">
+                  <input is="emby-input" type="text" id="OverlaySecondaryButtonColorText" aria-label="Dismiss button color">
+                </div>
+              </div>
+
+              <div class="sg-color-field">
+                <label for="OverlaySecondaryButtonTextColor" data-i18n="overlaySecondaryButtonTextColor">Dismiss text</label>
+                <div class="sg-color-row">
+                  <input type="color" id="OverlaySecondaryButtonTextColor">
+                  <input is="emby-input" type="text" id="OverlaySecondaryButtonTextColorText" aria-label="Dismiss text color">
+                </div>
               </div>
             </div>
           </div>
@@ -331,10 +611,41 @@
           it: { header: "SleepGuard", message: "Stai ancora guardando?" }
         };
 
+        const appearanceDefaults = {
+          OverlayBackgroundMode: "NowPlayingArtwork",
+          OverlayArtworkPreference: "SeriesBackdrop",
+          OverlayBackgroundColor: "#05080D",
+          OverlayTextColor: "#FFFFFF",
+          OverlayPrimaryButtonColor: "#00A4DC",
+          OverlayPrimaryButtonTextColor: "#FFFFFF",
+          OverlaySecondaryButtonColor: "#2B3038",
+          OverlaySecondaryButtonTextColor: "#FFFFFF",
+          OverlayBackgroundDimPercent: 62,
+          OverlayArtworkBlurPixels: 10,
+          OverlayPanelOpacityPercent: 72,
+          OverlayCustomBackgroundUrl: ""
+        };
+
+        const colorFieldIds = [
+          "OverlayBackgroundColor",
+          "OverlayTextColor",
+          "OverlayPrimaryButtonColor",
+          "OverlayPrimaryButtonTextColor",
+          "OverlaySecondaryButtonColor",
+          "OverlaySecondaryButtonTextColor"
+        ];
+
+        const rangeFields = [
+          { id: "OverlayBackgroundDimPercent", suffix: "%" },
+          { id: "OverlayArtworkBlurPixels", suffix: "px" },
+          { id: "OverlayPanelOpacityPercent", suffix: "%" }
+        ];
+
         const translations = {
           en: {
             title: "SleepGuard",
             tabMain: "Main",
+            tabAppearance: "Appearance",
             tabAdvanced: "Advanced",
             tabTest: "Test Mode",
             sectionBasics: "Basics",
@@ -355,6 +666,30 @@
             overlaySetupDescription: "Install a JavaScript Injector plugin, add a script named SleepGuard, paste this code, enable it, save, then refresh Jellyfin Web.",
             copySnippet: "Copy script",
             copied: "Copied",
+            sectionAppearanceTheme: "Theme",
+            sectionArtworkBackground: "Artwork Background",
+            sectionOverlayColors: "Colors",
+            previewContinue: "Continue watching",
+            previewDismiss: "Stay paused",
+            overlayBackgroundMode: "Background",
+            backgroundNowPlaying: "Now playing artwork",
+            backgroundSolid: "Solid color",
+            backgroundCustomUrl: "Custom image URL",
+            overlayArtworkPreference: "Artwork preference",
+            artworkSeriesBackdrop: "Series backdrop first",
+            artworkItemBackdrop: "Item backdrop first",
+            artworkPrimaryImage: "Primary image first",
+            overlayCustomBackgroundUrl: "Custom background URL",
+            overlayCustomBackgroundUrlDescription: "Use an http(s) URL or a server-relative path that starts with /.",
+            overlayBackgroundDimPercent: "Artwork dim",
+            overlayArtworkBlurPixels: "Artwork blur",
+            overlayPanelOpacityPercent: "Panel opacity",
+            overlayBackgroundColor: "Fallback background",
+            overlayTextColor: "Text",
+            overlayPrimaryButtonColor: "Continue button",
+            overlayPrimaryButtonTextColor: "Continue text",
+            overlaySecondaryButtonColor: "Dismiss button",
+            overlaySecondaryButtonTextColor: "Dismiss text",
             sectionLanguage: "Language and Prompt",
             languageLabel: "Language",
             languageEnglish: "English",
@@ -390,6 +725,7 @@
           it: {
             title: "SleepGuard",
             tabMain: "Principale",
+            tabAppearance: "Aspetto",
             tabAdvanced: "Avanzate",
             tabTest: "Modalita test",
             sectionBasics: "Base",
@@ -410,6 +746,30 @@
             overlaySetupDescription: "Installa un plugin JavaScript Injector, aggiungi uno script chiamato SleepGuard, incolla questo codice, abilitalo, salva e aggiorna Jellyfin Web.",
             copySnippet: "Copia script",
             copied: "Copiato",
+            sectionAppearanceTheme: "Tema",
+            sectionArtworkBackground: "Sfondo artwork",
+            sectionOverlayColors: "Colori",
+            previewContinue: "Continua la riproduzione",
+            previewDismiss: "Resta in pausa",
+            overlayBackgroundMode: "Sfondo",
+            backgroundNowPlaying: "Artwork in riproduzione",
+            backgroundSolid: "Colore pieno",
+            backgroundCustomUrl: "URL immagine personalizzata",
+            overlayArtworkPreference: "Preferenza artwork",
+            artworkSeriesBackdrop: "Prima sfondo serie",
+            artworkItemBackdrop: "Prima sfondo elemento",
+            artworkPrimaryImage: "Prima immagine primaria",
+            overlayCustomBackgroundUrl: "URL sfondo personalizzato",
+            overlayCustomBackgroundUrlDescription: "Usa un URL http(s) o un percorso relativo al server che inizia con /.",
+            overlayBackgroundDimPercent: "Oscuramento artwork",
+            overlayArtworkBlurPixels: "Sfocatura artwork",
+            overlayPanelOpacityPercent: "Opacita pannello",
+            overlayBackgroundColor: "Sfondo fallback",
+            overlayTextColor: "Testo",
+            overlayPrimaryButtonColor: "Pulsante continua",
+            overlayPrimaryButtonTextColor: "Testo continua",
+            overlaySecondaryButtonColor: "Pulsante pausa",
+            overlaySecondaryButtonTextColor: "Testo pausa",
             sectionLanguage: "Lingua e messaggio",
             languageLabel: "Lingua",
             languageEnglish: "English",
@@ -471,6 +831,126 @@
           return !v || Object.values(promptDefaults).some(d => d[key] === v);
         };
 
+        const isHexColor = value =>
+          /^#[0-9a-fA-F]{6}$/.test(String(value || ""));
+
+        const normalizeHexColor = (value, fallback) =>
+          isHexColor(value) ? String(value).toUpperCase() : fallback;
+
+        const clampNumber = (value, fallback, min, max) => {
+          const n = Number(value);
+          return Number.isFinite(n) ? Math.min(max, Math.max(min, Math.round(n))) : fallback;
+        };
+
+        const normalizeCustomUrl = value => {
+          const url = String(value || "").trim();
+          if (!url) return "";
+          if (url.startsWith("/") && !url.startsWith("//") && !url.includes("\\")) return url;
+          try {
+            const parsed = new URL(url);
+            return parsed.protocol === "http:" || parsed.protocol === "https:" ? parsed.href : "";
+          } catch {
+            return "";
+          }
+        };
+
+        const setColorField = (id, value) => {
+          const color = normalizeHexColor(value, appearanceDefaults[id]);
+          page.querySelector(`#${id}`).value = color;
+          page.querySelector(`#${id}Text`).value = color;
+        };
+
+        const getColorField = id => {
+          const text = page.querySelector(`#${id}Text`).value;
+          return normalizeHexColor(text, appearanceDefaults[id]);
+        };
+
+        const syncRangeValue = id => {
+          const field = page.querySelector(`#${id}`);
+          const meta = rangeFields.find(x => x.id === id);
+          page.querySelector(`#${id}Value`).textContent = `${field.value}${meta ? meta.suffix : ""}`;
+        };
+
+        const cssUrl = value =>
+          String(value || "").replace(/\\/g, "\\\\").replace(/"/g, "%22");
+
+        const updateAppearancePreview = () => {
+          const preview = page.querySelector("#OverlayPreview");
+          const previewBg = page.querySelector("#OverlayPreviewBg");
+          const bgColor = getColorField("OverlayBackgroundColor");
+          const textColor = getColorField("OverlayTextColor");
+          const primaryColor = getColorField("OverlayPrimaryButtonColor");
+          const primaryTextColor = getColorField("OverlayPrimaryButtonTextColor");
+          const secondaryColor = getColorField("OverlaySecondaryButtonColor");
+          const secondaryTextColor = getColorField("OverlaySecondaryButtonTextColor");
+          const dim = clampNumber(page.querySelector("#OverlayBackgroundDimPercent").value, appearanceDefaults.OverlayBackgroundDimPercent, 0, 95);
+          const blur = clampNumber(page.querySelector("#OverlayArtworkBlurPixels").value, appearanceDefaults.OverlayArtworkBlurPixels, 0, 40);
+          const panel = clampNumber(page.querySelector("#OverlayPanelOpacityPercent").value, appearanceDefaults.OverlayPanelOpacityPercent, 0, 100);
+          const mode = page.querySelector("#OverlayBackgroundMode").value;
+          const customUrl = normalizeCustomUrl(page.querySelector("#OverlayCustomBackgroundUrl").value);
+
+          preview.style.setProperty("--sg-preview-bg", bgColor);
+          preview.style.setProperty("--sg-preview-text", textColor);
+          preview.style.setProperty("--sg-preview-primary", primaryColor);
+          preview.style.setProperty("--sg-preview-primary-text", primaryTextColor);
+          preview.style.setProperty("--sg-preview-secondary", secondaryColor);
+          preview.style.setProperty("--sg-preview-secondary-text", secondaryTextColor);
+          preview.style.setProperty("--sg-preview-dim", String(dim / 100));
+          preview.style.setProperty("--sg-preview-blur", `${blur}px`);
+          preview.style.setProperty("--sg-preview-panel", String(panel / 100));
+
+          syncRangeValue("OverlayBackgroundDimPercent");
+          syncRangeValue("OverlayArtworkBlurPixels");
+          syncRangeValue("OverlayPanelOpacityPercent");
+
+          const imageUrl =
+            mode === "CustomUrl" && customUrl
+              ? customUrl
+              : mode === "NowPlayingArtwork"
+                ? "configurationpage?name=sleepguardlogo.png"
+                : "";
+          preview.classList.toggle("has-image", !!imageUrl);
+          previewBg.style.backgroundImage = imageUrl ? `url("${cssUrl(imageUrl)}")` : "";
+          page.querySelector("#OverlayPreviewTitle").textContent = page.querySelector("#PromptHeader").value || promptDefaults[currentLang()].header;
+          page.querySelector("#OverlayPreviewMessage").textContent = page.querySelector("#PromptMessage").value || promptDefaults[currentLang()].message;
+        };
+
+        const bindAppearanceControls = () => {
+          colorFieldIds.forEach(id => {
+            const color = page.querySelector(`#${id}`);
+            const text = page.querySelector(`#${id}Text`);
+            color.addEventListener("input", () => {
+              text.value = normalizeHexColor(color.value, appearanceDefaults[id]);
+              updateAppearancePreview();
+            });
+            text.addEventListener("input", () => {
+              if (isHexColor(text.value)) color.value = text.value;
+              updateAppearancePreview();
+            });
+            text.addEventListener("blur", () => {
+              setColorField(id, text.value);
+              updateAppearancePreview();
+            });
+          });
+
+          rangeFields.forEach(({ id }) => {
+            const field = page.querySelector(`#${id}`);
+            field.addEventListener("input", updateAppearancePreview);
+          });
+
+          [
+            "#OverlayBackgroundMode",
+            "#OverlayArtworkPreference",
+            "#OverlayCustomBackgroundUrl",
+            "#PromptHeader",
+            "#PromptMessage"
+          ].forEach(selector => {
+            const field = page.querySelector(selector);
+            field.addEventListener("input", updateAppearancePreview);
+            field.addEventListener("change", updateAppearancePreview);
+          });
+        };
+
         const toTimeParts = value => {
           if (!value) return ["00", "00", "00"];
           const m = String(value).match(/^(?:(\d+)\.)?(\d{1,2}):(\d{2})(?::(\d{2})(?:\.\d+)?)?$/);
@@ -505,6 +985,8 @@
         page.querySelectorAll(".sg-tab-btn").forEach(btn =>
           btn.addEventListener("click", () => showTab(btn.dataset.tab)));
 
+        bindAppearanceControls();
+
         page.querySelector("#InjectorSnippet").value = injectorSnippet;
 
         page.querySelector("#CopyInjectorSnippet").addEventListener("click", () => {
@@ -524,6 +1006,7 @@
           if (isDefaultPromptValue(header.value, "header")) header.value = defaults.header;
           if (isDefaultPromptValue(message.value, "message")) message.value = defaults.message;
           applyLanguage(lang);
+          updateAppearancePreview();
         });
 
         const populateForm = config => {
@@ -555,8 +1038,16 @@
           page.querySelector("#MaxContinuousSeconds").value = config.MaxContinuousSeconds || 0;
           page.querySelector("#DryRun").checked = !!config.DryRun;
           page.querySelector("#LogRuleChecks").checked = !!config.LogRuleChecks;
+          page.querySelector("#OverlayBackgroundMode").value = config.OverlayBackgroundMode || appearanceDefaults.OverlayBackgroundMode;
+          page.querySelector("#OverlayArtworkPreference").value = config.OverlayArtworkPreference || appearanceDefaults.OverlayArtworkPreference;
+          colorFieldIds.forEach(id => setColorField(id, config[id]));
+          page.querySelector("#OverlayBackgroundDimPercent").value = clampNumber(config.OverlayBackgroundDimPercent, appearanceDefaults.OverlayBackgroundDimPercent, 0, 95);
+          page.querySelector("#OverlayArtworkBlurPixels").value = clampNumber(config.OverlayArtworkBlurPixels, appearanceDefaults.OverlayArtworkBlurPixels, 0, 40);
+          page.querySelector("#OverlayPanelOpacityPercent").value = clampNumber(config.OverlayPanelOpacityPercent, appearanceDefaults.OverlayPanelOpacityPercent, 0, 100);
+          page.querySelector("#OverlayCustomBackgroundUrl").value = config.OverlayCustomBackgroundUrl || "";
 
           applyLanguage(lang);
+          updateAppearancePreview();
         };
 
         page.addEventListener("pageshow", () => {
@@ -589,6 +1080,18 @@
               config.PromptGraceSeconds = Number(page.querySelector("#PromptGraceSeconds").value);
               config.PromptHeader = page.querySelector("#PromptHeader").value;
               config.PromptMessage = page.querySelector("#PromptMessage").value;
+              config.OverlayBackgroundMode = page.querySelector("#OverlayBackgroundMode").value;
+              config.OverlayArtworkPreference = page.querySelector("#OverlayArtworkPreference").value;
+              config.OverlayBackgroundColor = getColorField("OverlayBackgroundColor");
+              config.OverlayTextColor = getColorField("OverlayTextColor");
+              config.OverlayPrimaryButtonColor = getColorField("OverlayPrimaryButtonColor");
+              config.OverlayPrimaryButtonTextColor = getColorField("OverlayPrimaryButtonTextColor");
+              config.OverlaySecondaryButtonColor = getColorField("OverlaySecondaryButtonColor");
+              config.OverlaySecondaryButtonTextColor = getColorField("OverlaySecondaryButtonTextColor");
+              config.OverlayBackgroundDimPercent = clampNumber(page.querySelector("#OverlayBackgroundDimPercent").value, appearanceDefaults.OverlayBackgroundDimPercent, 0, 95);
+              config.OverlayArtworkBlurPixels = clampNumber(page.querySelector("#OverlayArtworkBlurPixels").value, appearanceDefaults.OverlayArtworkBlurPixels, 0, 40);
+              config.OverlayPanelOpacityPercent = clampNumber(page.querySelector("#OverlayPanelOpacityPercent").value, appearanceDefaults.OverlayPanelOpacityPercent, 0, 100);
+              config.OverlayCustomBackgroundUrl = normalizeCustomUrl(page.querySelector("#OverlayCustomBackgroundUrl").value);
               config.OnlyWithinTimeWindow = page.querySelector("#OnlyWithinTimeWindow").checked;
               config.TimeWindowStart = toTimeSpan(page.querySelector("#TimeWindowStart").value);
               config.TimeWindowEnd = toTimeSpan(page.querySelector("#TimeWindowEnd").value);

@@ -60,6 +60,42 @@ public sealed class PluginConfiguration : BasePluginConfiguration
     /// <summary>Delay in seconds after the prompt before pause or stop is sent. 0 acts immediately.</summary>
     public int PromptGraceSeconds { get; set; } = 30;
 
+    /// <summary>Fullscreen overlay background source.</summary>
+    public SleepGuardOverlayBackgroundMode OverlayBackgroundMode { get; set; } = SleepGuardOverlayBackgroundMode.NowPlayingArtwork;
+
+    /// <summary>Preferred Jellyfin image type when artwork backgrounds are enabled.</summary>
+    public SleepGuardOverlayArtworkPreference OverlayArtworkPreference { get; set; } = SleepGuardOverlayArtworkPreference.SeriesBackdrop;
+
+    /// <summary>Solid fallback background color for the fullscreen overlay.</summary>
+    public string OverlayBackgroundColor { get; set; } = "#05080D";
+
+    /// <summary>Primary overlay text color.</summary>
+    public string OverlayTextColor { get; set; } = "#FFFFFF";
+
+    /// <summary>Continue button background color.</summary>
+    public string OverlayPrimaryButtonColor { get; set; } = "#00A4DC";
+
+    /// <summary>Continue button text color.</summary>
+    public string OverlayPrimaryButtonTextColor { get; set; } = "#FFFFFF";
+
+    /// <summary>Dismiss button background color.</summary>
+    public string OverlaySecondaryButtonColor { get; set; } = "#2B3038";
+
+    /// <summary>Dismiss button text color.</summary>
+    public string OverlaySecondaryButtonTextColor { get; set; } = "#FFFFFF";
+
+    /// <summary>Dark overlay over the background image, from 0 to 95 percent.</summary>
+    public int OverlayBackgroundDimPercent { get; set; } = 62;
+
+    /// <summary>Background artwork blur radius in pixels, from 0 to 40.</summary>
+    public int OverlayArtworkBlurPixels { get; set; } = 10;
+
+    /// <summary>Prompt panel opacity, from 0 to 100 percent.</summary>
+    public int OverlayPanelOpacityPercent { get; set; } = 72;
+
+    /// <summary>Optional http(s) or server-relative image URL used when custom background mode is selected.</summary>
+    public string OverlayCustomBackgroundUrl { get; set; } = string.Empty;
+
     /// <summary>
     /// Testing override: continuous-time threshold in seconds.
     /// When greater than 0, overrides <see cref="MaxContinuousMinutes"/>.
@@ -94,4 +130,30 @@ public enum SleepGuardUserMode
 
     /// <summary>Evaluate every user except those in <see cref="PluginConfiguration.UserIds"/>.</summary>
     Blacklist
+}
+
+/// <summary>Fullscreen overlay background source.</summary>
+public enum SleepGuardOverlayBackgroundMode
+{
+    /// <summary>Use Jellyfin metadata artwork for the currently playing item when available.</summary>
+    NowPlayingArtwork,
+
+    /// <summary>Use only the configured solid background color.</summary>
+    Solid,
+
+    /// <summary>Use the configured custom image URL.</summary>
+    CustomUrl
+}
+
+/// <summary>Preferred Jellyfin image type for artwork backgrounds.</summary>
+public enum SleepGuardOverlayArtworkPreference
+{
+    /// <summary>Prefer the parent series backdrop, then item backdrop, then primary image.</summary>
+    SeriesBackdrop,
+
+    /// <summary>Prefer the item backdrop, then series backdrop, then primary image.</summary>
+    ItemBackdrop,
+
+    /// <summary>Prefer the primary item image, then item backdrop, then series backdrop.</summary>
+    PrimaryImage
 }
