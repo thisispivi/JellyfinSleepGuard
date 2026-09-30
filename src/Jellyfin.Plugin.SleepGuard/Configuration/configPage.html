@@ -2,279 +2,279 @@
 <html>
 <head>
   <title>SleepGuard</title>
-  <style>
-    .sg-header {
-      display: flex;
-      align-items: center;
-      gap: 1em;
-      margin-bottom: 1.25em;
-    }
-
-    .sg-logo {
-      width: 5em;
-      max-width: 24vw;
-      height: auto;
-      flex: 0 0 auto;
-    }
-
-    .sg-title { margin: 0; }
-
-    .sg-tabs {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0;
-      border-bottom: 2px solid rgba(255,255,255,0.12);
-      margin-bottom: 1.4em;
-    }
-
-    .sg-tab-btn {
-      background: none;
-      border: 0;
-      border-bottom: 3px solid transparent;
-      color: inherit;
-      cursor: pointer;
-      font-size: 0.9em;
-      font-weight: 600;
-      margin-bottom: -2px;
-      opacity: 0.68;
-      padding: 0.7em 1em;
-    }
-
-    .sg-tab-btn.active {
-      border-bottom-color: #00a4dc;
-      opacity: 1;
-    }
-
-    .sg-tab-panel { display: none; }
-    .sg-tab-panel.active { display: block; }
-
-    .sg-section {
-      font-size: 0.75em;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      margin: 1.6em 0 0.65em;
-      opacity: 0.65;
-      text-transform: uppercase;
-    }
-
-    .sg-section:first-child { margin-top: 0; }
-
-    .sg-note {
-      line-height: 1.5;
-      margin: 0.4em 0 1em;
-      opacity: 0.78;
-    }
-
-    .sg-snippet {
-      background: rgba(0,0,0,0.26);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 6px;
-      margin: 0.8em 0;
-      padding: 0.85em;
-    }
-
-    .sg-snippet textarea {
-      background: transparent;
-      border: 0;
-      color: inherit;
-      display: block;
-      font-family: monospace;
-      font-size: 13px;
-      min-height: 170px;
-      resize: vertical;
-      width: 100%;
-      white-space: pre;
-    }
-
-    .sg-copy-row {
-      display: flex;
-      justify-content: flex-end;
-      margin-top: 0.6em;
-    }
-
-    .sg-copy-btn {
-      background: rgba(255,255,255,0.12);
-      border: 0;
-      border-radius: 4px;
-      color: inherit;
-      cursor: pointer;
-      font-size: 13px;
-      padding: 0.45em 0.8em;
-    }
-
-    .sg-test-panel {
-      background: rgba(0, 164, 220, 0.1);
-      border: 1px solid rgba(0, 164, 220, 0.28);
-      border-radius: 6px;
-      margin-bottom: 1.2em;
-      padding: 1em;
-    }
-
-    .sg-appearance-grid {
-      display: grid;
-      gap: 1em;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    }
-
-    .sg-color-field {
-      background: rgba(255,255,255,0.045);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 6px;
-      padding: 0.85em;
-    }
-
-    .sg-color-field label {
-      display: block;
-      font-size: 0.88em;
-      font-weight: 600;
-      margin-bottom: 0.65em;
-      opacity: 0.86;
-    }
-
-    .sg-color-row {
-      align-items: center;
-      display: grid;
-      gap: 0.7em;
-      grid-template-columns: 3.2em 1fr;
-    }
-
-    .sg-color-row input[type="color"] {
-      background: transparent;
-      border: 0;
-      cursor: pointer;
-      height: 2.6em;
-      padding: 0;
-      width: 3.2em;
-    }
-
-    .sg-range-row {
-      align-items: center;
-      display: grid;
-      gap: 0.85em;
-      grid-template-columns: 1fr 4.5em;
-    }
-
-    .sg-range-row input[type="range"] {
-      width: 100%;
-    }
-
-    .sg-range-value {
-      font-variant-numeric: tabular-nums;
-      opacity: 0.78;
-      text-align: right;
-    }
-
-    .sg-preview {
-      --sg-preview-bg: #05080d;
-      --sg-preview-text: #ffffff;
-      --sg-preview-primary: #00a4dc;
-      --sg-preview-primary-text: #ffffff;
-      --sg-preview-secondary: #2b3038;
-      --sg-preview-secondary-text: #ffffff;
-      --sg-preview-dim: 0.62;
-      --sg-preview-blur: 10px;
-      --sg-preview-panel: 0.72;
-      background: var(--sg-preview-bg);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 8px;
-      color: var(--sg-preview-text);
-      display: grid;
-      min-height: 270px;
-      overflow: hidden;
-      place-items: center;
-      position: relative;
-    }
-
-    .sg-preview-bg,
-    .sg-preview-dim {
-      inset: 0;
-      position: absolute;
-    }
-
-    .sg-preview-bg {
-      background-position: center;
-      background-repeat: no-repeat;
-      background-size: cover;
-      filter: blur(var(--sg-preview-blur));
-      inset: -24px;
-      opacity: 0;
-      transform: scale(1.04);
-    }
-
-    .sg-preview.has-image .sg-preview-bg {
-      opacity: 1;
-    }
-
-    .sg-preview-dim {
-      background: rgba(0,0,0,var(--sg-preview-dim));
-      opacity: 0;
-    }
-
-    .sg-preview.has-image .sg-preview-dim {
-      opacity: 1;
-    }
-
-    .sg-preview-panel {
-      background: rgba(10,14,22,var(--sg-preview-panel));
-      border: 1px solid rgba(255,255,255,0.16);
-      border-radius: 8px;
-      box-shadow: 0 18px 54px rgba(0,0,0,0.38);
-      margin: 1em;
-      max-width: 30em;
-      padding: 1.5em;
-      position: relative;
-      text-align: center;
-      width: min(82%, 30em);
-    }
-
-    .sg-preview-title {
-      font-size: 0.95em;
-      margin-bottom: 0.8em;
-      opacity: 0.76;
-    }
-
-    .sg-preview-message {
-      font-size: clamp(1.65em, 4vw, 2.7em);
-      font-weight: 700;
-      line-height: 1.08;
-      margin-bottom: 0.9em;
-    }
-
-    .sg-preview-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.7em;
-      justify-content: center;
-    }
-
-    .sg-preview-actions button {
-      border: 0;
-      border-radius: 6px;
-      cursor: default;
-      font: inherit;
-      font-weight: 600;
-      padding: 0.75em 1em;
-    }
-
-    .sg-preview-primary {
-      background: var(--sg-preview-primary);
-      color: var(--sg-preview-primary-text);
-    }
-
-    .sg-preview-secondary {
-      background: var(--sg-preview-secondary);
-      color: var(--sg-preview-secondary-text);
-    }
-  </style>
 </head>
 <body>
   <div id="SleepGuardConfigPage" data-role="page" class="page type-interior pluginConfigurationPage"
        data-require="emby-input,emby-button,emby-checkbox,emby-select">
+    <!-- Jellyfin Web keeps only this data-role="page" element and drops <head>, so the styles must live here. -->
+    <style>
+      .sg-header {
+        display: flex;
+        align-items: center;
+        gap: 1em;
+        margin-bottom: 1.25em;
+      }
+
+      .sg-logo {
+        width: 4.5em;
+        height: auto;
+        flex: 0 0 auto;
+      }
+
+      .sg-title { margin: 0; }
+
+      .sg-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0;
+        border-bottom: 2px solid rgba(255,255,255,0.12);
+        margin-bottom: 1.4em;
+      }
+
+      .sg-tab-btn {
+        background: none;
+        border: 0;
+        border-bottom: 3px solid transparent;
+        color: inherit;
+        cursor: pointer;
+        font-size: 0.9em;
+        font-weight: 600;
+        margin-bottom: -2px;
+        opacity: 0.68;
+        padding: 0.7em 1em;
+      }
+
+      .sg-tab-btn.active {
+        border-bottom-color: #00a4dc;
+        opacity: 1;
+      }
+
+      .sg-tab-panel { display: none; }
+      .sg-tab-panel.active { display: block; }
+
+      .sg-section {
+        font-size: 0.75em;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        margin: 1.6em 0 0.65em;
+        opacity: 0.65;
+        text-transform: uppercase;
+      }
+
+      .sg-section:first-child { margin-top: 0; }
+
+      .sg-note {
+        line-height: 1.5;
+        margin: 0.4em 0 1em;
+        opacity: 0.78;
+      }
+
+      .sg-snippet {
+        background: rgba(0,0,0,0.26);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 6px;
+        margin: 0.8em 0;
+        padding: 0.85em;
+      }
+
+      .sg-snippet textarea {
+        background: transparent;
+        border: 0;
+        color: inherit;
+        display: block;
+        font-family: monospace;
+        font-size: 13px;
+        min-height: 170px;
+        resize: vertical;
+        width: 100%;
+        white-space: pre;
+      }
+
+      .sg-copy-row {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 0.6em;
+      }
+
+      .sg-copy-btn {
+        background: rgba(255,255,255,0.12);
+        border: 0;
+        border-radius: 4px;
+        color: inherit;
+        cursor: pointer;
+        font-size: 13px;
+        padding: 0.45em 0.8em;
+      }
+
+      .sg-test-panel {
+        background: rgba(0, 164, 220, 0.1);
+        border: 1px solid rgba(0, 164, 220, 0.28);
+        border-radius: 6px;
+        margin-bottom: 1.2em;
+        padding: 1em;
+      }
+
+      .sg-appearance-grid {
+        display: grid;
+        gap: 1em;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+
+      .sg-color-field {
+        background: rgba(255,255,255,0.045);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 6px;
+        padding: 0.85em;
+      }
+
+      .sg-color-field label {
+        display: block;
+        font-size: 0.88em;
+        font-weight: 600;
+        margin-bottom: 0.65em;
+        opacity: 0.86;
+      }
+
+      .sg-color-row {
+        align-items: center;
+        display: grid;
+        gap: 0.7em;
+        grid-template-columns: 3.2em 1fr;
+      }
+
+      .sg-color-row input[type="color"] {
+        background: transparent;
+        border: 0;
+        cursor: pointer;
+        height: 2.6em;
+        padding: 0;
+        width: 3.2em;
+      }
+
+      .sg-range-row {
+        align-items: center;
+        display: grid;
+        gap: 0.85em;
+        grid-template-columns: 1fr 4.5em;
+      }
+
+      .sg-range-row input[type="range"] {
+        width: 100%;
+      }
+
+      .sg-range-value {
+        font-variant-numeric: tabular-nums;
+        opacity: 0.78;
+        text-align: right;
+      }
+
+      .sg-preview {
+        --sg-preview-bg: #05080d;
+        --sg-preview-text: #ffffff;
+        --sg-preview-primary: #00a4dc;
+        --sg-preview-primary-text: #ffffff;
+        --sg-preview-secondary: #2b3038;
+        --sg-preview-secondary-text: #ffffff;
+        --sg-preview-dim: 0.62;
+        --sg-preview-blur: 10px;
+        --sg-preview-panel: 0.72;
+        background: var(--sg-preview-bg);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 8px;
+        color: var(--sg-preview-text);
+        display: grid;
+        min-height: 270px;
+        overflow: hidden;
+        place-items: center;
+        position: relative;
+      }
+
+      .sg-preview-bg,
+      .sg-preview-dim {
+        inset: 0;
+        position: absolute;
+      }
+
+      .sg-preview-bg {
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        filter: blur(var(--sg-preview-blur));
+        inset: -24px;
+        opacity: 0;
+        transform: scale(1.04);
+      }
+
+      .sg-preview.has-image .sg-preview-bg {
+        opacity: 1;
+      }
+
+      .sg-preview-dim {
+        background: rgba(0,0,0,var(--sg-preview-dim));
+        opacity: 0;
+      }
+
+      .sg-preview.has-image .sg-preview-dim {
+        opacity: 1;
+      }
+
+      .sg-preview-panel {
+        background: rgba(10,14,22,var(--sg-preview-panel));
+        border: 1px solid rgba(255,255,255,0.16);
+        border-radius: 8px;
+        box-shadow: 0 18px 54px rgba(0,0,0,0.38);
+        margin: 1em;
+        max-width: 30em;
+        padding: 1.5em;
+        position: relative;
+        text-align: center;
+        width: min(82%, 30em);
+      }
+
+      .sg-preview-title {
+        font-size: 0.95em;
+        margin-bottom: 0.8em;
+        opacity: 0.76;
+      }
+
+      .sg-preview-message {
+        font-size: clamp(1.65em, 4vw, 2.7em);
+        font-weight: 700;
+        line-height: 1.08;
+        margin-bottom: 0.9em;
+      }
+
+      .sg-preview-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.7em;
+        justify-content: center;
+      }
+
+      .sg-preview-actions button {
+        border: 0;
+        border-radius: 6px;
+        cursor: default;
+        font: inherit;
+        font-weight: 600;
+        padding: 0.75em 1em;
+      }
+
+      .sg-preview-primary {
+        background: var(--sg-preview-primary);
+        color: var(--sg-preview-primary-text);
+      }
+
+      .sg-preview-secondary {
+        background: var(--sg-preview-secondary);
+        color: var(--sg-preview-secondary-text);
+      }
+    </style>
     <div data-role="content">
       <div class="content-primary">
 
         <div class="sg-header">
-          <img class="sg-logo" src="configurationpage?name=sleepguardlogo.png" alt="SleepGuard logo">
+          <img class="sg-logo" src="configurationpage?name=sleepguardlogo.png" alt="SleepGuard logo" width="72">
           <h2 class="sectionTitle sg-title" data-i18n="title">SleepGuard</h2>
         </div>
 
@@ -573,6 +573,8 @@
     </div>
 
     <script>
+      // Jellyfin Web runs its translation pass over plugin pages and rewrites every
+      // dollar-brace placeholder, so this script must not use template literals.
       (() => {
         const pluginIds = [
           "7bb5959b-5a11-45da-b9db-52eed4456090",
@@ -592,7 +594,7 @@
           "",
           "    const webIndex = window.location.pathname.toLowerCase().indexOf(\"/web\");",
           "    const basePath = webIndex >= 0 ? window.location.pathname.slice(0, webIndex) : \"\";",
-          "    return `${window.location.origin}${basePath}/${endpoint}`;",
+          "    return window.location.origin + basePath + \"/\" + endpoint;",
           "  };",
           "",
           "  if (document.querySelector('script[data-sleepguard-overlay=\"true\"]')) return;",
@@ -856,19 +858,19 @@
 
         const setColorField = (id, value) => {
           const color = normalizeHexColor(value, appearanceDefaults[id]);
-          page.querySelector(`#${id}`).value = color;
-          page.querySelector(`#${id}Text`).value = color;
+          page.querySelector("#" + id).value = color;
+          page.querySelector("#" + id + "Text").value = color;
         };
 
         const getColorField = id => {
-          const text = page.querySelector(`#${id}Text`).value;
+          const text = page.querySelector("#" + id + "Text").value;
           return normalizeHexColor(text, appearanceDefaults[id]);
         };
 
         const syncRangeValue = id => {
-          const field = page.querySelector(`#${id}`);
+          const field = page.querySelector("#" + id);
           const meta = rangeFields.find(x => x.id === id);
-          page.querySelector(`#${id}Value`).textContent = `${field.value}${meta ? meta.suffix : ""}`;
+          page.querySelector("#" + id + "Value").textContent = field.value + (meta ? meta.suffix : "");
         };
 
         const cssUrl = value =>
@@ -896,7 +898,7 @@
           preview.style.setProperty("--sg-preview-secondary", secondaryColor);
           preview.style.setProperty("--sg-preview-secondary-text", secondaryTextColor);
           preview.style.setProperty("--sg-preview-dim", String(dim / 100));
-          preview.style.setProperty("--sg-preview-blur", `${blur}px`);
+          preview.style.setProperty("--sg-preview-blur", blur + "px");
           preview.style.setProperty("--sg-preview-panel", String(panel / 100));
 
           syncRangeValue("OverlayBackgroundDimPercent");
@@ -910,15 +912,15 @@
                 ? "configurationpage?name=sleepguardlogo.png"
                 : "";
           preview.classList.toggle("has-image", !!imageUrl);
-          previewBg.style.backgroundImage = imageUrl ? `url("${cssUrl(imageUrl)}")` : "";
+          previewBg.style.backgroundImage = imageUrl ? 'url("' + cssUrl(imageUrl) + '")' : "";
           page.querySelector("#OverlayPreviewTitle").textContent = page.querySelector("#PromptHeader").value || promptDefaults[currentLang()].header;
           page.querySelector("#OverlayPreviewMessage").textContent = page.querySelector("#PromptMessage").value || promptDefaults[currentLang()].message;
         };
 
         const bindAppearanceControls = () => {
           colorFieldIds.forEach(id => {
-            const color = page.querySelector(`#${id}`);
-            const text = page.querySelector(`#${id}Text`);
+            const color = page.querySelector("#" + id);
+            const text = page.querySelector("#" + id + "Text");
             color.addEventListener("input", () => {
               text.value = normalizeHexColor(color.value, appearanceDefaults[id]);
               updateAppearancePreview();
@@ -934,7 +936,7 @@
           });
 
           rangeFields.forEach(({ id }) => {
-            const field = page.querySelector(`#${id}`);
+            const field = page.querySelector("#" + id);
             field.addEventListener("input", updateAppearancePreview);
           });
 
@@ -961,12 +963,12 @@
 
         const toTimeInput = value => {
           const p = toTimeParts(value);
-          return `${p[0]}:${p[1]}`;
+          return p[0] + ":" + p[1];
         };
 
         const toTimeSpan = value => {
           const p = toTimeParts(value);
-          return `${p[0]}:${p[1]}:${p[2]}.0000000`;
+          return p[0] + ":" + p[1] + ":" + p[2] + ".0000000";
         };
 
         const getConfiguration = () =>
@@ -979,7 +981,7 @@
           page.querySelectorAll(".sg-tab-btn").forEach(btn =>
             btn.classList.toggle("active", btn.dataset.tab === name));
           page.querySelectorAll(".sg-tab-panel").forEach(panel =>
-            panel.classList.toggle("active", panel.id === `tab-${name}`));
+            panel.classList.toggle("active", panel.id === "tab-" + name));
         };
 
         page.querySelectorAll(".sg-tab-btn").forEach(btn =>
