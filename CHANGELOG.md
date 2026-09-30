@@ -5,6 +5,14 @@ All notable changes to SleepGuard are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning follows Jellyfin plugin conventions: `MAJOR.MINOR.PATCH.BUILD`.
 
+## [Unreleased]
+
+### Removed
+- `scripts/Build-PluginRepository.ps1`: releases are cut by pushing a `vX.Y.Z.B` tag. The script rebuilt `manifest.json` with a single version, which dropped older entries and duplicated the one written by the release workflow.
+- Write-only `PlaybackTracker.StartedAtUtc` and `PlaybackTracker.LastUserActionUtc`.
+- Overlay `pauseWhenShown` setting, which was always `true`.
+- Settings page fallback to a plugin ID that SleepGuard no longer uses.
+
 ## [0.2.0.0] — 2026-09-30
 
 ### Changed
@@ -18,7 +26,7 @@ Versioning follows Jellyfin plugin conventions: `MAJOR.MINOR.PATCH.BUILD`.
 - Settings page did not load or save on Jellyfin 12: Jellyfin Web rewrites `${...}` placeholders in plugin pages, which corrupted the script's template literals and the copyable loader snippet.
 - `PluginConfigurationValidator` was registered but never invoked; it now runs at startup.
 
-## [Unreleased]
+## [0.1.0.12 – 0.1.0.22]
 
 ### Added
 - Simplified settings page with **Main**, **Advanced**, and **Test Mode** sections.

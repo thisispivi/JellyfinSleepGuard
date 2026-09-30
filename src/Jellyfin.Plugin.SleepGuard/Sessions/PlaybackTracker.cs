@@ -39,9 +39,6 @@ public sealed class PlaybackTracker
     /// <summary>Gets the series of the current item when it is an episode.</summary>
     public Guid? SeriesId { get; private set; }
 
-    /// <summary>Gets when the current counting period started (last counter reset).</summary>
-    public DateTimeOffset StartedAtUtc { get; private set; }
-
     /// <summary>
     /// Gets the total wall-clock time the session has been actively playing since the last counter reset.
     /// Paused periods are excluded.
@@ -56,9 +53,6 @@ public sealed class PlaybackTracker
 
     /// <summary>Gets the playback position of the last event, used for seek detection.</summary>
     public long? LastPositionTicks { get; private set; }
-
-    /// <summary>Gets when the user last interacted (seek, pause, resume, switch).</summary>
-    public DateTimeOffset? LastUserActionUtc { get; private set; }
 
     /// <summary>Gets when playback was paused, or <c>null</c> while playing.</summary>
     public DateTimeOffset? LastPausedAtUtc { get; private set; }
@@ -113,7 +107,6 @@ public sealed class PlaybackTracker
                 ApplyProgress(playbackEvent, transition, now);
                 break;
             default:
-                LastUserActionUtc = now;
                 ApplyNewChain(playbackEvent, now);
                 break;
         }
@@ -128,8 +121,7 @@ public sealed class PlaybackTracker
         LastAccessedUtc = now;
         if (transition is PlaybackTransition.Seek or PlaybackTransition.ManualPause or PlaybackTransition.ManualResume or PlaybackTransition.ManualSwitch)
         {
-            LastUserActionUtc = now;
-            ResetCounters(now);
+            ResetCounters();
         }
         else
         {
@@ -189,12 +181,10 @@ public sealed class PlaybackTracker
     private void ApplyNewChain(PlaybackEvent playbackEvent, DateTimeOffset now)
     {
         UpdateIdentity(playbackEvent);
-        StartedAtUtc = now;
         ContinuousElapsed = TimeSpan.Zero;
         EpisodesInChain = playbackEvent.ItemKind == BaseItemKind.Episode ? 1 : 0;
         LastTickUtc = now;
         LastPositionTicks = playbackEvent.PositionTicks;
-        LastUserActionUtc = null;
         LastPausedAtUtc = playbackEvent.IsPaused ? now : null;
         LastStoppedAtUtc = null;
         PendingPromptUntilUtc = null;
@@ -203,9 +193,8 @@ public sealed class PlaybackTracker
         IsPaused = playbackEvent.IsPaused;
     }
 
-    private void ResetCounters(DateTimeOffset now)
+    private void ResetCounters()
     {
-        StartedAtUtc = now;
         ContinuousElapsed = TimeSpan.Zero;
         EpisodesInChain = ItemKind == BaseItemKind.Episode ? 1 : 0;
         PendingPromptUntilUtc = null;

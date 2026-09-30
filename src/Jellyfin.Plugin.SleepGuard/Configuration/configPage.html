@@ -576,11 +576,7 @@
       // Jellyfin Web runs its translation pass over plugin pages and rewrites every
       // dollar-brace placeholder, so this script must not use template literals.
       (() => {
-        const pluginIds = [
-          "7bb5959b-5a11-45da-b9db-52eed4456090",
-          "7f4c92b7-bec2-4a9f-95c6-ff3f17bcd58a"
-        ];
-        let activePluginId = pluginIds[0];
+        const pluginId = "7bb5959b-5a11-45da-b9db-52eed4456090";
         const page = document.querySelector("#SleepGuardConfigPage");
         const form = page.querySelector("#SleepGuardConfigForm");
 
@@ -971,11 +967,7 @@
           return p[0] + ":" + p[1] + ":" + p[2] + ".0000000";
         };
 
-        const getConfiguration = () =>
-          pluginIds.reduce((p, id) => p.catch(() => {
-            activePluginId = id;
-            return ApiClient.getPluginConfiguration(id);
-          }), Promise.reject());
+        const getConfiguration = () => ApiClient.getPluginConfiguration(pluginId);
 
         const showTab = name => {
           page.querySelectorAll(".sg-tab-btn").forEach(btn =>
@@ -1107,7 +1099,7 @@
               config.DryRun = testModeEnabled && page.querySelector("#DryRun").checked;
               config.LogRuleChecks = testModeEnabled && page.querySelector("#LogRuleChecks").checked;
 
-              return ApiClient.updatePluginConfiguration(activePluginId, config);
+              return ApiClient.updatePluginConfiguration(pluginId, config);
             })
             .then(() => Dashboard.processPluginConfigurationUpdateResult())
             .catch(err => {

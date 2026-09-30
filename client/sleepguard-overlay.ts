@@ -30,7 +30,6 @@ interface SleepGuardSettings {
     language: string;
     promptText: string | null;
     headerText: string | null;
-    pauseWhenShown: boolean;
     backgroundMode: OverlayBackgroundMode;
     artworkPreference: OverlayArtworkPreference;
     backgroundColor: string;
@@ -155,7 +154,6 @@ interface Window {
         language:                 serverConfig.language                         ?? "auto",
         promptText:               serverConfig.promptMessage                    ?? null,
         headerText:               serverConfig.promptHeader                     ?? null,
-        pauseWhenShown:           true,
         backgroundMode:           normalizeBackgroundMode(serverConfig.overlayBackgroundMode),
         artworkPreference:        normalizeArtworkPreference(serverConfig.overlayArtworkPreference),
         backgroundColor:          normalizeHexColor(serverConfig.overlayBackgroundColor, "#05080D"),
@@ -371,7 +369,7 @@ interface Window {
 
         if (document.getElementById(overlayId)) return;
         if (!isPlaybackPage()) return;
-        if (settings.pauseWhenShown) pausePlayback();
+        pausePlayback();
 
         const overlay = document.createElement("div");
         overlay.id = overlayId;
