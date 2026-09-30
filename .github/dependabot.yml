@@ -18,8 +18,7 @@ updates:
       test:
         patterns:
           - "xunit*"
-          - "coverlet*"
-          - "Microsoft.NET.Test.Sdk"
+          - "Microsoft.Testing.*"
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
