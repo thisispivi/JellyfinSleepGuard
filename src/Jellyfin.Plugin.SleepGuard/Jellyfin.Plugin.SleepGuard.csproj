@@ -1,16 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <AssemblyName>Jellyfin.Plugin.SleepGuard</AssemblyName>
     <RootNamespace>Jellyfin.Plugin.SleepGuard</RootNamespace>
     <Version>0.1.0.0</Version>
-    <AssemblyVersion>0.1.0.0</AssemblyVersion>
-    <FileVersion>0.1.0.0</FileVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,7 +22,7 @@
 
   <!--
     Build the TypeScript overlay before the C# build so the compiled JS is
-    available as an embedded resource. Requires Node 20 and npm on PATH.
+    available as an embedded resource. Requires Node 22 and npm on PATH.
     On Linux/CI: installed via actions/setup-node@v4 in the workflow.
     On Windows: installed via the Node.js installer or nvm-windows.
   -->
@@ -36,8 +33,8 @@
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Jellyfin.Controller" Version="10.11.8" PrivateAssets="all" ExcludeAssets="runtime" />
-    <PackageReference Include="Jellyfin.Model" Version="10.11.8" PrivateAssets="all" ExcludeAssets="runtime" />
+    <PackageReference Include="Jellyfin.Controller" Version="12.0.0" PrivateAssets="all" ExcludeAssets="runtime" />
+    <PackageReference Include="Jellyfin.Model" Version="12.0.0" PrivateAssets="all" ExcludeAssets="runtime" />
   </ItemGroup>
 
 </Project>

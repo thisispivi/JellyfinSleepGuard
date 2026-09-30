@@ -1,12 +1,12 @@
 # SleepGuard — Unix/Linux build targets
-# Requires: dotnet 9 SDK, Node 20, npm 10
+# Requires: dotnet 10 SDK, Node 22, npm 10
 # Tested on: Ubuntu 22.04+ (Jellyfin running as a systemd service)
 
 .PHONY: build test client-build publish-local deploy-local clean format check-format
 
 PLUGIN_VERSION ?= 0.1.0.0
 JELLYFIN_PLUGIN_DIR ?= /var/lib/jellyfin/plugins/SleepGuard_$(PLUGIN_VERSION)
-PUBLISH_DIR := src/Jellyfin.Plugin.SleepGuard/bin/Release/net9.0/publish
+PUBLISH_DIR := src/Jellyfin.Plugin.SleepGuard/bin/Release/net10.0/publish
 
 ## Build the full solution (compiles TypeScript overlay first via BeforeBuild target)
 build:

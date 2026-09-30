@@ -9,8 +9,10 @@ namespace Jellyfin.Plugin.SleepGuard.Rules;
 /// </summary>
 public sealed class TimeWindowRule : IGateRule
 {
+    /// <inheritdoc />
     public string Name => nameof(TimeWindowRule);
 
+    /// <inheritdoc />
     public SleepRuleResult Evaluate(PlaybackTracker tracker, PluginConfiguration configuration, DateTimeOffset nowUtc)
     {
         if (!configuration.OnlyWithinTimeWindow)

@@ -14,8 +14,10 @@ namespace Jellyfin.Plugin.SleepGuard.Rules;
 /// </summary>
 public sealed class ContinuousTimeRule : ITriggerRule
 {
+    /// <inheritdoc />
     public string Name => nameof(ContinuousTimeRule);
 
+    /// <inheritdoc />
     public SleepRuleResult Evaluate(PlaybackTracker tracker, PluginConfiguration configuration, DateTimeOffset nowUtc)
     {
         var threshold = GetThreshold(configuration);

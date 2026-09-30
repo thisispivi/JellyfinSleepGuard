@@ -9,8 +9,10 @@ namespace Jellyfin.Plugin.SleepGuard.Rules;
 /// </summary>
 public sealed class UserScopeRule : IGateRule
 {
+    /// <inheritdoc />
     public string Name => nameof(UserScopeRule);
 
+    /// <inheritdoc />
     public SleepRuleResult Evaluate(PlaybackTracker tracker, PluginConfiguration configuration, DateTimeOffset nowUtc)
     {
         var listed = configuration.UserIds.Contains(tracker.UserId);

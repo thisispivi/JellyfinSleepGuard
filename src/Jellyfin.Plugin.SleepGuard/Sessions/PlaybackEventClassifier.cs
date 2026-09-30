@@ -11,6 +11,10 @@ public sealed class PlaybackEventClassifier
     /// <summary>
     /// Classifies a playback-start event (fired when a new item begins playing).
     /// </summary>
+    /// <param name="tracker">Existing tracker for the session, if any.</param>
+    /// <param name="playbackEvent">The incoming event.</param>
+    /// <param name="now">Current UTC time.</param>
+    /// <returns>The transition the event represents.</returns>
     public PlaybackTransition ClassifyStart(PlaybackTracker? tracker, PlaybackEvent playbackEvent, DateTimeOffset now)
     {
         if (tracker is null || tracker.NowPlayingItemId is null)
@@ -34,6 +38,10 @@ public sealed class PlaybackEventClassifier
     /// <summary>
     /// Classifies a playback-progress event (periodic tick, pause, resume, or seek).
     /// </summary>
+    /// <param name="tracker">Tracker for the session.</param>
+    /// <param name="playbackEvent">The incoming event.</param>
+    /// <param name="now">Current UTC time.</param>
+    /// <returns>The transition the event represents.</returns>
     public PlaybackTransition ClassifyProgress(PlaybackTracker tracker, PlaybackEvent playbackEvent, DateTimeOffset now)
     {
         if (playbackEvent.IsPaused && !tracker.IsPaused)

@@ -21,8 +21,9 @@ public static class OverlayScriptBuilder
 
     /// <summary>
     /// Builds the full overlay script with server configuration prepended.
-    /// Returns <c>null</c> if the embedded resource is missing (build misconfiguration).
     /// </summary>
+    /// <param name="config">Configuration snapshot to bake into the script.</param>
+    /// <returns>The script, or <c>null</c> if the embedded resource is missing (build misconfiguration).</returns>
     public static string? Build(PluginConfiguration config)
     {
         var assembly = typeof(OverlayScriptBuilder).Assembly;

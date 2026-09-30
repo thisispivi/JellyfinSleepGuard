@@ -18,13 +18,13 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "22"
           cache: 'npm'
           cache-dependency-path: client/package-lock.json
 
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.0.x
+          dotnet-version: 10.0.x
 
       - name: Restore
         run: dotnet restore Jellyfin.Plugin.SleepGuard.sln
@@ -64,11 +64,13 @@ jobs:
         # Single-quoted heredoc delimiter prevents Bash from expanding Python $variables
         run: |
           python3 - <<'PYEOF'
-          import json, datetime, os
+          import json, datetime, os, re
 
           version = os.environ["VERSION"]
           checksum = os.environ["CHECKSUM"]
           repo = os.environ["GITHUB_REPOSITORY"]
+          # build.yaml is the single source of truth for the target ABI.
+          target_abi = re.search(r"^targetAbi:\s*(\S+)", open("build.yaml").read(), re.M).group(1)
 
           with open("manifest.json", "r", encoding="utf-8-sig") as f:
               manifest = json.load(f)
@@ -76,10 +78,10 @@ jobs:
           new_version = {
               "version": version,
               "changelog": f"SleepGuard {version} release.",
-              "targetAbi": "10.11.0.0",
+              "targetAbi": target_abi,
               "sourceUrl": f"https://github.com/{repo}/releases/download/v{version}/Jellyfin.Plugin.SleepGuard_{version}.zip",
               "checksum": checksum,
-              "timestamp": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+              "timestamp": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
           }
 
           manifest[0]["versions"].insert(0, new_version)

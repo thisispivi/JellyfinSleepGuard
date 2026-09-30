@@ -10,5 +10,6 @@ public interface IPluginConfigurationAccessor
     /// Returns the current plugin configuration.
     /// Callers should capture the result once per logical operation to ensure a consistent view.
     /// </summary>
+    /// <returns>The live configuration object.</returns>
     PluginConfiguration GetConfiguration();
 }

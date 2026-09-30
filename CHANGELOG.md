@@ -5,6 +5,19 @@ All notable changes to SleepGuard are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning follows Jellyfin plugin conventions: `MAJOR.MINOR.PATCH.BUILD`.
 
+## [0.2.0.0] — 2026-09-30
+
+### Changed
+- **Breaking:** targets Jellyfin 12 (`targetAbi` 12.0.0.0, .NET 10). Jellyfin 10.11 servers stay on SleepGuard 0.1.0.22.
+- Logo image reduced from 1672×941 (1.3 MB) to 800×450, and shown smaller on the settings page.
+- Public API is fully XML-documented; the `CS1591` suppression is gone.
+
+### Fixed
+- Plugin image missing in the Jellyfin plugin list: the assembly version was pinned to `0.1.0.0`, so Jellyfin requested the image for a version that was not installed.
+- Settings page rendered without styles: the stylesheet lived in `<head>`, which Jellyfin Web discards for plugin pages.
+- Settings page did not load or save on Jellyfin 12: Jellyfin Web rewrites `${...}` placeholders in plugin pages, which corrupted the script's template literals and the copyable loader snippet.
+- `PluginConfigurationValidator` was registered but never invoked; it now runs at startup.
+
 ## [Unreleased]
 
 ### Added

@@ -93,7 +93,7 @@ To load it in Jellyfin Web:
        const webIndex = window.location.pathname.toLowerCase().indexOf("/web");
        const basePath =
          webIndex >= 0 ? window.location.pathname.slice(0, webIndex) : "";
-       return `${window.location.origin}${basePath}/${endpoint}`;
+       return window.location.origin + basePath + "/" + endpoint;
      };
 
      if (document.querySelector('script[data-sleepguard-overlay="true"]'))
@@ -169,7 +169,7 @@ Useful log lines:
 
 ## Development
 
-Prerequisites: .NET 9 SDK and Node 20.
+Prerequisites: .NET 10 SDK and Node 22. SleepGuard targets Jellyfin 12; servers on 10.11 stay on SleepGuard 0.1.0.22.
 
 ```powershell
 dotnet build Jellyfin.Plugin.SleepGuard.sln
