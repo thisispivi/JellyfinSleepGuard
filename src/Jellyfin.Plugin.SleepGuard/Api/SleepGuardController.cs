@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Jellyfin.Plugin.SleepGuard.Api;
 
 /// <summary>
-/// Serves SleepGuard assets and configuration endpoints.
+/// Serves the SleepGuard browser overlay script.
 /// Jellyfin discovers plugin controllers via <c>AddApplicationPart</c> at startup.
 /// </summary>
 [ApiController]
@@ -15,6 +15,10 @@ public sealed class SleepGuardController : ControllerBase
 {
     private readonly IPluginConfigurationAccessor _configAccessor;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SleepGuardController"/> class.
+    /// </summary>
+    /// <param name="configAccessor">Accessor for the current plugin configuration.</param>
     public SleepGuardController(IPluginConfigurationAccessor configAccessor)
     {
         _configAccessor = configAccessor;
@@ -24,7 +28,11 @@ public sealed class SleepGuardController : ControllerBase
     /// Returns the overlay JavaScript with the current plugin settings prepended as
     /// <c>window.__SLEEPGUARD_CONFIG__</c>.
     /// </summary>
-    /// <remarks>The response contains only overlay text settings; no user PII is included.</remarks>
+    /// <remarks>
+    /// Anonymous because the JavaScript Injector loads it with a plain script tag.
+    /// The response contains only overlay text and appearance settings; no user data is included.
+    /// </remarks>
+    /// <returns>The overlay script, or 404 when the embedded resource is missing.</returns>
     [HttpGet("overlay.js")]
     [AllowAnonymous]
     [Produces("application/javascript")]

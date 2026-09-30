@@ -13,6 +13,9 @@ public sealed class PlaybackTrackerStore : IDisposable
     /// Returns the existing tracker for <paramref name="playbackEvent"/>'s session,
     /// or creates and inserts a new one if none exists.
     /// </summary>
+    /// <param name="playbackEvent">Event whose session is looked up; also seeds a new tracker.</param>
+    /// <param name="now">Current UTC time.</param>
+    /// <returns>The tracker for the session.</returns>
     public PlaybackTracker GetOrAdd(PlaybackEvent playbackEvent, DateTimeOffset now)
     {
         return _trackers.GetOrAdd(playbackEvent.SessionId, _ => new PlaybackTracker(playbackEvent, now));
@@ -21,6 +24,9 @@ public sealed class PlaybackTrackerStore : IDisposable
     /// <summary>
     /// Tries to retrieve an existing tracker without creating one.
     /// </summary>
+    /// <param name="sessionId">Jellyfin session ID.</param>
+    /// <param name="tracker">The tracker, when found.</param>
+    /// <returns><c>true</c> when a tracker exists for the session.</returns>
     public bool TryGet(string sessionId, out PlaybackTracker? tracker)
     {
         return _trackers.TryGetValue(sessionId, out tracker);
@@ -29,6 +35,8 @@ public sealed class PlaybackTrackerStore : IDisposable
     /// <summary>
     /// Removes a tracker when a session ends cleanly.
     /// </summary>
+    /// <param name="sessionId">Jellyfin session ID.</param>
+    /// <returns><c>true</c> when a tracker was removed.</returns>
     public bool Remove(string sessionId)
     {
         return _trackers.TryRemove(sessionId, out _);
@@ -39,6 +47,7 @@ public sealed class PlaybackTrackerStore : IDisposable
     /// <paramref name="cutoff"/>. Called periodically to clean up orphaned sessions that ended
     /// without triggering <c>SessionEnded</c> (e.g., server restarts, network drops).
     /// </summary>
+    /// <param name="cutoff">Trackers last accessed before this instant are removed.</param>
     /// <returns>The number of trackers evicted.</returns>
     public int EvictBefore(DateTimeOffset cutoff)
     {
@@ -54,6 +63,7 @@ public sealed class PlaybackTrackerStore : IDisposable
         return evicted;
     }
 
+    /// <inheritdoc />
     public void Dispose()
     {
         _trackers.Clear();

@@ -13,8 +13,14 @@ namespace Jellyfin.Plugin.SleepGuard;
 /// </summary>
 public sealed class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages, IPluginConfigurationAccessor
 {
+    /// <summary>Stable plugin identifier; must match <c>guid</c> in <c>build.yaml</c> and <c>manifest.json</c>.</summary>
     public static readonly Guid PluginId = Guid.Parse("7bb5959b-5a11-45da-b9db-52eed4456090");
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Plugin"/> class.
+    /// </summary>
+    /// <param name="applicationPaths">Jellyfin application paths.</param>
+    /// <param name="xmlSerializer">Serializer used for the configuration file.</param>
     public Plugin(IApplicationPaths applicationPaths, IXmlSerializer xmlSerializer)
         : base(applicationPaths, xmlSerializer)
     {
@@ -28,15 +34,19 @@ public sealed class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages, IPlu
     /// </summary>
     internal static Plugin? Instance { get; private set; }
 
+    /// <inheritdoc />
     public override string Name => "SleepGuard";
 
+    /// <inheritdoc />
     public override string Description => "Pauses or stops playback after configurable sleep-friendly thresholds.";
 
+    /// <inheritdoc />
     public override Guid Id => PluginId;
 
     /// <inheritdoc />
     public PluginConfiguration GetConfiguration() => Configuration;
 
+    /// <inheritdoc />
     public IEnumerable<PluginPageInfo> GetPages()
     {
         yield return new PluginPageInfo

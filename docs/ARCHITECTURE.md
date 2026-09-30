@@ -101,7 +101,7 @@ Plugin XML file  ─────▶  Jellyfin deserialization  ─────�
                                                                     ▼
                                                      PluginConfigurationValidator
                                                      .Validate(config)
-                                                     (called at startup + after save)
+                                                     (called once at startup)            
                                                                     │
                                                                     ▼
                                                      IPluginConfigurationAccessor
@@ -113,7 +113,7 @@ Plugin XML file  ─────▶  Jellyfin deserialization  ─────�
 
 `IPluginConfigurationAccessor` is the only DI-registered interface that accesses `Plugin.Instance`. All other services receive it via constructor injection. This means `Plugin.Instance` is touched in exactly one place: `PluginServiceRegistrator`.
 
-`PluginConfigurationValidator` clamps out-of-range values to safe defaults and logs warnings. It never throws; the plugin must not fail to start because of a bad config value.
+`PluginConfigurationValidator` runs once when `SessionMonitorService` starts. It clamps out-of-range values to safe defaults and logs warnings. It never throws; the plugin must not fail to start because of a bad config value.
 
 ---
 
@@ -161,6 +161,16 @@ Browser executes the IIFE
 
 ---
 
+## Settings Page
+
+`Configuration/configPage.html` is a legacy Jellyfin plugin page. Jellyfin Web fetches it, keeps only the `div[data-role="page"]` element, and discards everything else, so the `<style>` and `<script>` blocks must live inside that element. Anything placed in `<head>` never reaches the browser.
+
+Jellyfin Web also runs its translation pass over the page and replaces every `${key}` placeholder with a localized string. The page script therefore must not use JavaScript template literals with `${...}`; use string concatenation instead.
+
+The logo shown on the page and in the plugin catalog is `images/logo.png`. Jellyfin serves the catalog image at `/Plugins/{id}/{version}/Image` using the **assembly version**, so the DLL must be built with the same version as the manifest entry (`/p:Version=...`); the project file deliberately does not pin `AssemblyVersion`.
+
+---
+
 ## Test Mode Contract
 
 Test Mode uses only server-side settings: `MaxContinuousSeconds`, `DryRun`, and `LogRuleChecks`. The settings page treats Test Mode as enabled when any of those values are active, and saving with Test Mode disabled clears all three.
@@ -175,16 +185,16 @@ The overlay does not register a browser shortcut or call a diagnostics endpoint.
    ```csharp
    public sealed class MyNewRule : ITriggerRule
    {
-       public string Name => "MyNewRule";
+       public string Name => nameof(MyNewRule);
 
        public SleepRuleResult Evaluate(
-           PluginConfiguration config,
            PlaybackTracker tracker,
-           SessionInfo session)
+           PluginConfiguration configuration,
+           DateTimeOffset nowUtc)
        {
-           if (/* condition */)
-               return SleepRuleResult.Fired("reason");
-           return SleepRuleResult.Continue();
+           return /* condition */
+               ? SleepRuleResult.Fired(Name)
+               : SleepRuleResult.None(Name);
        }
    }
    ```
@@ -196,7 +206,7 @@ The overlay does not register a browser shortcut or call a diagnostics endpoint.
 
 3. **Add configuration** if needed: new property in `PluginConfiguration` and a corresponding field in `configPage.html`.
 
-4. **Write a test** in `tests/...` that verifies the rule returns `Fired` and `Continue` at the expected boundary values.
+4. **Write a test** in `tests/...` that verifies the rule returns `Fired` and `None` at the expected boundary values.
 
 To add a **gate rule** instead, implement `IGateRule` and register with `AddSingleton<IGateRule, MyGateRule>()`. Gate rules are evaluated before all trigger rules.
 
@@ -222,7 +232,7 @@ To add a **gate rule** instead, implement `IGateRule` and register with `AddSing
    Also extend `SupportedLanguage = "en" | "it" | "fr"`.
 
 3. **`configPage.html`** — Add the new language key to:
-   - The `<select id="Language">` options.
+   - The `<select id="SleepGuardLanguage">` options.
    - The `translations.fr` object in the page's i18n section (tab labels, section headers, etc.).
 
 4. Run `npm run check` in `client/` to confirm the TypeScript is still valid, then `dotnet build` to verify the overlay embeds correctly.

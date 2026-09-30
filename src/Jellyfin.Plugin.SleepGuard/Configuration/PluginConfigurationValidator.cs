@@ -12,6 +12,10 @@ public sealed class PluginConfigurationValidator
 
     private readonly ILogger<PluginConfigurationValidator> _logger;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="PluginConfigurationValidator"/> class.
+    /// </summary>
+    /// <param name="logger">Logger.</param>
     public PluginConfigurationValidator(ILogger<PluginConfigurationValidator> logger)
     {
         _logger = logger;
@@ -20,6 +24,7 @@ public sealed class PluginConfigurationValidator
     /// <summary>
     /// Validates <paramref name="config"/> in-place, clamping any out-of-range values and logging warnings.
     /// </summary>
+    /// <param name="config">Configuration to sanitise.</param>
     public void Validate(PluginConfiguration config)
     {
         config.PromptGraceSeconds = ClampMin(config.PromptGraceSeconds, min: 0, nameof(config.PromptGraceSeconds));

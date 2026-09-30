@@ -14,7 +14,13 @@ namespace Jellyfin.Plugin.SleepGuard.Rules;
 /// </remarks>
 public interface IGateRule
 {
+    /// <summary>Gets the rule name used in logs.</summary>
     string Name { get; }
 
+    /// <summary>Evaluates the rule against a session.</summary>
+    /// <param name="tracker">Accumulated playback state of the session.</param>
+    /// <param name="configuration">Configuration snapshot for this evaluation.</param>
+    /// <param name="nowUtc">Current UTC time.</param>
+    /// <returns><see cref="SleepRuleOutcome.Blocked"/> to stop the evaluation, otherwise <see cref="SleepRuleOutcome.None"/>.</returns>
     SleepRuleResult Evaluate(PlaybackTracker tracker, PluginConfiguration configuration, DateTimeOffset nowUtc);
 }
