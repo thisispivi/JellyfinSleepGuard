@@ -35,11 +35,26 @@ public sealed class SessionMonitorService : IHostedService, IDisposable
     private readonly PauseAction _pauseAction;
     private readonly StopAction _stopAction;
     private readonly IPluginConfigurationAccessor _configAccessor;
+    private readonly PluginConfigurationValidator _configValidator;
     private readonly ILogger<SessionMonitorService> _logger;
     private readonly Dictionary<string, Timer> _timers = new(StringComparer.Ordinal);
     private readonly object _timerLock = new();
     private CancellationTokenSource? _cts;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SessionMonitorService"/> class.
+    /// </summary>
+    /// <param name="sessionManager">Jellyfin session manager.</param>
+    /// <param name="store">Per-session tracker store.</param>
+    /// <param name="classifier">Playback event classifier.</param>
+    /// <param name="gateRules">Gate rules, in evaluation order.</param>
+    /// <param name="triggerRules">Trigger rules, in evaluation order.</param>
+    /// <param name="promptAction">Prompt action.</param>
+    /// <param name="pauseAction">Pause action.</param>
+    /// <param name="stopAction">Stop action.</param>
+    /// <param name="configAccessor">Accessor for the current plugin configuration.</param>
+    /// <param name="configValidator">Validator that sanitises the configuration at startup.</param>
+    /// <param name="logger">Logger.</param>
     public SessionMonitorService(
         ISessionManager sessionManager,
         PlaybackTrackerStore store,
@@ -50,6 +65,7 @@ public sealed class SessionMonitorService : IHostedService, IDisposable
         PauseAction pauseAction,
         StopAction stopAction,
         IPluginConfigurationAccessor configAccessor,
+        PluginConfigurationValidator configValidator,
         ILogger<SessionMonitorService> logger)
     {
         _sessionManager = sessionManager;
@@ -61,12 +77,15 @@ public sealed class SessionMonitorService : IHostedService, IDisposable
         _pauseAction = pauseAction;
         _stopAction = stopAction;
         _configAccessor = configAccessor;
+        _configValidator = configValidator;
         _logger = logger;
     }
 
+    /// <inheritdoc />
     public Task StartAsync(CancellationToken cancellationToken)
     {
         _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        _configValidator.Validate(_configAccessor.GetConfiguration());
 
         _sessionManager.PlaybackStart += OnPlaybackStart;
         _sessionManager.PlaybackProgress += OnPlaybackProgress;
@@ -80,6 +99,7 @@ public sealed class SessionMonitorService : IHostedService, IDisposable
         return Task.CompletedTask;
     }
 
+    /// <inheritdoc />
     public Task StopAsync(CancellationToken cancellationToken)
     {
         _cts?.Cancel();
@@ -95,6 +115,7 @@ public sealed class SessionMonitorService : IHostedService, IDisposable
         return Task.CompletedTask;
     }
 
+    /// <inheritdoc />
     public void Dispose()
     {
         _cts?.Dispose();

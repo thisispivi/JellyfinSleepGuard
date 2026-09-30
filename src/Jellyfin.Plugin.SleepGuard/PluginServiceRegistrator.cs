@@ -21,6 +21,7 @@ namespace Jellyfin.Plugin.SleepGuard;
 /// </remarks>
 public sealed class PluginServiceRegistrator : IPluginServiceRegistrator
 {
+    /// <inheritdoc />
     public void RegisterServices(IServiceCollection serviceCollection, IServerApplicationHost applicationHost)
     {
         // Configuration accessor — the only place that references Plugin.Instance.
@@ -29,7 +30,7 @@ public sealed class PluginServiceRegistrator : IPluginServiceRegistrator
             _ => Plugin.Instance ?? throw new InvalidOperationException(
                 "SleepGuard Plugin.Instance is null during service registration. This should not happen."));
 
-        // Configuration validator — called at startup to clamp bad values.
+        // Configuration validator — called by SessionMonitorService at startup to clamp bad values.
         serviceCollection.AddSingleton<PluginConfigurationValidator>();
 
         // Session tracking infrastructure
