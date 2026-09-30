@@ -4,6 +4,13 @@ updates:
     directory: "/"
     schedule:
       interval: weekly
+    ignore:
+      # The plugin compiles against the Jellyfin version named by targetAbi in
+      # build.yaml, so minor/patch bumps would silently raise the minimum server.
+      - dependency-name: "Jellyfin.*"
+        update-types:
+          - version-update:semver-minor
+          - version-update:semver-patch
     groups:
       jellyfin:
         patterns:
