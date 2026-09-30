@@ -3,7 +3,7 @@ param(
     [string]$Version = "0.1.0.0",
 
     [Parameter(Mandatory = $false)]
-    [string]$TargetAbi = "10.11.0.0",
+    [string]$TargetAbi = "12.0.0.0",
 
     [Parameter(Mandatory = $false)]
     [string]$Configuration = "Release",
