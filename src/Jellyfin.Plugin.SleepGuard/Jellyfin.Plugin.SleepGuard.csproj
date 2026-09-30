@@ -23,7 +23,7 @@
   <!--
     Build the TypeScript overlay before the C# build so the compiled JS is
     available as an embedded resource. Requires Node 22 and npm on PATH.
-    On Linux/CI: installed via actions/setup-node@v4 in the workflow.
+    On Linux/CI: installed via actions/setup-node in the workflow.
     On Windows: installed via the Node.js installer or nvm-windows.
   -->
   <Target Name="BuildClientAssets" BeforeTargets="BeforeBuild">
