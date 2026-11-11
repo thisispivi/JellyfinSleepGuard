@@ -4,7 +4,7 @@
 
 .PHONY: build test client-build publish-local deploy-local clean format check-format
 
-PLUGIN_VERSION ?= 0.1.0.0
+PLUGIN_VERSION ?= $(shell sed -n 's/^version: //p' build.yaml)
 JELLYFIN_PLUGIN_DIR ?= /var/lib/jellyfin/plugins/SleepGuard_$(PLUGIN_VERSION)
 PUBLISH_DIR := src/Jellyfin.Plugin.SleepGuard/bin/Release/net10.0/publish
 
@@ -25,7 +25,7 @@ publish-local:
 	dotnet publish src/Jellyfin.Plugin.SleepGuard/Jellyfin.Plugin.SleepGuard.csproj -c Release
 
 ## Build, publish, copy DLL, and restart Jellyfin (requires sudo)
-## Usage: make deploy-local PLUGIN_VERSION=0.1.0.0
+## Usage: make deploy-local PLUGIN_VERSION=0.2.1.0
 deploy-local: publish-local
 	sudo mkdir -p $(JELLYFIN_PLUGIN_DIR)
 	sudo cp $(PUBLISH_DIR)/Jellyfin.Plugin.SleepGuard.dll $(JELLYFIN_PLUGIN_DIR)/

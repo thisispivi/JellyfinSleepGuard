@@ -28,7 +28,7 @@ It works from the server side, so the pause/stop action can still fire even if t
 2. Add this repository URL:
 
    ```text
-   https://raw.githubusercontent.com/thisispivi/JellyfinSleepGuard/main/manifest.json
+   https://thisispivi.github.io/JellyfinSleepGuard/manifest.json
    ```
 
 3. Install SleepGuard from the plugin catalog.
@@ -185,7 +185,16 @@ npm run check
 npm run build
 ```
 
+## Versioning and releases
+
+Releases are automatic and follow [Semantic Versioning](https://semver.org/).
+Every pull request that changes code bumps the version in `build.yaml`, as
+[AGENTS.md](./AGENTS.md#versioning-and-releases) describes. When CI passes on
+`main`, the Release workflow tags the new version, publishes the
+[GitHub release](https://github.com/thisispivi/JellyfinSleepGuard/releases), attaches the plugin zip, and republishes the plugin manifest on GitHub Pages.
+Dependabot alerts and security updates are on; the `fix-vulnerabilities` skill
+triages them.
+
 ## License
 
 GPL-2.0-only. See [LICENSE](LICENSE).
-
