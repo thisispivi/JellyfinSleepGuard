@@ -94,21 +94,17 @@ jobs:
           gh release create "$tag" --target "$sha" --title "$tag" --generate-notes
           echo "released=true" >> "$GITHUB_OUTPUT"
 
-  # Jellyfin installs from a repository manifest. It is served from GitHub
-  # Pages and rebuilt from the previous one at each release, so main never
-  # needs a bot commit. The release asset's checksum is only known here.
+  # Jellyfin installs from a repository manifest, attached to every release so
+  # releases/latest/download/manifest.json always serves the newest one. Each
+  # release rebuilds it from the last attached copy, so main never needs a bot
+  # commit. The zip's checksum is only known here.
   package:
-    name: Package plugin and publish manifest
+    name: Package plugin and attach manifest
     needs: release
     if: needs.release.outputs.released == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     env:
       VERSION: ${{ needs.release.outputs.version }}
       GH_TOKEN: ${{ secrets.RELEASE_TOKEN || github.token }}
@@ -137,12 +133,13 @@ jobs:
       - name: Attach the zip to the release
         run: gh release upload "v$VERSION" "artifacts/Jellyfin.Plugin.SleepGuard_$VERSION.zip" --clobber
       - name: Build the repository manifest
-        env:
-          PAGES_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/manifest.json
         run: |
           mkdir -p _site
-          # The live manifest holds every published version; the committed one seeds the first run.
-          curl -fsSL "$PAGES_URL" -o previous.json || cp manifest.json previous.json
+          # The newest release that carries a manifest holds every published version; the committed one seeds the first run.
+          for tag in $(gh release list --limit 30 --json tagName -q '.[].tagName'); do
+            gh release download "$tag" --pattern manifest.json --output previous.json --clobber 2>/dev/null && break
+          done
+          [ -s previous.json ] || cp manifest.json previous.json
           python3 - <<'PYEOF'
           import datetime, hashlib, json, os, re
           version = os.environ["VERSION"]
@@ -165,10 +162,5 @@ jobs:
               json.dump(manifest, f, indent=4)
               f.write("\n")
           PYEOF
-      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
-      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
-        with:
-          path: _site
-      - name: Deploy the manifest
-        id: deployment
-        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
+      - name: Attach the manifest to the release
+        run: gh release upload "v$VERSION" _site/manifest.json --clobber
