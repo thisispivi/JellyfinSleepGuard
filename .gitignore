@@ -16,4 +16,5 @@ client/node_modules/
 client/dist/
 client/*.js.map
 
-.claude
+.claude/*
+!.claude/skills/
