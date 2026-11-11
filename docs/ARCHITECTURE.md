@@ -1,10 +1,8 @@
-# SleepGuard — Architecture
+# SleepGuard architecture
 
-This document describes the internal structure of the SleepGuard plugin for contributors and maintainers. For end-user setup, see [README.md](../README.md).
+The internal structure of the SleepGuard plugin, for contributors and maintainers. For end-user setup, see [README.md](../README.md).
 
----
-
-## Layer Overview
+## Layer overview
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -45,22 +43,20 @@ This document describes the internal structure of the SleepGuard plugin for cont
 
 ### Key types
 
-| Type | Role |
-|------|------|
-| `SessionMonitorService` | `IHostedService`; subscribes to Jellyfin events, drives the full evaluation pipeline per progress tick |
-| `PlaybackEventClassifier` | Classifies each raw event as Start / Progress / Stopped / Seek / Pause / Resume |
-| `PlaybackTrackerStore` | Thread-safe dictionary of `PlaybackTracker` keyed by Jellyfin session ID; TTL eviction every 30 min |
-| `PlaybackTracker` | Per-session state: accumulated playing time, episode count, last-action timestamp |
-| `IGateRule` | Short-circuits evaluation when returning `Blocked` (UserScopeRule, TimeWindowRule) |
-| `ITriggerRule` | Fires actions when returning `Fired` (ContinuousTimeRule, AutoplayEpisodeRule) |
-| `PromptAction` | Sends `SendMessageCommand` to the client; schedules the grace-period timer |
-| `PauseAction` / `StopAction` | Sends `SendPlaystateCommand` to the client |
-| `SleepGuardController` | ASP.NET Core controller; serves the overlay script |
-| `OverlayScriptBuilder` | Reads the embedded `overlay.js` template, prepends `window.__SLEEPGUARD_CONFIG__` |
+| Type                         | Role                                                                                                   |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `SessionMonitorService`      | `IHostedService`; subscribes to Jellyfin events, drives the full evaluation pipeline per progress tick |
+| `PlaybackEventClassifier`    | Classifies each raw event as Start / Progress / Stopped / Seek / Pause / Resume                        |
+| `PlaybackTrackerStore`       | Thread-safe dictionary of `PlaybackTracker` keyed by Jellyfin session ID; TTL eviction every 30 min    |
+| `PlaybackTracker`            | Per-session state: accumulated playing time, episode count, last-action timestamp                      |
+| `IGateRule`                  | Short-circuits evaluation when returning `Blocked` (UserScopeRule, TimeWindowRule)                     |
+| `ITriggerRule`               | Fires actions when returning `Fired` (ContinuousTimeRule, AutoplayEpisodeRule)                         |
+| `PromptAction`               | Sends `SendMessageCommand` to the client; schedules the grace-period timer                             |
+| `PauseAction` / `StopAction` | Sends `SendPlaystateCommand` to the client                                                             |
+| `SleepGuardController`       | ASP.NET Core controller; serves the overlay script                                                     |
+| `OverlayScriptBuilder`       | Reads the embedded `overlay.js` template, prepends `window.__SLEEPGUARD_CONFIG__`                      |
 
----
-
-## Rule Evaluation Pipeline
+## Rule evaluation pipeline
 
 Every playback progress event triggers the following sequence inside `SessionMonitorService.EvaluateAsync`:
 
@@ -86,13 +82,11 @@ Every playback progress event triggers the following sequence inside `SessionMon
    └─ SendPrompt=false → ExecuteFinalActionAsync() immediately
 ```
 
-**Gate rules always run before trigger rules.** This is guaranteed by the two-phase loop, not by registration order. Adding a new gate rule requires only implementing `IGateRule` and registering it; it will automatically block trigger evaluation when needed.
+Gate rules always run before trigger rules. The two-phase loop guarantees this, whatever the registration order. A new gate rule only needs to implement `IGateRule` and be registered; it then blocks trigger evaluation when it returns `Blocked`.
 
-**Config is captured once.** No mid-evaluation re-read. If the admin saves new settings during an evaluation cycle, the change is picked up on the next progress event.
+Config is captured once and never re-read during an evaluation. If the admin saves new settings during an evaluation cycle, the change is picked up on the next progress event.
 
----
-
-## Configuration Lifecycle
+## Configuration lifecycle
 
 ```
 Plugin XML file  ─────▶  Jellyfin deserialization  ─────▶  PluginConfiguration
@@ -101,7 +95,7 @@ Plugin XML file  ─────▶  Jellyfin deserialization  ─────�
                                                                     ▼
                                                      PluginConfigurationValidator
                                                      .Validate(config)
-                                                     (called once at startup)            
+                                                     (called once at startup)
                                                                     │
                                                                     ▼
                                                      IPluginConfigurationAccessor
@@ -109,15 +103,13 @@ Plugin XML file  ─────▶  Jellyfin deserialization  ─────�
                                                      (called once per evaluation tick)
 ```
 
-`PluginConfiguration` is a flat class that inherits `BasePluginConfiguration`. It is intentionally flat — nesting into sub-classes would change the XML element hierarchy and silently wipe existing user configs on upgrade.
+`PluginConfiguration` is a flat class that inherits `BasePluginConfiguration`. It stays flat on purpose: nesting into sub-classes would change the XML element hierarchy and silently wipe existing user configs on upgrade.
 
-`IPluginConfigurationAccessor` is the only DI-registered interface that accesses `Plugin.Instance`. All other services receive it via constructor injection. This means `Plugin.Instance` is touched in exactly one place: `PluginServiceRegistrator`.
+`IPluginConfigurationAccessor` is the only DI-registered interface that accesses `Plugin.Instance`, and all other services receive it through constructor injection. `Plugin.Instance` is therefore touched in exactly one place: `PluginServiceRegistrator`.
 
 `PluginConfigurationValidator` runs once when `SessionMonitorService` starts. It clamps out-of-range values to safe defaults and logs warnings. It never throws; the plugin must not fail to start because of a bad config value.
 
----
-
-## Overlay Injection Model
+## Overlay injection model
 
 ```
 Browser
@@ -149,39 +141,34 @@ Browser executes the IIFE
   └─ Exposes window.SleepGuardOverlay = { show, hide, settings }
 ```
 
-**Why `AllowAnonymous`?** The JavaScript Injector loader requests the script from Jellyfin Web without adding a SleepGuard-specific token. The response contains only overlay display settings.
+The endpoint is `AllowAnonymous` because the JavaScript Injector loader requests the script from Jellyfin Web without adding a SleepGuard-specific token. The response contains only overlay display settings.
 
-**Why `no-cache, no-store`?** Prompt text and language changes must be reflected on the next page load without the admin having to clear the browser cache. The settings are baked in at serve time; caching the old response would show stale config.
+The response is `no-cache, no-store` so prompt text and language changes show on the next page load without the admin clearing the browser cache. The settings are baked in at serve time, and a cached response would show stale config.
 
-**Why `window.__SLEEPGUARD_CONFIG__` instead of a separate fetch?** A single request brings both the script and its config. This eliminates the FOUC/race condition that would occur if the overlay initialised with defaults and then fetched its config in a second request.
+The config travels in `window.__SLEEPGUARD_CONFIG__`, in the same request as the script. A separate fetch would let the overlay initialise with defaults first and then load its config, which causes a FOUC/race condition.
 
-**Artwork backgrounds:** The overlay does not add a server endpoint for artwork. In Jellyfin Web it tries to use the existing `window.ApiClient` session and image helpers to find the current item or series backdrop. This is intentionally best-effort because injected scripts should tolerate Jellyfin Web internals changing across versions; missing metadata simply leaves the solid fallback background in place.
+The overlay has no server endpoint for artwork. In Jellyfin Web it uses the existing `window.ApiClient` session and image helpers to find the current item or series backdrop. This is best-effort on purpose, because Jellyfin Web internals can change across versions and an injected script has to tolerate that; missing metadata leaves the solid fallback background in place.
 
-**TypeScript compilation:** The overlay source lives in `client/sleepguard-overlay.ts`. The `dotnet build` MSBuild target `BuildClientAssets` runs `npm ci && npm run build` (TypeScript → `client/dist/sleepguard-overlay.js`) before the C# compilation step. The compiled file is embedded into the DLL with logical name `Jellyfin.Plugin.SleepGuard.Api.overlay.js`.
+The overlay source lives in `client/sleepguard-overlay.ts`. The `dotnet build` MSBuild target `BuildClientAssets` runs `npm ci && npm run build` (TypeScript → `client/dist/sleepguard-overlay.js`) before the C# compilation step. The compiled file is embedded into the DLL with logical name `Jellyfin.Plugin.SleepGuard.Api.overlay.js`.
 
----
-
-## Settings Page
+## Settings page
 
 `Configuration/configPage.html` is a legacy Jellyfin plugin page. Jellyfin Web fetches it, keeps only the `div[data-role="page"]` element, and discards everything else, so the `<style>` and `<script>` blocks must live inside that element. Anything placed in `<head>` never reaches the browser.
 
 Jellyfin Web also runs its translation pass over the page and replaces every `${key}` placeholder with a localized string. The page script therefore must not use JavaScript template literals with `${...}`; use string concatenation instead.
 
-The logo shown on the page and in the plugin catalog is `images/logo.png`. Jellyfin serves the catalog image at `/Plugins/{id}/{version}/Image` using the **assembly version**, so the DLL must be built with the same version as the manifest entry (`/p:Version=...`); the project file deliberately does not pin `AssemblyVersion`.
+The logo shown on the page and in the plugin catalog is `images/logo.png`. Jellyfin serves the catalog image at `/Plugins/{id}/{version}/Image` using the assembly version, so the DLL must be built with the same version as the manifest entry (`/p:Version=...`); the project file deliberately does not pin `AssemblyVersion`.
 
----
-
-## Test Mode Contract
+## Test mode contract
 
 Test Mode uses only server-side settings: `MaxContinuousSeconds`, `DryRun`, and `LogRuleChecks`. The settings page treats Test Mode as enabled when any of those values are active, and saving with Test Mode disabled clears all three.
 
 The overlay does not register a browser shortcut or call a diagnostics endpoint.
 
----
+## Adding a trigger rule
 
-## How to Add a New Trigger Rule
+1. Create the rule class in `src/.../Rules/`:
 
-1. **Create the rule class** in `src/.../Rules/`:
    ```csharp
    public sealed class MyNewRule : ITriggerRule
    {
@@ -199,24 +186,24 @@ The overlay does not register a browser shortcut or call a diagnostics endpoint.
    }
    ```
 
-2. **Register it** in `PluginServiceRegistrator.cs`:
+2. Register it in `PluginServiceRegistrator.cs`:
+
    ```csharp
    serviceCollection.AddSingleton<ITriggerRule, MyNewRule>();
    ```
 
-3. **Add configuration** if needed: new property in `PluginConfiguration` and a corresponding field in `configPage.html`.
+3. Add configuration if needed: new property in `PluginConfiguration` and a corresponding field in `configPage.html`.
 
-4. **Write a test** in `tests/...` that verifies the rule returns `Fired` and `None` at the expected boundary values.
+4. Write a test in `tests/...` that verifies the rule returns `Fired` and `None` at the expected boundary values.
 
-To add a **gate rule** instead, implement `IGateRule` and register with `AddSingleton<IGateRule, MyGateRule>()`. Gate rules are evaluated before all trigger rules.
+To add a gate rule instead, implement `IGateRule` and register with `AddSingleton<IGateRule, MyGateRule>()`. Gate rules are evaluated before all trigger rules.
 
----
+## Adding a language
 
-## How to Add a New Language
+1. `PluginConfiguration.cs`: the `Language` property already accepts any string, so it needs no code change unless the value needs validation.
 
-1. **`PluginConfiguration.cs`** — The `Language` property already accepts any string; no code change needed unless the value needs validation.
+2. `client/sleepguard-overlay.ts`: add a new entry to the `translations` object:
 
-2. **`client/sleepguard-overlay.ts`** — Add a new entry to the `translations` object:
    ```typescript
    const translations: Record<SupportedLanguage, TranslationSet> = {
        en: { ... },
@@ -229,9 +216,10 @@ To add a **gate rule** instead, implement `IGateRule` and register with `AddSing
        },
    };
    ```
+
    Also extend `SupportedLanguage = "en" | "it" | "fr"`.
 
-3. **`configPage.html`** — Add the new language key to:
+3. `configPage.html`: add the new language key to:
    - The `<select id="SleepGuardLanguage">` options.
    - The `translations.fr` object in the page's i18n section (tab labels, section headers, etc.).
 

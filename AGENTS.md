@@ -17,7 +17,8 @@ copy rules into them.
 - `tests/Jellyfin.Plugin.SleepGuard.Tests/` holds the xUnit v3 tests.
 - `client/` holds the TypeScript overlay injected into Jellyfin Web.
 - `build.yaml` describes the plugin for Jellyfin; `manifest.json` only seeds
-  the repository manifest that CI publishes on GitHub Pages.
+  the repository manifest that the Release workflow attaches to each GitHub
+  release.
 
 ## Required verification
 
@@ -41,8 +42,11 @@ For overlay changes, also run `npm ci && npm run check` from `client/`.
 
 `build.yaml` holds the version, and it is what triggers a release. When
 CI passes on `main` and that version has no tag yet, the Release workflow tags
-it, publishes the GitHub release with generated notes, attaches the plugin zip, and republishes the plugin manifest on GitHub Pages. Nobody
-releases by hand, and nothing is committed back to `main`.
+it, publishes the GitHub release with generated notes, and attaches the
+plugin zip and an updated `manifest.json` to it. Jellyfin reads the manifest
+from
+`https://github.com/thisispivi/JellyfinSleepGuard/releases/latest/download/manifest.json`.
+Nobody releases by hand, and nothing is committed back to `main`.
 
 Every change that reaches `main` bumps the version in the same pull request,
 following [Semantic Versioning](https://semver.org/):
